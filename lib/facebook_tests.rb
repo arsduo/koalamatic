@@ -16,13 +16,14 @@ module FacebookTests
     end
 
     def self.publish_results(run)
+      puts "Going to publish? #{Rails.env.production?} #{(Twitter.verify_credentials rescue false)}"
       begin
         if Rails.env.production? && Twitter.verify_credentials
-          Rails.logger.info("Publishing results: #{run.summary}")
+          puts("Publishing results: #{run.summary}")
           Twitter.update(run.summary)
         end
       rescue Exception => err
-        Rails.logger.debug("Error in publish! #{err.message}\n#{err.backtrace.join("\n")}")
+        puts("Error in publish! #{err.message}\n#{err.backtrace.join("\n")}")
       end
     end
 
