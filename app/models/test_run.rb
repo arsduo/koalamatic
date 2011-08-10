@@ -2,7 +2,8 @@ class TestRun < ActiveRecord::Base
   # note: for now, we only track failures
   has_many :test_cases
 
-  def start
+  def initialize
+    super
     @failures = []
     @start_time = Time.now
   end

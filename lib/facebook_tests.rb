@@ -11,6 +11,7 @@ module FacebookTests
       test_files = load_tests
       # run the tests live
       RSpec::Core::Runner.run(test_files, STDOUT, STDERR)
+      run.done
       yield run
       publish_results(run)
     end
@@ -31,16 +32,8 @@ module FacebookTests
       run = TestRun.new
 
       RSpec.configure do |config|
-        config.before :all do
-          run.start
-        end
-
         config.after :each do
           run.test_done(example)
-        end
-
-        config.after :all do
-          run.done
         end
       end
 
