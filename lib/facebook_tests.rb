@@ -10,7 +10,7 @@ module FacebookTests
       ENV["LIVE"] = "true"
       test_files = load_tests
       # run the tests live
-      RSpec::Core::Runner.run(test_files, STDOUT, STDERR)
+      RSpec::Core::Runner.run(test_files)
       run.done
       yield run
       publish_results(run)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110809153355) do
+ActiveRecord::Schema.define(:version => 20110810121408) do
 
   create_table "test_cases", :force => true do |t|
     t.string   "title"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(:version => 20110809153355) do
     t.integer  "test_run_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "backtrace"
   end
 
   add_index "test_cases", ["test_run_id"], :name => "index_test_cases_on_test_run_id"
