@@ -4,9 +4,9 @@ class ApiController < ApplicationController
     logger.info("Starting!")
     last_run = TestRun.where("created_at > ?", Time.now - 20.minutes).limit(1).first
     logger.info("Found #{last_run.inspect}")
-    unless last_run
+    unless last_run || params[:override]
       logger.info("Starting tests.")
-      system("bundle exec rake fb_tests:run")
+      system("bundle exec rake fb_tests:run &")
       @result = :started
     else
       logger.info("Too soon :(")

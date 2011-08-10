@@ -7,10 +7,10 @@ module FacebookTests
     def self.execute(&result_processing)
       setup_logger
       run = hook_rspec!
-      ENV["LIVE"] = "true"
+      #ENV["LIVE"] = "true"
       test_files = load_tests
       # run the tests live
-      RSpec::Core::Runner.run(test_files, @logfile, @logfile)
+      RSpec::Core::Runner.run(test_files)
       yield run
       publish_results(run)
     end
@@ -18,9 +18,11 @@ module FacebookTests
     def self.publish_results(run)
       begin
         if Rails.env.production? && Twitter.verify_credentials
+          Rails.logger.info("Publishing results: #{run.summary}")
           Twitter.update(run.summary)
         end
-      rescue Exception
+      rescue Exception => err
+        Rails.logger.debug("Error in publish! #{err.message}\n#{err.backtrace.join("\n")}")
       end
     end
 
@@ -76,7 +78,7 @@ module FacebookTests
       #puts @logger.inspect
       #@logger.info("logging started")
       
-      @logfile = File.open(File.join(Rails.root, "log", "fb_tests.log"), "w")
+      #@logfile = File.open(File.join(Rails.root, "log", "fb_tests.log"), "w")
     end
   end
 end
