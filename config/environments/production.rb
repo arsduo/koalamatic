@@ -51,4 +51,16 @@ Koalabot::Application.configure do
 
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
+  
+  # exception notification
+  email_conf = YAML::load(File.open("#{Rails.root}/config/email.yml"))["production"]
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = email_conf
+  
+  ::ExceptionNotifierOptions = {
+    :email_prefix => "[Koalamatic Error] ",
+    :sender_address => ENV["ERROR_EMAIL"],
+    :exception_recipients => ENV["ERROR_EMAIL"]
+  }  
+  config.middleware.use ExceptionNotifier, ExceptionNotifierOptions
 end

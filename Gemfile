@@ -21,6 +21,9 @@ gem "rake"
 gem 'mysql2'
 gem 'pg'
 
+# error notification
+gem 'exception_notification', :require => 'exception_notifier'
+
 # Asset template engines
 gem 'sass-rails', "~> 3.1.0.rc"
 gem 'coffee-script'
