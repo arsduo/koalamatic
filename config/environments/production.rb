@@ -55,7 +55,10 @@ Koalabot::Application.configure do
   # exception notification
   email_conf = YAML::load(File.open("#{Rails.root}/config/email.yml"))["production"]
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = email_conf
+  config.action_mailer.smtp_settings = email_conf.merge(
+    :user_name => ENV["EMAIL_SENDER"], 
+    :password => ENV["EMAIL_PASSWORD"]
+  )
   
   ::ExceptionNotifierOptions = {
     :email_prefix => "[Koalamatic Error] ",
