@@ -13,6 +13,7 @@ gem "faraday", "0.7.4"
 gem "faraday-stack", "0.1.3"
 gem "koala", :git => "git://github.com/arsduo/koala.git"
 gem "twitter"
+gem "typhoeus"
 
 # platform core
 gem "rspec"

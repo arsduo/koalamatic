@@ -147,6 +147,9 @@ GEM
       multi_json (~> 1.0.0)
       multi_xml (~> 0.2.0)
       simple_oauth (~> 0.1.5)
+    typhoeus (0.2.4)
+      mime-types
+      mime-types
     tzinfo (0.3.29)
     uglifier (1.0.0)
       execjs (>= 0.3.0)
@@ -173,4 +176,5 @@ DEPENDENCIES
   thin
   turn
   twitter
+  typhoeus
   uglifier
