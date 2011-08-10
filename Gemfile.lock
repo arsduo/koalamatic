@@ -145,6 +145,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  addressable (~> 2.2.6)
   arel (= 2.1.4)
   coffee-script
   jquery-rails

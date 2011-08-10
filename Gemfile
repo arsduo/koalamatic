@@ -8,6 +8,7 @@ gem 'thin'
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
+gem "addressable", "~> 2.2.6"
 gem "koala", :git => "git://github.com/arsduo/koala.git", :branch => "v1.2"
 
 # platform core
