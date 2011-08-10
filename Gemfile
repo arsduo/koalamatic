@@ -10,6 +10,7 @@ gem 'thin'
 
 gem "addressable", "2.2.6"
 gem "faraday", "0.7.4"
+gem "faraday-stack", "0.1.3"
 gem "koala", :git => "git://github.com/arsduo/koala.git"
 
 # platform core
