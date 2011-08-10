@@ -144,8 +144,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  addressable (= 2.2.6)
   arel (= 2.1.4)
   coffee-script
+  faraday (= 0.7.4)
   jquery-rails
   koala!
   mysql2
