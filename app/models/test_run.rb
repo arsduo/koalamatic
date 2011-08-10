@@ -21,7 +21,8 @@ class TestRun < ActiveRecord::Base
     @failures.each do |example|
       test_cases << TestCase.create(
         :title => example.full_description,
-        :failure_message => example.exception.message
+        :failure_message => example.exception.message,
+        :backtrace => example.exception.backtrace.join("\n")
       )
     end
     
