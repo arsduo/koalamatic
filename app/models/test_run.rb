@@ -36,10 +36,10 @@ class TestRun < ActiveRecord::Base
   
   def summary
     text = "Run complete: "
-    text += if run.failure_count == 0
+    text += if failure_count == 0
       "All's well with Facebook!"
     else
-      "We encountered #{run.failure_count} error#{run.failure_count > 1 ? "s" : ""}. (Detail page coming soon!)"
+      "We encountered #{failure_count} error#{failure_count > 1 ? "s" : ""}. (Detail page coming soon!)"
     end
 
     text
