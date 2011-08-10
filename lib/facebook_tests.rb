@@ -7,9 +7,21 @@ module FacebookTests
     def self.execute(&result_processing)
       setup_logger
       run = hook_rspec!
+      ENV["LIVE"] = "true"
       test_files = load_tests
+      # run the tests live
       RSpec::Core::Runner.run(test_files, @logfile, @logfile)
-      yield run      
+      yield run
+      publish_results(run)
+    end
+
+    def self.publish_results(run)
+      begin
+        if Twitter.verify_credentials
+          Twitter.update("Run #{run.id} complete! #{run.failure_count == 0 ? "All's well with Facebook!" : "We encountered #{run.failure_count} errors."}")
+        end
+      rescue Exception
+      end
     end
 
     # RSpec configuration

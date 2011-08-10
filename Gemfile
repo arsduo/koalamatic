@@ -12,16 +12,13 @@ gem "addressable", "2.2.6"
 gem "faraday", "0.7.4"
 gem "faraday-stack", "0.1.3"
 gem "koala", :git => "git://github.com/arsduo/koala.git"
+gem "twitter"
 
 # platform core
 gem "rspec"
 gem "rake"
-group :development, :test do
-  gem 'mysql2'
-end
-group :production do
-  gem 'pg'
-end
+gem 'mysql2'
+gem 'pg'
 
 # Asset template engines
 gem 'sass-rails', "~> 3.1.0.rc"
