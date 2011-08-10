@@ -35,7 +35,7 @@ class TestRun < ActiveRecord::Base
   end
   
   def summary
-    text = "Run complete: "
+    text = "Run #{id} complete: "
     text += if failure_count == 0
       "All's well with Facebook!"
     else
