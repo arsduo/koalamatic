@@ -50,7 +50,6 @@ module FacebookTests
     # test case management
     def self.load_tests
       get_path
-      load_spec_helper
       identify_tests
     end
 
@@ -58,10 +57,6 @@ module FacebookTests
       g = Bundler.load.specs.find {|s| s.name == "koala"}  
       @path = File.join(g.full_gem_path, "spec") 
       $:.push(@path)
-    end
-
-    def self.load_spec_helper
-      load File.join(@path, "spec_helper.rb")
     end
 
     def self.identify_tests
