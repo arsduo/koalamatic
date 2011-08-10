@@ -1,10 +1,15 @@
 module FacebookTests
   module Runner
+    class << self
+      attr_reader :logger
+    end
+    
     def self.execute(&result_processing)
+      setup_logger
       run = hook_rspec!
       test_files = load_tests
-      RSpec::Core::Runner.run(test_files)
-      yield run
+      RSpec::Core::Runner.run(test_files, @logfile, @logfile)
+      yield run      
     end
 
     # RSpec configuration
@@ -48,6 +53,18 @@ module FacebookTests
     def self.identify_tests
       pattern = File.join(@path, "**/*_spec.rb")
       Dir.glob(pattern)
+    end
+    
+    private
+    
+    def self.setup_logger
+      # currently broken
+      #loggerfile = File.open(File.join(Rails.root, "log", "fb_tests.log"), "w")
+      #@logger = Logger.new(loggerfile)
+      #puts @logger.inspect
+      #@logger.info("logging started")
+      
+      @logfile = File.open(File.join(Rails.root, "log", "fb_tests.log"), "w")
     end
   end
 end
