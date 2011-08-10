@@ -33,4 +33,15 @@ class TestRun < ActiveRecord::Base
     raise StandardError, "Tests aren't done running!" unless @end_time
     @end_time - @start_time
   end
+  
+  def summary
+    text = "Run complete: "
+    text += if run.failure_count == 0
+      "All's well with Facebook!"
+    else
+      "We encountered #{run.failure_count} error#{run.failure_count > 1 ? "s" : ""}. (Detail page coming soon!)"
+    end
+
+    text
+  end
 end

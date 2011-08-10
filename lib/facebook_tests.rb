@@ -17,8 +17,8 @@ module FacebookTests
 
     def self.publish_results(run)
       begin
-        if Twitter.verify_credentials
-          Twitter.update("Run #{run.id} complete! #{run.failure_count == 0 ? "All's well with Facebook!" : "We encountered #{run.failure_count} errors."}")
+        if Rails.env.production? && Twitter.verify_credentials
+          Twitter.update(run.summary)
         end
       rescue Exception
       end
