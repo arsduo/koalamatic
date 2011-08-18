@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/arsduo/koala.git
-  revision: 1328e67f7a587fd98bb38a75540897e94f74b5a3
+  revision: 202365fd28e9eebf901453d98bd866fb619448fe
   branch: debugging
   specs:
-    koala (1.2.0beta)
+    koala (1.2.0beta1)
       faraday (~> 0.7.4)
       faraday-stack (~> 0.1.3)
       multi_json (~> 1.0)
