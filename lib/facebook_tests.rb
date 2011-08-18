@@ -54,7 +54,8 @@ module FacebookTests
 
     def self.identify_tests
       pattern = File.join(@path, "**/*_spec.rb")
-      Dir.glob(pattern)
+      # run the test user suite last, since it deletes all the test users
+      Dir.glob(pattern).sort {|a, b| a.match(/test/) ? 1 : -1}
     end
     
     private
