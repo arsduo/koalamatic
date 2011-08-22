@@ -1,4 +1,4 @@
-Koalabot::Application.routes.draw do
+Koalamatic::Application.routes.draw do
   get "api/start_run"
 
   # The priority is based upon order of creation:
