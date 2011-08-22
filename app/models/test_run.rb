@@ -19,13 +19,10 @@ class TestRun < ActiveRecord::Base
   def done
     # write out to the database
     self.duration = Time.now - @start_time
+    # right now we only store details for failures
+    # but may in the future store analytic data on successes
     @failures.each do |example|
-      test_cases << TestCase.create(
-        :title => example.full_description,
-        :failure_message => example.exception.message,
-        :failed => true,
-        :backtrace => example.exception.backtrace.join("\n")
-      )
+      test_cases << TestCase.create_from_example(example)
     end
     
     save!
