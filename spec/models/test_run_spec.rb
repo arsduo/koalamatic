@@ -1,6 +1,27 @@
 require "spec_helper"
 
 describe TestRun do
+  
+  describe "constants" do
+    it "defines TEST_INTERVAL to be 30.minutes" do
+      TestRun::TEST_INTERVAL.should == 30.minutes
+    end
+
+    it "defines TEST_PADDING to be 10.minutes" do
+      TestRun::TEST_PADDING.should == 10.minutes
+    end
+    
+    it "defines PUBLISHING_INTERVAL to be 1.day" do
+      TestRun::PUBLISHING_INTERVAL.should == 1.day
+    end
+  end
+
+  describe "#time_to_next_run" do
+    it "returns TEST_INTERVAL - TEST_PADDING" do
+      TestRun.time_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
+    end
+  end
+  
   describe "#new" do
     it "sets test_count to 0" do
       TestRun.new.test_count.should == 0

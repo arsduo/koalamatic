@@ -2,6 +2,19 @@ class TestRun < ActiveRecord::Base
   # note: for now, we only track failures
   has_many :test_cases
   
+  # how often we ideally want to run tests
+  TEST_INTERVAL = 30.minutes
+  # roughly how long the tests take to run
+  # we subtract this from TEST_INTERVAL when looking up the last test
+  # (since the record is created when the test finishes)
+  TEST_PADDING = 10.minutes
+  # how often we publish on twitter
+  PUBLISHING_INTERVAL = 1.day
+  
+  def self.time_to_next_run
+    TEST_INTERVAL - TEST_PADDING
+  end
+  
   def initialize
     super
     @failures = []
