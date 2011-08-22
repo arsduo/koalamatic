@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-
+ 
 gem 'rails', '3.1.0.rc4'
 gem 'arel', '2.1.4' # 2.1.5 is busted
 gem "slim"
@@ -11,7 +11,7 @@ gem 'thin'
 gem "addressable", "2.2.6"
 gem "faraday", "0.7.4"
 gem "faraday-stack", "0.1.3"
-gem "koala", :git => "git://github.com/arsduo/koala.git", :branch => "debugging"
+gem "koala", "~> 1.2.0beta1"
 gem "twitter"
 gem "typhoeus"
 
@@ -31,6 +31,29 @@ gem 'uglifier'
 
 gem 'jquery-rails'
 
+group :test, :development do
+  gem "rspec-rails", "~> 2.6"
+end
+
+group :test do
+  # test content
+  gem 'machinist', '>= 2.0.0beta2'
+  gem "mocha"
+  gem "autotest"
+  gem "autotest-rails"
+  gem "autotest-fsevent"
+  gem "autotest-growl"
+  gem "ZenTest"
+  gem "faker"
+  gem "remarkable", '>= 4.0.0alpha4'
+
+  # javascript
+  gem "jasmine"
+end
+
+
+
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
@@ -39,8 +62,3 @@ gem 'jquery-rails'
 
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
-
-group :test do
-  # Pretty printed test output
-  gem 'turn', :require => false
-end
