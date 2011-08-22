@@ -25,17 +25,16 @@ class TestRun < ActiveRecord::Base
       test_cases << TestCase.create_from_example(example)
     end
     
-    save!
+    save
   end
-    
+  
+  SUCCESS_TEXT = "All's well with Facebook!"
   def summary
     text = "Run #{id} complete: "
     text += if failure_count == 0
-      "All's well with Facebook!"
+      SUCCESS_TEXT
     else
       "We encountered #{failure_count} error#{failure_count > 1 ? "s" : ""}. (Detail page coming soon!)"
     end
-
-    text
   end
 end

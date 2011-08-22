@@ -99,5 +99,27 @@ describe TestRun do
       @run.should_not be_a_new_record
     end
   end
+  
+  describe ".summary" do
+    it "includes the success text if all's well" do
+      TestRun.make.summary.should =~ /#{TestRun::SUCCESS_TEXT}/
+    end
+  
+    it "does not include the success text if there are failures" do
+      failures = 3
+      TestRun.make(:failure_count => failures).summary.should_not =~ /#{TestRun::SUCCESS_TEXT}/
+    end
+    
+    it "includes the number of failures if > 0" do
+      failures = 3
+      TestRun.make(:failure_count => failures).summary.should =~ /3/
+    end
+    
+    it "properly pluralizes error" do
+      TestRun.make(:failure_count => 1).summary.should =~ /1 error/
+      TestRun.make(:failure_count => 1).summary.should_not =~ /1 errors/
+      TestRun.make(:failure_count => 2).summary.should =~ /2 errors/
+    end
+  end
 
 end
