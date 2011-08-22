@@ -1,7 +1,7 @@
 class TestRun < ActiveRecord::Base
   # note: for now, we only track failures
   has_many :test_cases
-
+  
   def initialize
     super
     @failures = []
@@ -10,15 +10,17 @@ class TestRun < ActiveRecord::Base
 
   def test_done(example)
     self.test_count += 1
-    @failures << example if example.failed?
+    if example.failed?
+      puts "Adding to failures #{self.failure_count}"
+      @failures << example
+      self.failure_count = @failures.length
+      puts self.failure_count
+    end
   end
 
   def done
-    @end_time = Time.now
-
     # write out to the database
-    self.duration = elapsed_time
-    self.failure_count = @failures.length
+    self.duration = Time.now - @start_time
     @failures.each do |example|
       test_cases << TestCase.create(
         :title => example.full_description,
@@ -30,12 +32,7 @@ class TestRun < ActiveRecord::Base
     
     save!
   end
-  
-  def elapsed_time
-    raise StandardError, "Tests aren't done running!" unless @end_time
-    @end_time - @start_time
-  end
-  
+    
   def summary
     text = "Run #{id} complete: "
     text += if failure_count == 0
