@@ -1,13 +1,7 @@
 TestRun.blueprint do
-
 end
 
 TestCase.blueprint do
-  title { Faker::Lorem.words(4).join(" ") }
-  failure_message { Faker::Lorem.words(4).join(" ") }
-  test_run { TestRun.make }
-  backtrace { Faker::Lorem.words(20).join(" ") }
-  failed { true } 
 end
 
 def test_run_completed
