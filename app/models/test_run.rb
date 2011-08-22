@@ -11,10 +11,8 @@ class TestRun < ActiveRecord::Base
   def test_done(example)
     self.test_count += 1
     if example.failed?
-      puts "Adding to failures #{self.failure_count}"
       @failures << example
       self.failure_count = @failures.length
-      puts self.failure_count
     end
   end
 
