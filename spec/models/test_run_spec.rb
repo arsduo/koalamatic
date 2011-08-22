@@ -66,6 +66,38 @@ describe TestRun do
       @run.done
       @run.failure_count.should == failures
     end
+    
+    context "saving test cases" do
+      before :each do
+        @failures = 5.times.collect { ex = make_example(true); @run.test_done(ex); ex }
+        @passes = 6.times.collect { ex = make_example; @run.test_done(ex); ex }        
+      end
+      
+      it "creates test cases for each failed example" do
+        @failures.each {|ex| TestCase.expects(:create_from_example).with(ex).returns(TestCase.make) }
+        @run.done
+      end
+      
+      it "does not create test cases for passed examples" do
+        # this may change later
+        TestCase.stubs(:create_from_example).returns(TestCase.make)
+        @passes.each {|ex| TestCase.expects(:create_from_example).with(ex).never.returns(TestCase.make) }
+        @run.done
+      end      
+      
+      it "associates those failed records with the test run" do
+        cases = []
+        @failures.length.times.collect {|i| cases << TestCase.make }
+        TestCase.stubs(:create_from_example).returns(*cases)
+        @run.done
+        cases.each {|c| @run.test_cases.should include(c) }                  
+      end
+    end
+
+    it "saves the run" do
+      @run.done
+      @run.should_not be_a_new_record
+    end
   end
 
 end

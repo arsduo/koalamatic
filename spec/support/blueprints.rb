@@ -10,7 +10,7 @@ TestCase.blueprint do
   failed { true } 
 end
 
-def test_run_with_examples
+def test_run_completed
   test_count = 5
   failure_count = 3
   TestRun.make(
@@ -19,6 +19,13 @@ def test_run_with_examples
     :test_count => test_count,
     :duration => 2.minutes
   )
+end
+
+def test_run_in_progress(passed = 5, failed = 3)
+  run = TestRun.make
+  passed.times.each { run.test_done(make_example(false)) }
+  failed.times.each { run.test_done(make_example(true)) }
+  run
 end
 
 def make_example(failure = false)
