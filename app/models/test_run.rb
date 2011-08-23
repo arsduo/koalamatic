@@ -10,12 +10,14 @@ class TestRun < ActiveRecord::Base
   TEST_PADDING = 10.minutes
   # how often we publish on twitter
   PUBLISHING_INTERVAL = 1.day
-  
-  def self.time_to_next_run
+
+  def self.interval_to_next_run
     TEST_INTERVAL - TEST_PADDING
   end
   
-  def initialize
+  scope :within_interval, :conditions => ["created_at > ?", Time.now - TestRun.interval_to_next_run]
+    
+  def initialize(*args)
     super
     @failures = []
     @start_time = Time.now

@@ -16,9 +16,9 @@ describe TestRun do
     end
   end
 
-  describe "#time_to_next_run" do
+  describe "#interval_to_next_run" do
     it "returns TEST_INTERVAL - TEST_PADDING" do
-      TestRun.time_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
+      TestRun.interval_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
     end
   end
   
