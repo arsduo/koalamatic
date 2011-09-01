@@ -1,18 +1,17 @@
-module FacebookTests
-  module Runner
+module Facebook
+  module TestRunner
     class << self
       attr_reader :logger
     end
     
     def self.execute(&result_processing)
-      setup_logger
-      run = hook_rspec!
-      ENV["LIVE"] = "true"
+      run = TestRun.new
+      setup_test_environment(run)
       test_files = load_tests
       # run the tests live
       RSpec::Core::Runner.run(test_files)
       run.done
-      yield run
+      yield run if result_processing
       publish_results(run)
     end
 
@@ -27,18 +26,21 @@ module FacebookTests
       end
     end
 
-    # RSpec configuration
-    def self.hook_rspec!
-      run = TestRun.new
-
+    def self.setup_test_environment(run)
+      setup_logger
+      
+      ENV["LIVE"] = "true"      
       RSpec.configure do |config|
         config.after :each do
           run.test_done(example)
         end
-      end
+      end      
 
-      run
+      # tests should be loaded after RSpec configuration
+      load_tests
     end
+    
+    private
     
     # test case management
     def self.load_tests
@@ -51,14 +53,12 @@ module FacebookTests
       @path = File.join(g.full_gem_path, "spec") 
       $:.push(@path)
     end
-
+    
     def self.identify_tests
       pattern = File.join(@path, "**/*_spec.rb")
       # run the test user suite last, since it deletes all the test users
       Dir.glob(pattern).sort {|a, b| a.match(/test/) ? 1 : -1}
     end
-    
-    private
     
     def self.setup_logger
       # currently broken
