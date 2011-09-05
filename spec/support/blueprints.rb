@@ -7,12 +7,13 @@ end
 def test_run_completed
   test_count = 5
   failure_count = 3
-  TestRun.make(
-    :test_cases => test_count.times.collect { TestCase.make(:test_run => object) },
+  run = TestRun.make(
     :failure_count => failure_count,
     :test_count => test_count,
     :duration => 2.minutes
   )
+  test_count.times.collect { run.test_cases << TestCase.make }
+  run
 end
 
 def test_run_in_progress(passed = 5, failed = 3)
