@@ -3,8 +3,8 @@ require "spec_helper"
 describe TestRun do
   
   describe "constants" do
-    it "defines TEST_INTERVAL to be 30.minutes" do
-      TestRun::TEST_INTERVAL.should == 30.minutes
+    it "defines TEST_INTERVAL to be 60.minutes" do
+      TestRun::TEST_INTERVAL.should == 60.minutes
     end
 
     it "defines TEST_PADDING to be 10.minutes" do
@@ -142,5 +142,58 @@ describe TestRun do
       TestRun.make(:failure_count => 2).summary.should =~ /2 errors/
     end
   end
+  
+  describe "previous run" do
+    it "gets the previous run" do
+      TestRun.make.save
+      TestRun.make.save
+      run = TestRun.make
+      run.save
+      run2 = TestRun.make
+      run2.save
+      run2.previous_run.should == run
+    end    
+  end
+  
+  describe "publishable?" do
+    
+  end
 
+  describe "#most_recently_published" do
+    it "gets the most recent published post" do
+      run = test_run_completed
+      run.save
+      TestRun.most_recently_published.should == run
+    end
+    
+    it "ignores runs that weren't published" do
+      test_run_completed(:created_at => Time.now + 1.hour, :tweet_id => nil).save
+      run = test_run_completed
+      run.save
+      TestRun.most_recently_published.should == run
+    end
+  end
+  
+  describe "#last_scheduled_publication" do
+    it "gets the most recently scheduled post" do
+      run = test_run_completed(:publication_reason => TestRun::SCHEDULED_REASON)
+      run.save
+      TestRun.most_recently_published.should == run
+    end
+    
+    it "ignores runs that weren't published" do
+      # shouldn't happen, but worth checking
+      test_run_completed(:created_at => Time.now + 1.hour, :tweet_id => nil, :publication_reason => TestRun::SCHEDULED_REASON).save
+      run = test_run_completed
+      run.save
+      TestRun.most_recently_published.should == run
+    end
+    
+    it "ignores runs that were published because of changed results" do
+      test_run_completed(:created_at => Time.now + 1.hour, :publication_reason => TestRun::DIFFERENT_RESULTS_REASON).save
+      run = test_run_completed
+      run.save
+      TestRun.most_recently_published.should == run
+    end 
+  end
 end
