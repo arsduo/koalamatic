@@ -4,14 +4,17 @@ end
 TestCase.blueprint do
 end
 
-def test_run_completed
+def test_run_completed(attrs = {})
+  run = attrs.delete(:run) || TestRun.make
   test_count = 5
   failure_count = 3
-  run = TestRun.make(
+  run.update_attributes({
     :failure_count => failure_count,
     :test_count => test_count,
-    :duration => 2.minutes
-  )
+    :duration => 2.minutes,
+    :tweet_id => rand(2**32).to_i,
+    :publication_reason => "scheduled"
+  }.merge(attrs))
   test_count.times.collect { run.test_cases << TestCase.make }
   run
 end

@@ -1,36 +1,40 @@
 module Facebook
-  module TestRunner
-    class << self
-      attr_reader :logger
-    end
+  class TestRunner
+    # this class is not thread-safe
+    # because RSpec configurations aren't thread-safe
+    attr_reader :logger, :run
     
     SPEC_PATTERN = "**/*_spec.rb"
+
+    def initialize
+      super
+      @run = TestRun.new
+    end
     
-    def self.execute(&result_processing)
-      run = TestRun.new
-      test_files = setup_test_environment(run)
-      RSpec::Core::Runner.run(test_files)
-      yield run if result_processing
-      publish_results(run)
+    def execute(&result_processing)
+      tests = setup_test_environment
+      RSpec::Core::Runner.run(tests)
+      yield @run if result_processing
+      publish_results
     end
 
-    def self.publish_results(run)
+    def publish_results
       begin
         if Rails.env.production? && Twitter.verify_credentials
-          puts("Publishing results: #{run.summary}")
-          Twitter.update(run.summary)
+          # publish if it meets the publication criteria
+          @run.publish_if_appropriate!
         end
       rescue Exception => err
-        puts "error!"
         Kernel.warn("Error in publishing! #{err.message}\n#{err.backtrace.join("\n")}")
       end
     end
 
-    def self.setup_test_environment(run)
+    def setup_test_environment
       setup_logger
       
       # run the tests live
       ENV["LIVE"] = "true"      
+      run = @run
       RSpec.configure do |config|
         config.after :each do
           run.test_done(example)
@@ -45,27 +49,27 @@ module Facebook
       get_tests
     end
 
-    def self.get_tests
-      add_load_path
+    def get_tests
+      add_load_path!
       identify_tests
     end
     
     private
     
     # test case management
-    def self.add_load_path
+    def add_load_path!
       g = Bundler.load.specs.find {|s| s.name == "koala"}  
       @path = File.join(g.full_gem_path, "spec")
       $:.push(@path) unless $:.find {|p| p.match(/koala.*\/spec/) && !p.match(/koalamatic\/spec/)}
       @path
     end
     
-    def self.identify_tests
+    def identify_tests
       # run the test user suite last, since it deletes all the test users
       Dir.glob(File.join(@path, SPEC_PATTERN))#.sort {|a, b| a.match(/test/) ? 1 : -1}
     end
     
-    def self.setup_logger
+    def setup_logger
       # currently broken
       #loggerfile = File.open(File.join(Rails.root, "log", "fb_tests.log"), "w")
       #@logger = Logger.new(loggerfile)
