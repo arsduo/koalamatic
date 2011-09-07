@@ -3,7 +3,7 @@ class AddStatusToTestCase < ActiveRecord::Migration
 
   def change
       # test cases either pass or fail
-      #add_column :test_cases, :failed, :boolean
+      add_column :test_cases, :failed, :boolean
       
       # update all existing test runs to failures
       TestCase.update_all("failed = true")
