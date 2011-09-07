@@ -47,6 +47,7 @@ class TestRun < ActiveRecord::Base
     save
   end
   
+  # PUBLISHING  
   SUCCESS_TEXT = "All's well with Facebook!"
   def summary
     text = "Run #{id} complete: "
@@ -58,16 +59,25 @@ class TestRun < ActiveRecord::Base
   end
   
   def previous_run
-    TestRun.where(["id < ?", self.id]).limit(1).first
+    @previous ||= TestRun.where(["id < ?", self.id]).order("id desc").limit(1).first
+  end
+  
+  def publishable_by_interval?
+    TestRun.last_scheduled_publication.created_at < Time.now - PUBLISHING_INTERVAL
+  end
+  
+  def publishable_by_results?
+    # this needs to be refined to examine the actual contents of the errors
+    failure_count != previous_run.failure_count
   end
   
   def publishable?
     # see if it's time to publish again
-    if TestRun.last_scheduled_publication.created_at < Time.now - PUBLISHING_INTERVAL
+    # is it bad form for a ? method to return strings for later use?
+    if publishable_by_interval?
       SCHEDULED_REASON
     # alternately, see if this run has produced different results
-    # this needs to be refined to examine the actual contents of the errors
-    elsif failure_count != previous_run.failure_count
+    elsif publishable_by_results?
       DIFFERENT_RESULTS_REASON
     else
       false

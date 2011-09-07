@@ -144,19 +144,83 @@ describe TestRun do
   end
   
   describe "previous run" do
+    before :each do
+      TestRun.make.save
+      TestRun.make.save
+      @run = TestRun.make
+      @run.save
+      @run2 = TestRun.make
+      @run2.save
+    end
+    
     it "gets the previous run" do
-      TestRun.make.save
-      TestRun.make.save
-      run = TestRun.make
-      run.save
-      run2 = TestRun.make
-      run2.save
-      run2.previous_run.should == run
+      @run2.previous_run.should == @run
+    end 
+    
+    it "doesn't make two database calls if called twice" do
+      @run2.previous_run
+      TestRun.expects(:where).never
+      TestRun.expects(:find).never
+      @run2.previous_run
+    end   
+  end
+  
+  describe ".publishable_by_interval?" do
+    it "returns true if the last scheduled publication is < publishing interval" do
+      old_run = TestRun.make(:created_at => Time.now - TestRun::PUBLISHING_INTERVAL - 1.minute)
+      old_run.save
+      TestRun.stubs(:last_scheduled_publication).returns(old_run)
+      test_run_completed.publishable_by_interval?.should be_true
+    end
+
+    it "returns true if the last scheduled publication is > publishing interval" do
+      old_run = TestRun.make(:created_at => Time.now - TestRun::PUBLISHING_INTERVAL + 1.minute)
+      old_run.save
+      TestRun.stubs(:last_scheduled_publication).returns(old_run)
+      test_run_completed.publishable_by_interval?.should be_false
     end    
   end
   
-  describe "publishable?" do
+  describe ".publishable_by_results?" do
+    it "returns true if the failure count != previous failure count" do
+      run1 = test_run_completed(:failure_count => 3)
+      run2 = test_run_completed(:failure_count => 2)
+      run1.save
+      run2.save
+      run2.publishable_by_results?.should be_true
+    end
     
+    it "returns false if the failure count == previous failure count" do
+      run1 = test_run_completed(:failure_count => 3)
+      run2 = test_run_completed(:failure_count => 3)
+      run1.save
+      run2.save
+      run2.publishable_by_results?.should be_false
+    end
+  end
+  
+  describe ".publishable?" do
+    before :each do
+      @run = TestRun.make
+    end
+    
+    it "returns SCHEDULED_REASON if it's publishable_by_interval?" do
+      @run.stubs(:publishable_by_interval?).returns(true)
+      @run.stubs(:publishable_by_results?).returns(false)
+      @run.publishable?.should == TestRun::SCHEDULED_REASON
+    end
+    
+    it "returns DIFFERENT_RESULTS_REASON if it's publishable_by_interval?" do
+      @run.stubs(:publishable_by_interval?).returns(false)
+      @run.stubs(:publishable_by_results?).returns(true)
+      @run.publishable?.should == TestRun::DIFFERENT_RESULTS_REASON
+    end
+    
+    it "returns false otherwise" do
+      @run.stubs(:publishable_by_interval?).returns(false)
+      @run.stubs(:publishable_by_results?).returns(false)
+      @run.publishable?.should be_false
+    end    
   end
 
   describe "#most_recently_published" do

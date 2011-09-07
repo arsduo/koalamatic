@@ -157,6 +157,7 @@ describe Facebook::TestRunner do
     context "in production" do
       before :each do
         Rails.env.stubs(:production?).returns(true)
+        Kernel.stubs(:warn)
       end
 
       it "checks credentials" do
@@ -185,7 +186,6 @@ describe Facebook::TestRunner do
 
       it "rescues if an error occurs in publishing" do
         @runner.run.stubs(:publish_if_appropriate!).raises(Exception)
-        Kernel.stubs(:warn)
         expect { @runner.publish_results }.not_to raise_exception
       end
 
