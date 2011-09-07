@@ -10,7 +10,7 @@ describe ApiController do
     
     context "with no recent test runs" do
       before :each do
-        TestRun.within_interval.delete_all
+        TestRun.delete_all
         TestRun.make(:created_at => Time.now - TestRun.interval_to_next_run - 1.minute).save
       end
       
@@ -27,7 +27,7 @@ describe ApiController do
 
     context "with a recent test run" do
       before :each do
-        TestRun.within_interval.delete_all
+        TestRun.delete_all
         TestRun.make(:created_at => Time.now - TestRun.interval_to_next_run + 1.minute).save
       end
       

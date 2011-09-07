@@ -15,11 +15,26 @@ describe TestRun do
       TestRun::PUBLISHING_INTERVAL.should == 1.day
     end
   end
-
   describe "#interval_to_next_run" do
     it "returns TEST_INTERVAL - TEST_PADDING" do
       TestRun.interval_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
     end
+  end
+
+  describe "#time_for_next_run?" do
+    before :each do
+      TestRun.destroy_all
+    end
+      
+    it "returns true if there's no test within the last TEST_INTERVAL - TEST_PADDING seconds" do
+      TestRun.make(:created_at => Time.now - TestRun.interval_to_next_run - 1.second).save
+      TestRun.time_for_next_run?.should be_true
+    end
+    
+    it "returns false if there's a test within the last TEST_INTERVAL - TEST_PADDING seconds" do
+      TestRun.make(:created_at => Time.now - TestRun.interval_to_next_run + 1.second).save  
+      TestRun.time_for_next_run?.should be_false
+    end    
   end
   
   describe "#new" do

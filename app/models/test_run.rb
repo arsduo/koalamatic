@@ -17,7 +17,14 @@ class TestRun < ActiveRecord::Base
     TEST_INTERVAL - TEST_PADDING
   end
   
-  scope :within_interval, :conditions => ["created_at > ?", Time.now - TestRun.interval_to_next_run]
+  def self.time_for_next_run?
+    logger.info("created_at > #{(Time.now - interval_to_next_run).to_i}")
+    logger.info(TestRun.last.created_at.to_i)
+    logger.info(TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first.inspect)
+    logger.info(!!TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first)
+    !TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first
+  end
+  
   scope :published, :conditions => "tweet_id is not null", :order => "id desc"
   scope :scheduled, :conditions => "publication_reason  = 'scheduled'", :order => "id desc"
   
