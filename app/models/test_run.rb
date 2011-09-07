@@ -63,12 +63,12 @@ class TestRun < ActiveRecord::Base
   end
   
   def publishable_by_interval?
-    TestRun.last_scheduled_publication.created_at < Time.now - PUBLISHING_INTERVAL
+    (last_run = TestRun.last_scheduled_publication) ? last_run.created_at < Time.now - PUBLISHING_INTERVAL : true
   end
   
   def publishable_by_results?
     # this needs to be refined to examine the actual contents of the errors
-    failure_count != previous_run.failure_count
+    !previous_run || failure_count != previous_run.failure_count
   end
   
   def publishable?

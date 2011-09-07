@@ -179,6 +179,11 @@ describe TestRun do
       TestRun.stubs(:last_scheduled_publication).returns(old_run)
       test_run_completed.publishable_by_interval?.should be_false
     end    
+    
+    it "returns true if there are no previous test runs" do
+      TestRun.stubs(:last_scheduled_publication).returns(nil)
+      TestRun.new.publishable_by_interval?.should be_true
+    end
   end
   
   describe ".publishable_by_results?" do
@@ -188,6 +193,12 @@ describe TestRun do
       run1.save
       run2.save
       run2.publishable_by_results?.should be_true
+    end
+    
+    it "returns true if there are no previous applicable test runs" do
+      run = TestRun.new
+      run.stubs(:previous_run).returns(nil)
+      run.publishable_by_results?.should be_true
     end
     
     it "returns false if the failure count == previous failure count" do
