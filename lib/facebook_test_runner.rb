@@ -72,7 +72,7 @@ module Facebook
     
     def identify_tests
       # run the test user suite last, since it deletes all the test users
-      Dir.glob(File.join(@path, SPEC_PATTERN))#.sort {|a, b| a.match(/test/) ? 1 : -1}
+      Dir.glob(File.join(@path, SPEC_PATTERN)).sort {|a, b| a.match(/test/) ? 1 : -1}
     end
     
     def setup_logger
