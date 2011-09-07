@@ -7,6 +7,7 @@ describe Facebook::TestRunner do
     RSpec::Core::Runner.stubs(:run)
     RSpec.stubs(:configure)
     @runner = Facebook::TestRunner.new
+    @runner.stubs(:require_file)
   end
 
   it "has a logger" do
@@ -132,6 +133,13 @@ describe Facebook::TestRunner do
       Dir.stubs(:glob).with(File.join(path, Facebook::TestRunner::SPEC_PATTERN)).returns(tests)
       results = @runner.get_tests
       results.should == tests
+    end
+    
+    it "loads the Koala spec_helper" do
+      @runner.get_tests
+      path = $:.find {|p| p.match(/koala.*\/spec/) && !p.match(/koalamatic\/spec/)}
+      @runner.expects(:require_file).with(File.join(path, "spec_helper.rb"))
+      @runner.get_tests
     end
   end
 

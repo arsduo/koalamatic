@@ -51,6 +51,7 @@ module Facebook
 
     def get_tests
       add_load_path!
+      load_koala_spec_helper!
       identify_tests
     end
     
@@ -62,6 +63,11 @@ module Facebook
       @path = File.join(g.full_gem_path, "spec")
       $:.push(@path) unless $:.find {|p| p.match(/koala.*\/spec/) && !p.match(/koalamatic\/spec/)}
       @path
+    end
+    
+    def load_koala_spec_helper!
+      # ensure the Koala spec helper is loaded, since require 'spec_helper' hits the Koalamatic helper
+      require_file(File.join(@path, "spec_helper.rb"))
     end
     
     def identify_tests
@@ -77,6 +83,10 @@ module Facebook
       #@logger.info("logging started")
       
       #@logfile = File.open(File.join(Rails.root, "log", "fb_tests.log"), "w")
+    end
+    
+    def require_file(file)
+      require file      
     end
   end
 end
