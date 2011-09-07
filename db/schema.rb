@@ -10,11 +10,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110905163708) do
+ActiveRecord::Schema.define(:version => 20110907135149) do
 
   create_table "test_cases", :force => true do |t|
-    t.string   "title"
-    t.string   "failure_message"
+    t.string   "title",           :limit => 4000
+    t.string   "failure_message", :limit => 4000
     t.integer  "test_run_id"
     t.datetime "created_at"
     t.datetime "updated_at"
