@@ -223,6 +223,45 @@ describe TestRun do
     end    
   end
 
+  describe ".publish_if_appropriate!" do
+    before :each do
+      @run = TestRun.make
+      @tweet = stub("Tweet", :id => rand(2**25))      
+      Twitter.stubs(:update).returns(@tweet)
+    end
+  
+    it "does nothing if it's not publishable" do
+      @run.expects(:publishable?).returns(false)
+      Twitter.expects(:update).never
+      @run.publish_if_appropriate!
+    end
+    
+    it "saves the publication reason" do
+      reason = "reason"
+      @run.expects(:publishable?).returns(reason)
+      @run.publish_if_appropriate!
+      @run.publication_reason.should == reason      
+    end
+    
+    it "publishes the summary as a tweet" do
+      @run.expects(:publishable?).returns("true")
+      Twitter.expects(:update).with(@run.summary).returns(@tweet)
+      @run.publish_if_appropriate!
+    end
+
+    it "saves the tweet ID" do
+      @run.expects(:publishable?).returns("true")      
+      @run.publish_if_appropriate!
+      @run.tweet_id.should == @tweet.id      
+    end
+    
+    it "saves the record" do
+      @run.stubs(:publishable?).returns("true")      
+      @run.publish_if_appropriate!
+      @run.changed?.should be_false
+    end    
+  end
+
   describe "#most_recently_published" do
     it "gets the most recent published post" do
       run = test_run_completed

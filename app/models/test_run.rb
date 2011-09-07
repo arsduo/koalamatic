@@ -87,7 +87,8 @@ class TestRun < ActiveRecord::Base
   def publish_if_appropriate!
     if reason = self.publishable?
       self.publication_reason = reason
-      id = Twitter.update(run.summary)
+      publication = Twitter.update(summary)
+      self.tweet_id = publication.id
       self.save
     end
   end
