@@ -82,21 +82,28 @@ class TestRun < ActiveRecord::Base
     # see if it's time to publish again
     # is it bad form for a ? method to return strings for later use?
     if publishable_by_interval?
+      Rails.logger.info("Interval publishing!")
       SCHEDULED_REASON
     # alternately, see if this run has produced different results
     elsif publishable_by_results?
+      Rails.logger.info("Results publishing!")
       DIFFERENT_RESULTS_REASON
     else
+      Rails.logger.info("Not publishing!")
       false
     end
   end
   
   def publish_if_appropriate!
     if reason = self.publishable?
+      Rails.logger.info("Publishing for #{reason.inspect}")
       self.publication_reason = reason
       publication = Twitter.update(summary)
+      Rails.logger.info("Publish: #{publication}")
       self.tweet_id = publication.id
-      self.save
+      status = self.save
+      Rails.logger.info("Save status: #{status}")
+      Rails.logger.info("Errors: #{self.errors.inspect}")
     end
   end
   
