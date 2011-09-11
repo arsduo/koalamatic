@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110907135149) do
+ActiveRecord::Schema.define(:version => 20110909093155) do
 
   create_table "test_cases", :force => true do |t|
     t.string   "title",           :limit => 4000
@@ -26,11 +26,11 @@ ActiveRecord::Schema.define(:version => 20110907135149) do
 
   create_table "test_runs", :force => true do |t|
     t.integer  "duration"
-    t.integer  "test_count",         :default => 0
-    t.integer  "failure_count",      :default => 0
+    t.integer  "test_count",                      :default => 0
+    t.integer  "failure_count",                   :default => 0
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "tweet_id"
+    t.integer  "tweet_id",           :limit => 8
     t.string   "publication_reason"
   end
 
