@@ -96,14 +96,10 @@ class TestRun < ActiveRecord::Base
   
   def publish_if_appropriate!
     if reason = self.publishable?
-      Rails.logger.info("Publishing for #{reason.inspect}")
       self.publication_reason = reason
       publication = Twitter.update(summary)
-      Rails.logger.info("Publish: #{publication}")
       self.tweet_id = publication.id
       status = self.save
-      Rails.logger.info("Save status: #{status}")
-      Rails.logger.info("Errors: #{self.errors.inspect}")
     end
   end
   
