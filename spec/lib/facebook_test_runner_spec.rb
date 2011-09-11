@@ -165,7 +165,7 @@ describe Facebook::TestRunner do
     context "in production" do
       before :each do
         Rails.env.stubs(:production?).returns(true)
-        Kernel.stubs(:warn)
+        Rails.logger.stubs(:warn)
       end
 
       it "checks credentials" do
@@ -188,7 +188,7 @@ describe Facebook::TestRunner do
 
       it "prints a warning if an error occurs in verifying credentials" do
         Twitter.stubs(:verify_credentials).raises(Exception)
-        Kernel.expects(:warn)
+        Rails.logger.expects(:warn)
         @runner.publish_results
       end
 
@@ -200,7 +200,7 @@ describe Facebook::TestRunner do
       it "prints a warning if an error occurs in publishing" do
         @runner.run.stubs(:publish_if_appropriate!).raises(Exception)
         Twitter.expects(:verify_credentials).returns(true)
-        Kernel.expects(:warn)
+        Rails.logger.expects(:warn)
         @runner.publish_results
       end
     end

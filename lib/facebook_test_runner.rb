@@ -25,7 +25,7 @@ module Facebook
           @run.publish_if_appropriate!
         end
       rescue Exception => err
-        Rails.logger.info("Error in publishing! #{err.message}\n#{err.backtrace.join("\n")}")
+        Rails.logger.warn("Error in publishing! #{err.message}\n#{err.backtrace.join("\n")}")
       end
     end
 
