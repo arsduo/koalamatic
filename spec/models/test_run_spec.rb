@@ -156,6 +156,11 @@ describe TestRun do
       TestRun.make(:failure_count => 1).summary.should_not =~ /1 errors/
       TestRun.make(:failure_count => 2).summary.should =~ /2 errors/
     end
+    
+    it "includes the date if it's publishable_by_interval?"
+    it "does not include the date if it's publishable_by_results?"
+    it "properly includes a comparison to previous results if there are previous results"
+    it "works if there are no previous results"    
   end
   
   describe "previous run" do
@@ -230,29 +235,52 @@ describe TestRun do
       @run = TestRun.make
     end
     
-    it "returns SCHEDULED_REASON if it's publishable_by_interval?" do
+    it "sets publication_reason to SCHEDULED_REASON if it's publishable_by_interval?" do
       @run.stubs(:publishable_by_interval?).returns(true)
       @run.stubs(:publishable_by_results?).returns(false)
-      @run.publishable?.should == TestRun::SCHEDULED_REASON
+      @run.publishable?
+      @run.publication_reason.should == TestRun::SCHEDULED_REASON
     end
     
-    it "returns DIFFERENT_RESULTS_REASON if it's publishable_by_interval?" do
+    it "sets publication_reason to DIFFERENT_RESULTS_REASON if it's publishable_by_interval?" do
       @run.stubs(:publishable_by_interval?).returns(false)
       @run.stubs(:publishable_by_results?).returns(true)
-      @run.publishable?.should == TestRun::DIFFERENT_RESULTS_REASON
+      @run.publishable?
+      @run.publication_reason.should == TestRun::DIFFERENT_RESULTS_REASON
+    end
+    
+    it "sets publication_reason to nil otherwise" do
+      @run.stubs(:publishable_by_interval?).returns(false)
+      @run.stubs(:publishable_by_results?).returns(false)
+      @run.publishable?
+      @run.publication_reason.should be_nil
+    end    
+    
+    it "returns true if it's publishable_by_interval?" do
+      @run.stubs(:publishable_by_interval?).returns(true)
+      @run.stubs(:publishable_by_results?).returns(false)
+      @run.publishable?.should be_true
+    end
+    
+    it "returns true if it's publishable_by_interval?" do
+      @run.stubs(:publishable_by_interval?).returns(false)
+      @run.stubs(:publishable_by_results?).returns(true)
+      @run.publishable?.should be_true
     end
     
     it "returns false otherwise" do
       @run.stubs(:publishable_by_interval?).returns(false)
       @run.stubs(:publishable_by_results?).returns(false)
       @run.publishable?.should be_false
-    end    
+    end
+    
   end
 
   describe ".publish_if_appropriate!" do
     before :each do
       @run = TestRun.make
-      @tweet = stub("Tweet", :id => rand(2**25))      
+      @tweet = stub("Tweet", :id => rand(2**25))    
+      @run.stubs(:summary).returns("my summary")  
       Twitter.stubs(:update).returns(@tweet)
     end
   
@@ -262,16 +290,11 @@ describe TestRun do
       @run.publish_if_appropriate!
     end
     
-    it "saves the publication reason" do
-      reason = "reason"
-      @run.expects(:publishable?).returns(reason)
-      @run.publish_if_appropriate!
-      @run.publication_reason.should == reason      
-    end
-    
     it "publishes the summary as a tweet" do
-      @run.expects(:publishable?).returns("true")
-      Twitter.expects(:update).with(@run.summary).returns(@tweet)
+      @run.stubs(:publishable?).returns("true")
+      summary = "abcdefg"
+      @run.expects(:summary).returns(summary)
+      Twitter.expects(:update).with(summary).returns(@tweet)
       @run.publish_if_appropriate!
     end
 

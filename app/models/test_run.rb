@@ -18,10 +18,6 @@ class TestRun < ActiveRecord::Base
   end
   
   def self.time_for_next_run?
-    logger.info("created_at > #{(Time.now - interval_to_next_run).to_i}")
-    logger.info(TestRun.last.created_at.to_i)
-    logger.info(TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first.inspect)
-    logger.info(!!TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first)
     !TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first
   end
   
@@ -57,11 +53,16 @@ class TestRun < ActiveRecord::Base
   # PUBLISHING  
   SUCCESS_TEXT = "All's well with Facebook!"
   def summary
-    text = "Run #{id} complete: "
-    text += if failure_count == 0
-      SUCCESS_TEXT
-    else
-      "We encountered #{failure_count} error#{failure_count > 1 ? "s" : ""}. (Detail page coming soon!)"
+    if publishable?
+      text = if @publishing_reason == SCHEDULED_REASON
+        "Run for #{Time.now.strftime("%b %d")}: "
+      else
+        "Run completed: "
+      end
+      text += (self.failure_count == 0 ? SUCCESS_TEXT : "#{failure_count} error#{failure_count > 1 ? "s" : ""}")
+      difference = (previous_run ? previous_run.failure_count.to_i - self.failure_count.to_i : 0)
+      text += "#{difference} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
+      text += " (Detail page coming soon!)"
     end
   end
   
@@ -81,24 +82,15 @@ class TestRun < ActiveRecord::Base
   def publishable?
     # see if it's time to publish again
     # is it bad form for a ? method to return strings for later use?
-    if publishable_by_interval?
-      Rails.logger.info("Interval publishing!")
-      SCHEDULED_REASON
-    # alternately, see if this run has produced different results
-    elsif publishable_by_results?
-      Rails.logger.info("Results publishing!")
-      DIFFERENT_RESULTS_REASON
-    else
-      Rails.logger.info("Not publishing!")
-      false
-    end
+    set_publication_reason
+    !!self.publication_reason
   end
   
   def publish_if_appropriate!
-    if reason = self.publishable?
-      self.publication_reason = reason
+    if self.publishable?
       publication = Twitter.update(summary)
       self.tweet_id = publication.id
+      # publication_reason is set in publishable?
       status = self.save
     end
   end
@@ -111,6 +103,19 @@ class TestRun < ActiveRecord::Base
   
   def self.last_scheduled_publication
     published.scheduled.first
+  end
+  
+  private
+  
+  def set_publication_reason
+    self.publication_reason = if publishable_by_interval?
+     SCHEDULED_REASON
+    # alternately, see if this run has produced different results
+    elsif publishable_by_results?
+      DIFFERENT_RESULTS_REASON
+    else
+      nil
+    end
   end
   
 end
