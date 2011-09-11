@@ -61,7 +61,7 @@ class TestRun < ActiveRecord::Base
       end
       text += (self.failure_count == 0 ? SUCCESS_TEXT : "#{failure_count} error#{failure_count > 1 ? "s" : ""}")
       difference = (previous_run ? previous_run.failure_count.to_i - self.failure_count.to_i : 0)
-      text += "#{difference} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
+      text += " -- #{difference.abs} #{difference > 0 ? "fewer" : "more"} than last run)." if difference != 0
       text += " (Detail page coming soon!)"
     end
   end
