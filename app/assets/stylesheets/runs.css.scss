@@ -2,6 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+/* list */
 #runs {
   list-style: none;
   
@@ -32,5 +33,31 @@
   
   .odd {
     background-color: #EEE;
+  }
+}
+
+/* detail */
+#summary {
+  &.passed {
+    color: green;
+  }
+  
+  &.failed {
+    color: red;
+  }
+}
+
+#failureList {
+  .title {
+    font-weight: bold;
+  }
+  
+  .failureMessage {
+    color: red;
+  }
+  
+  .backtrace {
+    list-style: none;
+    font-family: "Courier New", Courier monospace;
   }
 }

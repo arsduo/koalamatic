@@ -26,5 +26,31 @@ describe RunsController do
       assigns[:runs].should == result
     end
   end
+  
+  describe "GET 'detail'" do
+    context "with a valid run" do
+      before :each do
+        @run = TestRun.make()
+        @run.save        
+      end
+      
+      it "makes the run available as @run" do
+        get 'detail', :id => @run.id
+        assigns[:run].should == @run
+      end
+    end
+    
+    context "without a valid run" do
+      it "redirects to index if the run isn't present" do
+        get 'detail', :id => "abc"
+        response.should redirect_to(:action => :index)
+      end
+      
+      it "sets flash[:status] to :missing_run" do
+        get 'detail', :id => "abc"
+        flash[:status].should == :missing_run
+      end
+    end
+  end
 
 end

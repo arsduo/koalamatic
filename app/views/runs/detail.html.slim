@@ -1,0 +1,19 @@
+h1 Run on #{@run.human_time}
+
+div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
+- if @run.passed?
+  #{@run.test_count} tests passed!  Everything with Facebook was fine.
+- else
+  #{@run.failure_count} of #{@run.test_count} tests failed.
+  
+- unless @run.passed?
+  h4 Failures
+  ul#failureList
+    - @run.test_cases.failures.each do |test_case|
+      li id="testCase#{test_case.id}"
+        .title #{test_case.title}
+        .failureMessage #{test_case.failure_message}
+        ul.backtrace
+          - test_case.backtrace.split("\n").each do |line|
+            li= line
+  
