@@ -15,7 +15,7 @@ def test_run_completed(attrs = {})
     :tweet_id => rand(2**32).to_i,
     :publication_reason => "scheduled"
   }.merge(attrs))
-  test_count.times.collect { run.test_cases << TestCase.make }
+  test_count.times {|i| run.test_cases << TestCase.create_from_example(make_example(i < failure_count)) }
   run
 end
 
