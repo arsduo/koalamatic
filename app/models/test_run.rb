@@ -2,6 +2,8 @@ class TestRun < ActiveRecord::Base
   # note: for now, we only track failures
   has_many :test_cases
   
+  default_scope order('id desc')
+  
   # how often we ideally want to run tests
   TEST_INTERVAL = 60.minutes
   # roughly how long the tests take to run
@@ -48,6 +50,15 @@ class TestRun < ActiveRecord::Base
     end
     
     save
+  end
+  
+  def human_time
+    # human-readable identifier for when the run occurred
+    created_at.strftime("%m/%d %l:%M %p")
+  end
+  
+  def passed?
+    failure_count && failure_count == 0
   end
   
   # PUBLISHING  

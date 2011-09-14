@@ -21,6 +21,8 @@ describe TestRun do
     end
   end
 
+  it "by default orders id desc"
+
   describe "#time_for_next_run?" do
     before :each do
       TestRun.destroy_all
@@ -45,6 +47,27 @@ describe TestRun do
     it "sets failure_count to 0" do
       TestRun.new.failure_count.should == 0
     end
+  end
+  
+  describe ".human_time" do
+    it "shows the date/time as MM/DD hh:mm" do
+      run = TestRun.new(:created_at => Time.zone.parse("2001/12/31 3:45 PM"))
+      run.human_time.should == "12/31  3:45 PM"
+    end    
+  end
+  
+  describe ".passed?" do
+    it "passes if the failure_count is 0" do
+      TestRun.new(:failure_count => 0).passed?.should be_true
+    end
+
+    it "fails if the failure_count is > 0" do
+      TestRun.new(:failure_count => 2).passed?.should be_false
+    end    
+    
+    it "fails if the failure_count is nil" do
+      TestRun.new(:failure_count => nil).passed?.should be_false      
+    end    
   end
 
   describe ".test_done" do
