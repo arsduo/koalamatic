@@ -1,0 +1,14 @@
+h1 Test Runs
+
+ul#runs
+  - @runs.each_with_index do |run, idx|
+    li class="#{(idx % 2 == 0) ? 'even' : 'odd'} #{run.passed? ? 'passed' : 'failed'}"
+      = link_to run.human_time, url_for(:action => :detail, :id => run.id), :class => "title"     
+      span , #{run.duration} seconds
+      .details
+        - if run.passed?
+          | Passed
+        - else
+          #{run.failure_count} errors
+          
+= paginate @runs

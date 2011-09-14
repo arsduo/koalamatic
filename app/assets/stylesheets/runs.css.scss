@@ -1,0 +1,36 @@
+// Place all the styles related to the runs controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+#runs {
+  list-style: none;
+  
+  li {
+    width: 400px;
+    padding: 8px 4px;
+    
+    .title {
+      font-weight: bold;
+    }
+    
+    &.failed {
+      a.title {
+        color: red;
+      }
+    }
+    
+    &.passed {
+      a.title {
+        color: green;
+      }
+    }   
+    
+    .details {
+      font-size: 12px;
+    } 
+  }
+  
+  .odd {
+    background-color: #EEE;
+  }
+}
