@@ -18,3 +18,45 @@ a {
     text-decoration: underline;
   }
 }
+
+@mixin clearFloat {
+  &:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+}
+
+h1 {
+  font-size: 1.3em;  
+}
+
+/* layout */
+
+#header {
+  @include clearFloat;
+  
+  img {
+    height: 75px;
+    float: left;
+  }
+  
+  #banner {
+    padding: 13px 0 0 8px;
+    float: left;
+    
+    h1 {
+      font-size: 25pt;
+    }
+    
+    h3 {
+      font-size: 13pt;
+    }
+    
+    h1, h3 {
+      margin: 0;
+    }
+  }
+}
