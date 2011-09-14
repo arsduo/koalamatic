@@ -1,5 +1,12 @@
 Koalamatic::Application.routes.draw do
+  get "runs" => "runs#index"
+  get "runs/index"
+  get 'runs/page/:page' => "runs#index"
+  get "runs/detail/:id" => "runs#detail"
+
   get "api/start_run"
+
+  root :to => "runs#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
