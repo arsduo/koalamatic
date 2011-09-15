@@ -1,6 +1,7 @@
 class RunsController < ApplicationController
   def index
-    @runs = TestRun.page(params[:page])
+    @page = params[:page] || 0
+    @runs = TestRun.page(@page)
   end
 
   def detail
@@ -9,5 +10,4 @@ class RunsController < ApplicationController
       redirect_to :action => :index and return
     end
   end
-
 end

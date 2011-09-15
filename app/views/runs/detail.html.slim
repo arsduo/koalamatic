@@ -16,4 +16,5 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
         ul.backtrace
           - test_case.backtrace.split("\n").each do |line|
             li= line
-  
+
+= link_to "Back", url_for(:action => :index, :page => params[:page])

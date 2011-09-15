@@ -7,10 +7,11 @@ html
 
   body
     #header
-      = image_tag "koala.png", :id => "icon", :alt => "Koala"
-      #banner
-        h1 Koalamatic
-        h3 Automated Facebook Testing
+      a href="/"
+        = image_tag "koala.png", :id => "icon", :alt => "Koala"
+        #banner
+          h1 Koalamatic
+          h3 Automated Facebook Testing
         
     #content
       = yield 

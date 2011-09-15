@@ -9,7 +9,7 @@ describe RunsController do
     end
     
     it "gets the first page of runs if no params[:page] specified" do
-      TestRun.expects(:page).with(nil).returns([])
+      TestRun.expects(:page).with(0).returns([])
       get 'index'
     end
     

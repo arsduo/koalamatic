@@ -37,6 +37,13 @@ h1 {
 
 #header {
   @include clearFloat;
+
+  a {
+    border: 0;
+    &:hover {
+      text-decoration: none; 
+    } 
+  }
   
   img {
     height: 75px;
