@@ -21,5 +21,10 @@ describe "RunsController routing" do
     it "routes GET detail/id" do
       {:get => "/runs/detail/3"}.should route_to(:controller => "runs", :action => "detail", :id => "3")
     end    
+    
+    it "routes GET detail" do
+      # gets immediately redirected, see runs_controller_spec
+      {:get => "/runs/detail"}.should route_to(:controller => "runs", :action => "detail")
+    end    
   end
 end

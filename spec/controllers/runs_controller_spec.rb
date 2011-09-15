@@ -41,7 +41,12 @@ describe RunsController do
     end
     
     context "without a valid run" do
-      it "redirects to index if the run isn't present" do
+      it "redirects to index if the run isn't provided" do
+        get 'detail'
+        response.should redirect_to(:action => :index)
+      end
+      
+      it "redirects to index if the run doesn't exist" do
         get 'detail', :id => "abc"
         response.should redirect_to(:action => :index)
       end

@@ -3,6 +3,7 @@ Koalamatic::Application.routes.draw do
   get "runs/index"
   get 'runs/page/:page' => "runs#index"
   get "runs/detail/:id" => "runs#detail"
+  get "runs/detail"
 
   get "api/start_run"
 
