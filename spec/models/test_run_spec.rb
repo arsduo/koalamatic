@@ -1,6 +1,7 @@
 require "spec_helper"
 
 describe TestRun do
+  include Rails.application.routes.url_helpers
   
   describe "constants" do
     it "defines TEST_INTERVAL to be 60.minutes" do
@@ -184,6 +185,36 @@ describe TestRun do
     it "does not include the date if it's publishable_by_results?"
     it "properly includes a comparison to previous results if there are previous results"
     it "works if there are no previous results"    
+    
+    it "includes the link" do
+      run = TestRun.make
+      link = "http://foo.bar"
+      run.stubs(:url).returns(link)
+      run.summary.should include(link)
+    end
+  end
+  
+  describe ".url" do
+    before :each do
+      @run = TestRun.make
+      @run.save
+    end
+    
+    it "composes a URL including the appropriate server" do
+      @run.url.should include(SERVER)
+    end
+    
+    it "links to /runs/detail/:id" do
+      @run.url.should include(url_for(:controller => :runs, :action => :detail, :id => @run.id, :only_path => true))
+    end
+
+    it "includes any optional parameters" do
+      @run.url(:a => 2).should include("a=2")
+    end
+
+    it "links properly even if the run is unsaved" do
+      TestRun.new.url.should include(url_for(:controller => :runs, :action => :detail, :id => nil, :only_path => true))
+    end
   end
   
   describe "previous run" do

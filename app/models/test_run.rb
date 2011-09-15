@@ -2,6 +2,8 @@ class TestRun < ActiveRecord::Base
   # note: for now, we only track failures
   has_many :test_cases
   
+  include Rails.application.routes.url_helpers
+  
   default_scope order('id desc')
   
   # how often we ideally want to run tests
@@ -61,7 +63,8 @@ class TestRun < ActiveRecord::Base
     failure_count && failure_count == 0
   end
   
-  # PUBLISHING  
+  # PUBLISHING
+  # this should perhaps be split out into a has_publishing module
   SUCCESS_TEXT = "All's well with Facebook!"
   def summary
     if publishable?
@@ -73,8 +76,12 @@ class TestRun < ActiveRecord::Base
       text += (self.failure_count == 0 ? SUCCESS_TEXT : "#{failure_count} error#{failure_count > 1 ? "s" : ""}")
       difference = (previous_run ? previous_run.failure_count.to_i - self.failure_count.to_i : 0)
       text += " -- #{difference.abs} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
-      text += " (Detail page coming soon!)"
+      text += " #{url}"
     end
+  end
+  
+  def url(extra_params = {})
+    url_for({:controller => :runs, :action => :detail, :id => self.id, :host => SERVER}.merge(extra_params))
   end
   
   def previous_run
