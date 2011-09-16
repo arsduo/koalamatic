@@ -68,14 +68,16 @@ class TestRun < ActiveRecord::Base
   SUCCESS_TEXT = "All's well with Facebook!"
   def summary
     if publishable?
-      text = if @publishing_reason == SCHEDULED_REASON
-        "Run for #{Time.now.strftime("%b %d")}: "
+      text = self.publication_reason == SCHEDULED_REASON ? "Run for #{Time.now.strftime("%b %d")}: " : "Run completed: "
+
+      if self.failure_count == 0
+        text += SUCCESS_TEXT
       else
-        "Run completed: "
+        text += "#{failure_count} error#{failure_count > 1 ? "s" : ""}"
+        difference = previous_run.try(:failure_count).to_i > 0 ? previous_run.failure_count.to_i - self.failure_count.to_i : 0
+        text += " -- #{difference.abs} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
       end
-      text += (self.failure_count == 0 ? SUCCESS_TEXT : "#{failure_count} error#{failure_count > 1 ? "s" : ""}")
-      difference = (previous_run ? previous_run.failure_count.to_i - self.failure_count.to_i : 0)
-      text += " -- #{difference.abs} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
+
       text += " #{url}"
     end
   end

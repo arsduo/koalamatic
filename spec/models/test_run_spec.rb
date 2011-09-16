@@ -181,10 +181,63 @@ describe TestRun do
       TestRun.make(:failure_count => 2).summary.should =~ /2 errors/
     end
     
-    it "includes the date if it's publishable_by_interval?"
-    it "does not include the date if it's publishable_by_results?"
-    it "properly includes a comparison to previous results if there are previous results"
-    it "works if there are no previous results"    
+    it "includes the date if it's publishable_by_interval?" do
+      t = TestRun.make
+      t.stubs(:publishable_by_interval?).returns(true)
+      t.stubs(:publishable_by_results?).returns(false)
+      t.summary.should =~ /#{Time.now.strftime("%b %d")}/
+    end
+    
+    it "does not include the date if it's publishable_by_results?" do
+      t = TestRun.make
+      t.stubs(:publishable_by_interval?).returns(false)
+      t.stubs(:publishable_by_results?).returns(true)
+      t.summary.should_not =~ /#{Time.now.strftime("%b %d")}/
+    end
+    
+    describe "the difference from previous run" do
+      it "isn't included if there's no previous run" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(nil)
+        t.summary.should_not =~ /last run/
+      end
+
+      it "isn't included if the current run passed" do
+        t = TestRun.make(:failure_count => 0)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 4))
+        t.summary.should_not =~ /last run/
+      end
+      
+      it "isn't included if the previous run passed" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 0))
+        t.summary.should_not =~ /last run/
+      end
+      
+      it "isn't included if the previous run had the same number of failures" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => t.failure_count))
+        t.summary.should_not =~ /last run/
+      end
+      
+      it "is included if the previous run had a different non-zero number of failures" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 1))
+        t.summary.should =~ /last run/
+      end
+      
+      it "says more than if there are now more failures than before" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 2))
+        t.summary.should =~ /more than last run/
+      end
+      
+      it "says fewer than if there are now fewer failures than before" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 5))
+        t.summary.should =~ /fewer than last run/
+      end
+    end
     
     it "includes the link" do
       run = TestRun.make
