@@ -1,0 +1,9 @@
+# destroy all Tweets that predate having an actual web interface
+def clean_tweets(page = 0)
+  puts "Cleaning page #{page}"
+  tweets = Twitter.user_timeline(:page => page)
+  if tweets.length > 0
+    tweets.each {|t| (Twitter.post("/statuses/destroy/#{t.id}") rescue false) unless t.text =~ /t\.co/ }
+  end
+  clean_tweets(page + 1)
+end
