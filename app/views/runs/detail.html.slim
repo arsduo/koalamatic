@@ -13,8 +13,7 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
       li id="testCase#{test_case.id}"
         .title #{test_case.title}
         .failureMessage #{test_case.failure_message}
-        ul.backtrace
-          - test_case.backtrace.split("\n").each do |line|
-            li= line
+        = formatted_backtrace(test_case)
+          
 
 = link_to "Back", url_for(:action => :index, :page => params[:page])

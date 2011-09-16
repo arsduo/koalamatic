@@ -36,7 +36,8 @@ end
 
 def make_exception
   stub("exception", 
-    :backtrace => 3.times.collect { Faker::Lorem.words(5).join(" ") }, 
+    # add Koala to the backtrace to generate some interesting lines
+    :backtrace => 8.times.collect { Faker::Lorem.words(5).join(" ") + (rand > 0.5 ? " koala" : "") }, 
     :message => Faker::Lorem.words(5).join(" ")
   )
 end

@@ -11,5 +11,8 @@ require 'spec_helper'
 #   end
 # end
 describe RunsHelper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  
+  describe ".formatted_backtrace" do
+    it "renders the partial"
+  end
 end
