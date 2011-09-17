@@ -1,7 +1,8 @@
 Koalamatic::Application.routes.draw do
   get "runs" => "runs#index"
   get "runs/index"
-  get 'runs/page/:page' => "runs#index"
+  get 'runs/page/:page' => "runs#page"
+  get 'runs/page'
   get "runs/detail/:id" => "runs#detail"
   get "runs/detail"
 
