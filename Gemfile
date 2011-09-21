@@ -27,6 +27,7 @@ gem 'exception_notification', :require => 'exception_notifier'
 
 # Asset template engines
 gem 'sass-rails'
+gem 'compass'
 gem 'coffee-script'
 gem 'uglifier'
 
