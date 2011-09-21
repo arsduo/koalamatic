@@ -1,5 +1,9 @@
 class RunsController < ApplicationController
   def index
+    @runs = TestRun.page(0).per(5)
+  end
+  
+  def page
     @page = params[:page] || 0
     @runs = TestRun.page(@page)
   end

@@ -58,14 +58,15 @@
 
   .backtrace {
     list-style: none;
-    width: 500px;
     font-family: "Courier New", Courier monospace;
     margin-bottom: 10px;
+    width: 800px;
 
     .systemStart {
       font-size: 1.4em;
       text-align: center;
       color: gray;
+      width: 500px;
     }
 
     .system {

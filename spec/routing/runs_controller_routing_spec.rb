@@ -14,8 +14,12 @@ describe "RunsController routing" do
       {:get => "/runs/index"}.should be_routable
     end
     
+    it "routes GET page/" do
+      {:get => "/runs/page"}.should route_to(:controller => "runs", :action => "page")
+    end
+    
     it "routes GET page/:page" do
-      {:get => "/runs/page/3"}.should route_to(:controller => "runs", :action => "index", :page => "3")
+      {:get => "/runs/page/3"}.should route_to(:controller => "runs", :action => "page", :page => "3")
     end
 
     it "routes GET detail/id" do
