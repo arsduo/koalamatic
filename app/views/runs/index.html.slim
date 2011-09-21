@@ -1,14 +1,31 @@
-h1 Test Runs
+#introduction
+  .section
+    h3 What's Koalamatic?
+    | some text
+  .section
+    h3 Why?
+    | some text
+  .section
+    h3 Why such inconsistent results?
+    | Facebook's API can be a bit like space, filled with virtual errors popping into and out of existence like subatomic particles
+    sup
+      | [
+      a href="http://en.wikipedia.org/wiki/Virtual_particles" target="_blank" 1
+      | ]
+    | . One of our first priorities is to weed out these phantom bugs and report only on real Facebook issues.
 
-ul#runs
-  - @runs.each_with_index do |run, idx|
-    li class="#{(idx % 2 == 0) ? 'even' : 'odd'} #{run.passed? ? 'passed' : 'failed'}"
-      = link_to run.human_time, url_for(:action => :detail, :id => run.id, :page => @page), :class => "title"     
-      span , #{run.duration} seconds
-      .details
-        - if run.passed?
-          | Passed
-        - else
-          #{run.failure_count} errors
+#recentRuns
+  h3 Recent Tests
+
+  ul#runs
+    - @runs.each_with_index do |run, idx|
+      li class="#{(idx % 2 == 0) ? 'even' : 'odd'} #{run.passed? ? 'passed' : 'failed'}"
+        = link_to run.human_time, url_for(:action => :detail, :id => run.id, :page => @page), :class => "title"     
+        span , #{run.duration} seconds
+        .details
+          - if run.passed?
+            | Passed
+          - else
+            #{run.failure_count} errors
           
-= paginate @runs
+  = link_to "see more", url_for(:action => "page")
