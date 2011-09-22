@@ -1,6 +1,6 @@
 require 'bundler'
 require 'rspec'
-require 'facebook_test_runner'
+require 'facebook/test_runner'
 
 namespace :fb_tests do
   desc "Run the live tests and report out to the database and Twitter"

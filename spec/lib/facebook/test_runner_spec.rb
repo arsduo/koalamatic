@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'facebook_test_runner'
+require 'facebook/test_runner'
 
 describe Facebook::TestRunner do
 
@@ -81,15 +81,17 @@ describe Facebook::TestRunner do
 
       it "marks each test as done after :each" do
         run = @run
-        RSpec.expects(:configure).yields(@config) do
-          @config.expects(:after).with(:each).yields do |eval_context|
-            example = stub("example")
-            eval_context.stubs(:example).returns(example)
-            run.expects(:test_done).with(example)
-          end
-        end
-        @runner.setup_test_environment
         raise "not actually testing"
+        
+        @config.expects(:after).with(:each).yields do |eval_context|
+          puts "in config yield"
+          example = stub("example")
+          eval_context.stubs(:example).returns(example)
+          run.expects(:test_done).with(example)
+        end
+
+        RSpec.expects(:configure).yields(@config)
+        @runner.setup_test_environment
       end
 
       it "marks each test as done after :all" do
