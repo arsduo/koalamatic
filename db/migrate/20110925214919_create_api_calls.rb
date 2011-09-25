@@ -8,7 +8,8 @@ class CreateApiCalls < ActiveRecord::Migration
       t.string :host
       t.boolean :ssl
       #t.string :query, :limit => 2000
-      t.column :duration, :double
+      # postgres knows it as float8
+      t.column :duration, (Rails.env.production? ? :float8 : :double)
       
       # response info
       t.integer :response_status
