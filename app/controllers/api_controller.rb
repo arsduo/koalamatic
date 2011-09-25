@@ -3,7 +3,7 @@ class ApiController < ApplicationController
     # start a test run if there hasn't been one in the designated interval
     if TestRun.time_for_next_run?
       logger.info("Starting tests.")
-      Kernel.system("bundle exec rake fb_tests:run &")
+      Kernel.system("bundle exec rake fb:run_tests &")
       @result = :started
     else
       logger.info("Too soon :( #{TestRun.last.inspect}")

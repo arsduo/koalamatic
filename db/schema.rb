@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -10,7 +11,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110909093155) do
+ActiveRecord::Schema.define(:version => 20110925214919) do
+
+  create_table "api_calls", :force => true do |t|
+    t.string   "method"
+    t.string   "request_body",    :limit => 2000
+    t.string   "path",            :limit => 400
+    t.string   "host"
+    t.boolean  "ssl"
+    t.string   "query",           :limit => 2000
+    t.float    "duration"
+    t.integer  "response_status"
+    t.boolean  "analyzed",                        :default => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "test_cases", :force => true do |t|
     t.string   "title",           :limit => 4000

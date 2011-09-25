@@ -15,7 +15,7 @@ describe ApiController do
       end
       
       it "starts a new run" do
-        Kernel.expects(:system).with("bundle exec rake fb_tests:run &")
+        Kernel.expects(:system).with("bundle exec rake fb:run_tests &")
         get :start_run
       end
       
