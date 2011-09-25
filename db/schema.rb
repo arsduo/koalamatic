@@ -15,14 +15,12 @@ ActiveRecord::Schema.define(:version => 20110925214919) do
 
   create_table "api_calls", :force => true do |t|
     t.string   "method"
-    t.string   "request_body",    :limit => 2000
     t.string   "path",            :limit => 400
     t.string   "host"
     t.boolean  "ssl"
-    t.string   "query",           :limit => 2000
     t.float    "duration"
     t.integer  "response_status"
-    t.boolean  "analyzed",                        :default => false
+    t.boolean  "analyzed",                       :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
