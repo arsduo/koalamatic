@@ -12,10 +12,10 @@ module Facebook
       url = env[:url]
       ApiCall.create(
         :method => env[:method],
-        :request_body => request_body,
+        #:request_body => request_body,
         :path => url.path,
         :host => url.host,
-        :query => url.query,
+        #:query => url.query,
         :ssl => url.inferred_port == 443,
         :duration => Time.now - start_time,
         :response_status => env[:status].to_i    
