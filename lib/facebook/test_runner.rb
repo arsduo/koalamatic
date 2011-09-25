@@ -1,3 +1,4 @@
+require 'facebook/api_recorder'
 module Facebook
   class TestRunner
     # this class is not thread-safe
@@ -44,6 +45,16 @@ module Facebook
           run.done
         end
       end      
+      
+      # setup the Faraday adapter
+      Koala.http_service.faraday_middleware = Proc.new do |builder|
+        builder.request :multipart
+        builder.request :url_encoded
+        builder.use Facebook::ApiRecorder
+        builder.adapter Faraday.default_adapter
+      end
+        
+        
 
       # tests should be loaded after RSpec configuration
       get_tests

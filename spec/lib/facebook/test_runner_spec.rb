@@ -72,6 +72,8 @@ describe Facebook::TestRunner do
       ENV["LIVE"].should be_true
       ENV["LIVE"] = prev_env
     end
+    
+    it "sets the Koala Faraday middleware option"
 
     context "RSpec setup" do
       before :each do
