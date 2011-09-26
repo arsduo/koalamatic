@@ -20,7 +20,7 @@ class ApiRecorder < Faraday::Middleware
     
     record_call = Proc.new do
       ApiCall.create(
-        :method => env[:method],
+        :method => determine_method(env, request_body),
         #:request_body => request_body,
         :path => url.path,
         :host => url.host,
@@ -36,5 +36,16 @@ class ApiRecorder < Faraday::Middleware
     
     # pass it on to the next middleware
     result
+  end
+  
+  private
+  
+  def determine_method(env, request_body)
+    # verbs other than GET and POST are sometimes conveyed in the body
+    if request_body && fake_method = request_body.split("&").find {|param| param =~ /method=/}
+      fake_method.split("=").last
+    else
+      env[:method]
+    end    
   end
 end
