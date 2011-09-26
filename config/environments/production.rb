@@ -61,12 +61,12 @@ Koalamatic::Application.configure do
     :user_name => ENV["EMAIL_SENDER"], 
     :password => ENV["EMAIL_PASSWORD"]
   )
-  Rails.logger.info(config.action_mailer.smtp_settings.inspect)
+  puts(config.action_mailer.smtp_settings.inspect)
   ::ExceptionNotifierOptions = {
     :email_prefix => "[Koalamatic Error] ",
     :sender_address => ENV["ERROR_EMAIL"],
     :exception_recipients => ENV["ERROR_EMAIL"]
   }  
   config.middleware.use ExceptionNotifier, ExceptionNotifierOptions
-  Rails.logger.info(ExceptionNotifierOptions.inspect)
+  puts(ExceptionNotifierOptions.inspect)
 end
