@@ -52,7 +52,13 @@ class TestRun < ActiveRecord::Base
       test_cases << TestCase.create_from_example(example)
     end
     
-    save
+    if saved = self.save
+      logger.info("Run #{self.id} completed.")
+    else
+      logger.warn("Unable to save #{self.inspect} due to: #{self.errors.inspect}")
+    end
+    
+    saved
   end
   
   def without_recording_time(&block)
