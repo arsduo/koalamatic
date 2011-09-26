@@ -1,3 +1,5 @@
+require 'api_recorder'
+
 module Facebook
   class TestRunner
     # this class is not thread-safe
@@ -25,7 +27,7 @@ module Facebook
           @run.publish_if_appropriate!
         end
       rescue Exception => err
-        Rails.logger.info("Error in publishing! #{err.message}\n#{err.backtrace.join("\n")}")
+        Rails.logger.warn("Error in publishing! #{err.message}\n#{err.backtrace.join("\n")}")
       end
     end
 
@@ -44,7 +46,18 @@ module Facebook
           run.done
         end
       end      
-
+      
+      # setup the Faraday adapter
+      Koala.http_service.faraday_middleware = Proc.new do |builder|
+        builder.request :multipart
+        builder.request :url_encoded
+        builder.use ApiRecorder
+        builder.adapter Faraday.default_adapter
+      end
+      
+      # tell ApiRecorder which run we're using so we can exclude database time
+      ApiRecorder.run = run
+        
       # tests should be loaded after RSpec configuration
       get_tests
     end

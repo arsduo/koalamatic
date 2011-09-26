@@ -15,7 +15,7 @@ def test_run_completed(attrs = {})
     :tweet_id => rand(2**32).to_i,
     :publication_reason => "scheduled"
   }.merge(attrs))
-  test_count.times.collect { run.test_cases << TestCase.make }
+  test_count.times {|i| run.test_cases << TestCase.create_from_example(make_example(i < failure_count)) }
   run
 end
 
@@ -36,7 +36,8 @@ end
 
 def make_exception
   stub("exception", 
-    :backtrace => 3.times.collect { Faker::Lorem.words(5).join(" ") }, 
+    # add Koala to the backtrace to generate some interesting lines
+    :backtrace => 8.times.collect { Faker::Lorem.words(5).join(" ") + (rand > 0.5 ? " koala" : "") }, 
     :message => Faker::Lorem.words(5).join(" ")
   )
 end

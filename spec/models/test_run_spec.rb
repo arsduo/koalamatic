@@ -1,6 +1,7 @@
 require "spec_helper"
 
 describe TestRun do
+  include Rails.application.routes.url_helpers
   
   describe "constants" do
     it "defines TEST_INTERVAL to be 60.minutes" do
@@ -15,11 +16,14 @@ describe TestRun do
       TestRun::PUBLISHING_INTERVAL.should == 1.day
     end
   end
+  
   describe "#interval_to_next_run" do
     it "returns TEST_INTERVAL - TEST_PADDING" do
       TestRun.interval_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
     end
   end
+
+  it "by default orders id desc"
 
   describe "#time_for_next_run?" do
     before :each do
@@ -45,6 +49,63 @@ describe TestRun do
     it "sets failure_count to 0" do
       TestRun.new.failure_count.should == 0
     end
+  end
+  
+  describe ".without_recording_time" do    
+    it "processes the block given" do
+      done = false
+      TestRun.make.without_recording_time do
+        done = true
+      end
+      done.should be_true
+    end
+    
+    it "doesn't count the time in the block" do
+      # fix when the run starts
+      run_start_time = Time.now
+      Time.stubs(:now).returns(run_start_time)
+      @run = TestRun.make
+      
+      # now fix when the block timing starts
+      block_start_time = run_start_time + 20.seconds
+      Time.stubs(:now).returns(block_start_time)
+      difference = 20.seconds
+      
+      @run.without_recording_time do
+        # the block lasts our 20 second difference
+        Time.stubs(:now).returns(block_start_time + difference)
+      end
+      
+      # finally, fix our finished time
+      run_end_time = run_start_time + 100.seconds
+      Time.stubs(:now).returns(run_end_time)
+      @run.done
+      
+      # the duration should be the run end - run start time, - again the block time
+      # e.g. the block time wasn't counted as actual test time
+      @run.duration.should == run_end_time - run_start_time - difference
+    end
+  end
+  
+  describe ".human_time" do
+    it "shows the date/time as MM/DD hh:mm" do
+      run = TestRun.new(:created_at => Time.zone.parse("2001/12/31 3:45 PM"))
+      run.human_time.should == "12/31  3:45 PM"
+    end    
+  end
+  
+  describe ".passed?" do
+    it "passes if the failure_count is 0" do
+      TestRun.new(:failure_count => 0).passed?.should be_true
+    end
+
+    it "fails if the failure_count is > 0" do
+      TestRun.new(:failure_count => 2).passed?.should be_false
+    end    
+    
+    it "fails if the failure_count is nil" do
+      TestRun.new(:failure_count => nil).passed?.should be_false      
+    end    
   end
 
   describe ".test_done" do
@@ -156,6 +217,94 @@ describe TestRun do
       TestRun.make(:failure_count => 1).summary.should_not =~ /1 errors/
       TestRun.make(:failure_count => 2).summary.should =~ /2 errors/
     end
+    
+    it "includes the date if it's publishable_by_interval?" do
+      t = TestRun.make
+      t.stubs(:publishable_by_interval?).returns(true)
+      t.stubs(:publishable_by_results?).returns(false)
+      t.summary.should =~ /#{Time.now.strftime("%b %d")}/
+    end
+    
+    it "does not include the date if it's publishable_by_results?" do
+      t = TestRun.make
+      t.stubs(:publishable_by_interval?).returns(false)
+      t.stubs(:publishable_by_results?).returns(true)
+      t.summary.should_not =~ /#{Time.now.strftime("%b %d")}/
+    end
+    
+    describe "the difference from previous run" do
+      it "isn't included if there's no previous run" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(nil)
+        t.summary.should_not =~ /last run/
+      end
+
+      it "isn't included if the current run passed" do
+        t = TestRun.make(:failure_count => 0)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 4))
+        t.summary.should_not =~ /last run/
+      end
+      
+      it "isn't included if the previous run passed" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 0))
+        t.summary.should_not =~ /last run/
+      end
+      
+      it "isn't included if the previous run had the same number of failures" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => t.failure_count))
+        t.summary.should_not =~ /last run/
+      end
+      
+      it "is included if the previous run had a different non-zero number of failures" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 1))
+        t.summary.should =~ /last run/
+      end
+      
+      it "says more than if there are now more failures than before" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 2))
+        t.summary.should =~ /more than last run/
+      end
+      
+      it "says fewer than if there are now fewer failures than before" do
+        t = TestRun.make(:failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 5))
+        t.summary.should =~ /fewer than last run/
+      end
+    end
+    
+    it "includes the link" do
+      run = TestRun.make
+      link = "http://foo.bar"
+      run.stubs(:url).returns(link)
+      run.summary.should include(link)
+    end
+  end
+  
+  describe ".url" do
+    before :each do
+      @run = TestRun.make
+      @run.save
+    end
+    
+    it "composes a URL including the appropriate server" do
+      @run.url.should include(SERVER)
+    end
+    
+    it "links to /runs/detail/:id" do
+      @run.url.should include(url_for(:controller => :runs, :action => :detail, :id => @run.id, :only_path => true))
+    end
+
+    it "includes any optional parameters" do
+      @run.url(:a => 2).should include("a=2")
+    end
+
+    it "links properly even if the run is unsaved" do
+      TestRun.new.url.should include(url_for(:controller => :runs, :action => :detail, :id => nil, :only_path => true))
+    end
   end
   
   describe "previous run" do
@@ -230,29 +379,52 @@ describe TestRun do
       @run = TestRun.make
     end
     
-    it "returns SCHEDULED_REASON if it's publishable_by_interval?" do
+    it "sets publication_reason to SCHEDULED_REASON if it's publishable_by_interval?" do
       @run.stubs(:publishable_by_interval?).returns(true)
       @run.stubs(:publishable_by_results?).returns(false)
-      @run.publishable?.should == TestRun::SCHEDULED_REASON
+      @run.publishable?
+      @run.publication_reason.should == TestRun::SCHEDULED_REASON
     end
     
-    it "returns DIFFERENT_RESULTS_REASON if it's publishable_by_interval?" do
+    it "sets publication_reason to DIFFERENT_RESULTS_REASON if it's publishable_by_interval?" do
       @run.stubs(:publishable_by_interval?).returns(false)
       @run.stubs(:publishable_by_results?).returns(true)
-      @run.publishable?.should == TestRun::DIFFERENT_RESULTS_REASON
+      @run.publishable?
+      @run.publication_reason.should == TestRun::DIFFERENT_RESULTS_REASON
+    end
+    
+    it "sets publication_reason to nil otherwise" do
+      @run.stubs(:publishable_by_interval?).returns(false)
+      @run.stubs(:publishable_by_results?).returns(false)
+      @run.publishable?
+      @run.publication_reason.should be_nil
+    end    
+    
+    it "returns true if it's publishable_by_interval?" do
+      @run.stubs(:publishable_by_interval?).returns(true)
+      @run.stubs(:publishable_by_results?).returns(false)
+      @run.publishable?.should be_true
+    end
+    
+    it "returns true if it's publishable_by_interval?" do
+      @run.stubs(:publishable_by_interval?).returns(false)
+      @run.stubs(:publishable_by_results?).returns(true)
+      @run.publishable?.should be_true
     end
     
     it "returns false otherwise" do
       @run.stubs(:publishable_by_interval?).returns(false)
       @run.stubs(:publishable_by_results?).returns(false)
       @run.publishable?.should be_false
-    end    
+    end
+    
   end
 
   describe ".publish_if_appropriate!" do
     before :each do
       @run = TestRun.make
-      @tweet = stub("Tweet", :id => rand(2**25))      
+      @tweet = stub("Tweet", :id => rand(2**25))    
+      @run.stubs(:summary).returns("my summary")  
       Twitter.stubs(:update).returns(@tweet)
     end
   
@@ -262,16 +434,11 @@ describe TestRun do
       @run.publish_if_appropriate!
     end
     
-    it "saves the publication reason" do
-      reason = "reason"
-      @run.expects(:publishable?).returns(reason)
-      @run.publish_if_appropriate!
-      @run.publication_reason.should == reason      
-    end
-    
     it "publishes the summary as a tweet" do
-      @run.expects(:publishable?).returns("true")
-      Twitter.expects(:update).with(@run.summary).returns(@tweet)
+      @run.stubs(:publishable?).returns("true")
+      summary = "abcdefg"
+      @run.expects(:summary).returns(summary)
+      Twitter.expects(:update).with(summary).returns(@tweet)
       @run.publish_if_appropriate!
     end
 

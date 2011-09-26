@@ -2,6 +2,10 @@ class TestRun < ActiveRecord::Base
   # note: for now, we only track failures
   has_many :test_cases
   
+  include Rails.application.routes.url_helpers
+  
+  default_scope order('id desc')
+  
   # how often we ideally want to run tests
   TEST_INTERVAL = 60.minutes
   # roughly how long the tests take to run
@@ -18,10 +22,6 @@ class TestRun < ActiveRecord::Base
   end
   
   def self.time_for_next_run?
-    logger.info("created_at > #{(Time.now - interval_to_next_run).to_i}")
-    logger.info(TestRun.last.created_at.to_i)
-    logger.info(TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first.inspect)
-    logger.info(!!TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first)
     !TestRun.where(["created_at > ?", Time.now - interval_to_next_run]).limit(1).first
   end
   
@@ -30,6 +30,7 @@ class TestRun < ActiveRecord::Base
   
   def initialize(*args)
     super
+    @processing_time = 0
     @failures = []
     @start_time = Time.now
   end
@@ -44,25 +45,58 @@ class TestRun < ActiveRecord::Base
 
   def done
     # write out to the database
-    self.duration = Time.now - @start_time
+    self.duration = Time.now - @start_time - @processing_time
     # right now we only store details for failures
     # but may in the future store analytic data on successes
     @failures.each do |example|
       test_cases << TestCase.create_from_example(example)
     end
     
-    save
+    if saved = self.save
+      logger.info("Run #{self.id} completed.")
+    else
+      logger.warn("Unable to save #{self.inspect} due to: #{self.errors.inspect}")
+    end
+    
+    saved
   end
   
-  # PUBLISHING  
+  def without_recording_time(&block)
+    pause_start = Time.now
+    yield
+    @processing_time += Time.now - pause_start    
+  end
+  
+  def human_time
+    # human-readable identifier for when the run occurred
+    created_at.strftime("%m/%d %l:%M %p")
+  end
+  
+  def passed?
+    failure_count && failure_count == 0
+  end
+  
+  # PUBLISHING
+  # this should perhaps be split out into a has_publishing module
   SUCCESS_TEXT = "All's well with Facebook!"
   def summary
-    text = "Run #{id} complete: "
-    text += if failure_count == 0
-      SUCCESS_TEXT
-    else
-      "We encountered #{failure_count} error#{failure_count > 1 ? "s" : ""}. (Detail page coming soon!)"
+    if publishable?
+      text = self.publication_reason == SCHEDULED_REASON ? "Run for #{Time.now.strftime("%b %d")}: " : "Run completed: "
+
+      if self.failure_count == 0
+        text += SUCCESS_TEXT
+      else
+        text += "#{failure_count} error#{failure_count > 1 ? "s" : ""}"
+        difference = previous_run.try(:failure_count).to_i > 0 ? previous_run.failure_count.to_i - self.failure_count.to_i : 0
+        text += " -- #{difference.abs} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
+      end
+
+      text += " #{url}"
     end
+  end
+  
+  def url(extra_params = {})
+    url_for({:controller => :runs, :action => :detail, :id => self.id, :host => SERVER}.merge(extra_params))
   end
   
   def previous_run
@@ -81,24 +115,15 @@ class TestRun < ActiveRecord::Base
   def publishable?
     # see if it's time to publish again
     # is it bad form for a ? method to return strings for later use?
-    if publishable_by_interval?
-      Rails.logger.info("Interval publishing!")
-      SCHEDULED_REASON
-    # alternately, see if this run has produced different results
-    elsif publishable_by_results?
-      Rails.logger.info("Results publishing!")
-      DIFFERENT_RESULTS_REASON
-    else
-      Rails.logger.info("Not publishing!")
-      false
-    end
+    set_publication_reason
+    !!self.publication_reason
   end
   
   def publish_if_appropriate!
-    if reason = self.publishable?
-      self.publication_reason = reason
+    if self.publishable?
       publication = Twitter.update(summary)
       self.tweet_id = publication.id
+      # publication_reason is set in publishable?
       status = self.save
     end
   end
@@ -111,6 +136,19 @@ class TestRun < ActiveRecord::Base
   
   def self.last_scheduled_publication
     published.scheduled.first
+  end
+  
+  private
+  
+  def set_publication_reason
+    self.publication_reason = if publishable_by_interval?
+     SCHEDULED_REASON
+    # alternately, see if this run has produced different results
+    elsif publishable_by_results?
+      DIFFERENT_RESULTS_REASON
+    else
+      nil
+    end
   end
   
 end

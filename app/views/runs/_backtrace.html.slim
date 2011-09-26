@@ -1,0 +1,8 @@
+- id = "backtrace#{test_case.id}"
+ul.backtrace id="#{id}"
+  - test_case.backtrace.split("\n").each do |line|
+    - if show_backtrace_divider?(line)
+      li.systemStart{data-backtrace="#{id}"} &#8226;&#8226;&#8226;  
+    
+    li class="#{interesting_backtrace?(line) ? 'interesting' : 'system'}"
+      = line

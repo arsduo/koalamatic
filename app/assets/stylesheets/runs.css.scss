@@ -1,0 +1,130 @@
+// Place all the styles related to the runs controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+@import 'mixins';
+
+/* introduction */
+
+#introduction {
+  margin: 20px 50px;
+  width: 500px;
+  float: left;
+  .section {
+    margin-bottom: 20px;
+    
+    h3 {
+      margin: 0px 0px 5px;
+      font-weight: bold;
+      font-size: 1.4em;
+    }
+  }
+
+}
+
+/* recent runs (index page) */
+#recentRuns {
+  float: right;
+  @include clearFloat;
+  width: 300px;
+
+  h3 {
+    margin-top: 3px;
+  }
+
+  margin-right: 5px;
+  border: 1px solid black;
+  padding: 5px;
+  
+  #runs {
+    margin-left: 0;
+    padding-left: 0;
+    
+    li {
+      width: 95%;
+    }
+  }
+}
+
+/* list */
+#runs {
+  list-style: none;
+
+  li {
+    width: 400px;
+    padding: 8px 4px;
+
+    .title {
+      font-weight: bold;
+    }
+
+    &.failed {
+      a.title {
+        color: red;
+      }
+    }
+
+    &.passed {
+      a.title {
+        color: green;
+      }
+    }
+
+    .details {
+      font-size: 12px;
+    }
+  }
+
+  .odd {
+    background-color: #EEE;
+  }
+}
+
+/* detail */
+#summary {
+  &.passed {
+    color: green;
+  }
+
+  &.failed {
+    color: red;
+  }
+}
+
+#failureList {
+  .title {
+    font-weight: bold;
+  }
+
+  .failureMessage {
+    color: red;
+  }
+
+  .backtrace {
+    list-style: none;
+    font-family: "Courier New", Courier monospace;
+    margin-bottom: 10px;
+    width: 800px;
+
+    .systemStart {
+      font-size: 1.4em;
+      text-align: center;
+      color: gray;
+      width: 500px;
+    }
+
+    .system {
+      display: none;
+    }
+
+    &.complete {
+      .system {
+        display: block;
+      }
+
+      .systemStart {
+        display: none;
+      }
+    }
+  }
+}

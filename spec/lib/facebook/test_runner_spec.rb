@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'facebook_test_runner'
+require 'facebook/test_runner'
 
 describe Facebook::TestRunner do
 
@@ -72,6 +72,9 @@ describe Facebook::TestRunner do
       ENV["LIVE"].should be_true
       ENV["LIVE"] = prev_env
     end
+    
+    it "sets the Koala Faraday middleware option"
+    it "sets the ApiRecorder's current run"
 
     context "RSpec setup" do
       before :each do
@@ -81,15 +84,17 @@ describe Facebook::TestRunner do
 
       it "marks each test as done after :each" do
         run = @run
-        RSpec.expects(:configure).yields(@config) do
-          @config.expects(:after).with(:each).yields do |eval_context|
-            example = stub("example")
-            eval_context.stubs(:example).returns(example)
-            run.expects(:test_done).with(example)
-          end
-        end
-        @runner.setup_test_environment
         raise "not actually testing"
+        
+        @config.expects(:after).with(:each).yields do |eval_context|
+          puts "in config yield"
+          example = stub("example")
+          eval_context.stubs(:example).returns(example)
+          run.expects(:test_done).with(example)
+        end
+
+        RSpec.expects(:configure).yields(@config)
+        @runner.setup_test_environment
       end
 
       it "marks each test as done after :all" do
@@ -165,7 +170,7 @@ describe Facebook::TestRunner do
     context "in production" do
       before :each do
         Rails.env.stubs(:production?).returns(true)
-        Kernel.stubs(:warn)
+        Rails.logger.stubs(:warn)
       end
 
       it "checks credentials" do
@@ -188,7 +193,7 @@ describe Facebook::TestRunner do
 
       it "prints a warning if an error occurs in verifying credentials" do
         Twitter.stubs(:verify_credentials).raises(Exception)
-        Kernel.expects(:warn)
+        Rails.logger.expects(:warn)
         @runner.publish_results
       end
 
@@ -200,7 +205,7 @@ describe Facebook::TestRunner do
       it "prints a warning if an error occurs in publishing" do
         @runner.run.stubs(:publish_if_appropriate!).raises(Exception)
         Twitter.expects(:verify_credentials).returns(true)
-        Kernel.expects(:warn)
+        Rails.logger.expects(:warn)
         @runner.publish_results
       end
     end

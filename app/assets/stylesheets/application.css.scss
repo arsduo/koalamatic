@@ -1,0 +1,75 @@
+/*
+ * This is a manifest file that'll automatically include all the stylesheets available in this directory
+ * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
+ * the top of the compiled file, but it's generally better to create a new file per style scope.
+ *= require_self
+ *= require_tree . 
+*/
+
+@import 'mixins';
+
+body {
+  font-family: sans-serif;
+  font-size: 14px;
+  position: relative;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+h1 {
+  font-size: 1.3em;  
+}
+
+/* layout */
+
+#header {
+  @include clearFloat;
+  margin-bottom: 20px;
+  
+  a {
+    border: 0;
+    &:hover {
+      text-decoration: none; 
+    } 
+  }
+  
+  img {
+    height: 75px;
+    float: left;
+  }
+  
+  #banner {
+    padding: 13px 0 0 8px;
+    float: left;
+    
+    h1 {
+      font-size: 25pt;
+    }
+    
+    h3 {
+      font-size: 13pt;
+    }
+    
+    h1, h3 {
+      margin: 0;
+    }
+  }
+}
+
+#content {
+  padding-bottom: 25px;
+}
+
+#footer {
+  position: absolute;
+  bottom: 5px;
+  margin-top: 10px;
+  text-align: center;
+  width: 100%;
+}
