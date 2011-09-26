@@ -19,7 +19,7 @@ class ApiRecorder < Faraday::Middleware
     url = env[:url]
     
     record_call = Proc.new do
-      ApiCall.create(
+      record = ApiCall.create(
         :method => env[:method],
         #:request_body => request_body,
         :path => url.path,
@@ -29,6 +29,7 @@ class ApiRecorder < Faraday::Middleware
         :duration => Time.now - start_time,
         :response_status => env[:status].to_i    
       )
+      puts "Created result #{record.inspect}"
     end
     # if we're inside a test run,
     # don't count time spent writing to the database toward total test execution
