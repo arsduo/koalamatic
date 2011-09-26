@@ -40,9 +40,9 @@ class ApiRecorder < Faraday::Middleware
   
   private
   
-  def determine_method(env, request_body)
+  def determine_method(env, request_body = nil)
     # verbs other than GET and POST are sometimes conveyed in the body
-    if request_body && fake_method = request_body.split("&").find {|param| param =~ /method=/}
+    if request_body.is_a?(String) && fake_method = request_body.split("&").find {|param| param =~ /method=/}
       fake_method.split("=").last
     else
       env[:method]
