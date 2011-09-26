@@ -74,6 +74,7 @@ describe Facebook::TestRunner do
     end
     
     it "sets the Koala Faraday middleware option"
+    it "sets the ApiRecorder's current run"
 
     context "RSpec setup" do
       before :each do

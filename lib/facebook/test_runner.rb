@@ -54,9 +54,10 @@ module Facebook
         builder.use ApiRecorder
         builder.adapter Faraday.default_adapter
       end
+      
+      # tell ApiRecorder which run we're using so we can exclude database time
+      ApiRecorder.run = run
         
-        
-
       # tests should be loaded after RSpec configuration
       get_tests
     end

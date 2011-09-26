@@ -30,6 +30,7 @@ class TestRun < ActiveRecord::Base
   
   def initialize(*args)
     super
+    @processing_time = 0
     @failures = []
     @start_time = Time.now
   end
@@ -44,7 +45,7 @@ class TestRun < ActiveRecord::Base
 
   def done
     # write out to the database
-    self.duration = Time.now - @start_time
+    self.duration = Time.now - @start_time - @processing_time
     # right now we only store details for failures
     # but may in the future store analytic data on successes
     @failures.each do |example|
@@ -52,6 +53,12 @@ class TestRun < ActiveRecord::Base
     end
     
     save
+  end
+  
+  def without_recording_time(&block)
+    pause_start = Time.now
+    yield
+    @processing_time += Time.now - pause_start    
   end
   
   def human_time

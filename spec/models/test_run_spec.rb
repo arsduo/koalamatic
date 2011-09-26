@@ -16,6 +16,7 @@ describe TestRun do
       TestRun::PUBLISHING_INTERVAL.should == 1.day
     end
   end
+  
   describe "#interval_to_next_run" do
     it "returns TEST_INTERVAL - TEST_PADDING" do
       TestRun.interval_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
@@ -47,6 +48,42 @@ describe TestRun do
 
     it "sets failure_count to 0" do
       TestRun.new.failure_count.should == 0
+    end
+  end
+  
+  describe ".without_recording_time" do    
+    it "processes the block given" do
+      done = false
+      TestRun.make.without_recording_time do
+        done = true
+      end
+      done.should be_true
+    end
+    
+    it "doesn't count the time in the block" do
+      # fix when the run starts
+      run_start_time = Time.now
+      Time.stubs(:now).returns(run_start_time)
+      @run = TestRun.make
+      
+      # now fix when the block timing starts
+      block_start_time = run_start_time + 20.seconds
+      Time.stubs(:now).returns(block_start_time)
+      difference = 20.seconds
+      
+      @run.without_recording_time do
+        # the block lasts our 20 second difference
+        Time.stubs(:now).returns(block_start_time + difference)
+      end
+      
+      # finally, fix our finished time
+      run_end_time = run_start_time + 100.seconds
+      Time.stubs(:now).returns(run_end_time)
+      @run.done
+      
+      # the duration should be the run end - run start time, - again the block time
+      # e.g. the block time wasn't counted as actual test time
+      @run.duration.should == run_end_time - run_start_time - difference
     end
   end
   
