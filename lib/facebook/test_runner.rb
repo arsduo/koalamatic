@@ -1,4 +1,5 @@
-require 'facebook/api_recorder'
+require 'api_recorder'
+
 module Facebook
   class TestRunner
     # this class is not thread-safe
@@ -50,7 +51,7 @@ module Facebook
       Koala.http_service.faraday_middleware = Proc.new do |builder|
         builder.request :multipart
         builder.request :url_encoded
-        builder.use Facebook::ApiRecorder
+        builder.use ApiRecorder
         builder.adapter Faraday.default_adapter
       end
         
