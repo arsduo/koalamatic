@@ -11,6 +11,7 @@
 body {
   font-family: sans-serif;
   font-size: 14px;
+  position: relative;
 }
 
 a {
@@ -61,7 +62,13 @@ h1 {
   }
 }
 
+#content {
+  padding-bottom: 25px;
+}
+
 #footer {
+  position: absolute;
+  bottom: 5px;
   margin-top: 10px;
   text-align: center;
   width: 100%;
