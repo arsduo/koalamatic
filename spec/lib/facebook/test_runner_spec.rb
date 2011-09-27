@@ -73,8 +73,29 @@ describe Facebook::TestRunner do
       ENV["LIVE"] = prev_env
     end
     
-    it "sets the Koala Faraday middleware option"
-    it "sets the ApiRecorder's current run"
+    it "sets the Koala Faraday middleware option to include Koala defaults" do
+      @runner.setup_test_environment
+      builder = stub("Faraday builder")
+      builder.expects(:request).with(:multipart)
+      builder.expects(:request).with(:url_encoded)
+      builder.stubs(:use)
+      builder.expects(:adapter).with(Faraday.default_adapter)
+      Koala.http_service.faraday_middleware.call(builder)
+    end
+    
+    it "sets the Koala Faraday middleware to use our API recorder" do
+      @runner.setup_test_environment
+      builder = stub("Faraday builder")
+      builder.expects(:use).with(ApiRecorder)
+      builder.stubs(:request)
+      builder.stubs(:adapter)
+      Koala.http_service.faraday_middleware.call(builder)
+    end
+    
+    it "sets the ApiRecorder's current run" do
+      ApiRecorder.expects(:run=).with(@runner.run)
+      @runner.setup_test_environment
+    end
 
     context "RSpec setup" do
       before :each do
@@ -83,29 +104,27 @@ describe Facebook::TestRunner do
       end
 
       it "marks each test as done after :each" do
-        run = @run
-        raise "not actually testing"
+        run = @runner.run
         
-        @config.expects(:after).with(:each).yields do |eval_context|
-          puts "in config yield"
-          example = stub("example")
-          eval_context.stubs(:example).returns(example)
-          run.expects(:test_done).with(example)
-        end
-
-        RSpec.expects(:configure).yields(@config)
+        example = stub("example")
+        # make the example available in the context of the runner
+        @runner.stubs(:example).returns(example)
+        run.expects(:test_done).with(example)
+        
+        RSpec.stubs(:configure).yields(@config)
+        @config.expects(:after).with(:each).yields
+        
         @runner.setup_test_environment
       end
 
-      it "marks each test as done after :all" do
-        run = @run
-        RSpec.expects(:configure).yields(@config) do
-          @config.expects(:after).with(:all).yields do |eval_context|
-            run.expects(:done)
-          end
-        end
+      it "marks each test as done after :suite" do
+        run = @runner.run
+        run.expects(:done)
+        
+        RSpec.stubs(:configure).yields(@config)
+        @config.expects(:after).with(:suite).yields
+        
         @runner.setup_test_environment
-        raise "not actually testing"
       end
     end
 
