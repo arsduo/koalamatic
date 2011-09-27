@@ -1,0 +1,17 @@
+class ExceptionNotifier
+  class Notifier < ActionMailer::Base
+    def exception_notification(env, exception)
+      @options    = (env['exception_notifier.options'] || {}).reverse_merge(self.class.default_options)
+      @exception  = exception
+      prefix   = "#{@options[:email_prefix]} Test"
+      subject  = "#{prefix} (#{@exception.class}) #{@exception.message.inspect}"
+
+      mail(:to => @options[:exception_recipients], :from => @options[:sender_address], :subject => subject) do |format|
+        format.text { "this should work" }
+      end
+    end
+  end
+end
+
+begin; raise Exception; rescue Exception => exception; end
+ExceptionNotifier::Notifier.exception_notification({}, exception).deliver
