@@ -1,5 +1,7 @@
 require 'spec_helper'
 
 describe ApiCall do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "is an ActiveRecord::Base" do
+    ApiCall.superclass.should == ActiveRecord::Base
+  end
 end
