@@ -42,7 +42,7 @@ module Facebook
           run.test_done(example)
         end
 
-        config.after :all do
+        config.after :suite do
           run.done
         end
       end      
