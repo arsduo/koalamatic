@@ -1,7 +1,0 @@
-# server options
-production:
-  address: smtp.gmail.com
-  ssl: true
-  port: 587
-  authentication: plain
-  enable_starttls_auto: true

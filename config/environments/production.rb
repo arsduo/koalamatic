@@ -55,12 +55,15 @@ Koalamatic::Application.configure do
   config.active_support.deprecation = :notify
   
   # exception notification
-  email_conf = HashWithIndifferentAccess.new(YAML::load(File.open("#{Rails.root}/config/email.yml"))["production"])
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = email_conf.merge(
-    :user_name => ENV["EMAIL_SENDER"], 
-    :password => ENV["EMAIL_PASSWORD"]
-  )
+  config.action_mailer.smtp_settings = {
+    :address        => 'smtp.sendgrid.net',
+    :port           => '587',
+    :authentication => :plain,
+    :user_name      => ENV['SENDGRID_USERNAME'],
+    :password       => ENV['SENDGRID_PASSWORD'],
+    :domain         => 'heroku.com'
+  }
 
   ::ExceptionNotifierOptions = {
     :email_prefix => "[Koalamatic Error] ",
