@@ -9,3 +9,7 @@ class RSpec::Core::Example
     !passed?
   end
 end
+
+class RSpec::Core::Reporter
+  attr_reader :pending_count
+end

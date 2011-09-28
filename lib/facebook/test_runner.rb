@@ -38,11 +38,17 @@ module Facebook
       ENV["LIVE"] = "true"      
       run = @run
       RSpec.configure do |config|
+        config.before :suite do
+          Rails.logger.info "Starting run for #{RSpec::world.example_count} examples."          
+        end
+        
         config.after :each do
           run.test_done(example)
         end
 
         config.after :suite do
+          Rails.logger.info "Run finished with #{@run.test_count} examples run, #{RSpec::world.reporter.pending_count} pending."
+          Rails.logger.warn "MISMATCH!" if RSpec::world.example_count != @run.test_count + RSpec::world.reporter.pending_count
           run.done
         end
       end      
