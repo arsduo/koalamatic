@@ -19,7 +19,7 @@ class ApiRecorder < Faraday::Middleware
     url = env[:url]
     
     record_call = Proc.new do
-      ApiCall.create(
+      ApiInteraction.create(
         :method => determine_method(env, request_body),
         #:request_body => request_body,
         :path => url.path,

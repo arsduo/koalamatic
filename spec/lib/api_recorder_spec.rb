@@ -64,57 +64,57 @@ describe ApiRecorder do
       @recorder.call(@env).should == result
     end
 
-    describe "creating the recorded ApiCall" do
+    describe "creating the recorded ApiInteraction" do
       it "saves the record" do
-        ApiCall.expects(:create)
+        ApiInteraction.expects(:create)
         @recorder.call(@env)
       end
 
       it "sets path to url.path" do
         @recorder.call(@env)
-        ApiCall.last.path.should == @url.path
+        ApiInteraction.last.path.should == @url.path
       end
       
       it "sets ssl to true if url.inferred_port == 443" do
         @url.stubs(:inferred_port).returns(443)
         @recorder.call(@env)
-        ApiCall.last.ssl.should be_true
+        ApiInteraction.last.ssl.should be_true
       end
       
       it "sets ssl to true if url.inferred_port == 443" do
         @url.stubs(:inferred_port).returns(81)
         @recorder.call(@env)
-        ApiCall.last.ssl.should be_false
+        ApiInteraction.last.ssl.should be_false
       end
       
       it "sets host to url.host" do
         @recorder.call(@env)
-        ApiCall.last.host.should == @url.host
+        ApiInteraction.last.host.should == @url.host
       end
       
       it "sets host to url.host" do
         @recorder.call(@env)
-        ApiCall.last.host.should == @url.host
+        ApiInteraction.last.host.should == @url.host
       end      
       
       it "sets method to env[:method] if there's no method in the request body" do
         @env[:body] = "no_http_here"
         @recorder.call(@env)
-        ApiCall.last.method.should == @env[:method]
+        ApiInteraction.last.method.should == @env[:method]
       end
 
       it "sets method to the request body's method if present as method=value" do
         method = Faker::Lorem.words(1).to_s
         @env[:body] = "method=#{method}&abc=3"
         @recorder.call(@env)
-        ApiCall.last.method.should == method
+        ApiInteraction.last.method.should == method
       end
       
       it "sets method to the request body's method if present as _method=value" do
         method = Faker::Lorem.words(1).to_s
         @env[:body] = "abc=3&_method=#{method}"
         @recorder.call(@env)
-        ApiCall.last.method.should == method
+        ApiInteraction.last.method.should == method
       end
       
       it "does not use the response body to determine the method" do
@@ -122,14 +122,14 @@ describe ApiRecorder do
         @env[:body] = "_method=#{method}"
         @app.on_call = Proc.new {|env| env[:body] = "method=badmethod123"}
         @recorder.call(@env)
-        ApiCall.last.method.should == method
+        ApiInteraction.last.method.should == method
       end
       
       it "sets the status to the response status" do
         status = "300"
         @app.on_call = Proc.new {|env| env[:status] = status}
         @recorder.call(@env)
-        ApiCall.last.response_status.should == status.to_i
+        ApiInteraction.last.response_status.should == status.to_i
       end
       
       it "sets the duration to the length of the call" do
@@ -137,7 +137,7 @@ describe ApiRecorder do
         start = Time.now
         Time.stubs(:now).returns(start, start + difference)
         @recorder.call(@env)
-        ApiCall.last.duration.should == difference
+        ApiInteraction.last.duration.should == difference
       end
       
       it "saves the call inside the run's without_record_time block if there's a run" do
@@ -146,7 +146,7 @@ describe ApiRecorder do
         # but since it happens to be idempotent (at least for now) 
         # we can verify that knocking out without_recording_time stops the record from getting saved
         # a very rough measure, but I can't figure out how to make the blocks work appropriately 
-        ApiCall.expects(:create).once
+        ApiInteraction.expects(:create).once
         @recorder.call(@env)
         ApiRecorder.run.stubs(:without_recording_time)
         @recorder.call(@env)
@@ -154,7 +154,7 @@ describe ApiRecorder do
       
       it "saves the call if there's no run" do
         ApiRecorder.run = nil
-        ApiCall.expects(:create)
+        ApiInteraction.expects(:create)
         @recorder.call(@env)
       end
     end

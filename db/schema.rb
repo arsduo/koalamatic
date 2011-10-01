@@ -11,9 +11,9 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110925214919) do
+ActiveRecord::Schema.define(:version => 20110928171220) do
 
-  create_table "api_calls", :force => true do |t|
+  create_table "api_interactions", :force => true do |t|
     t.string   "method"
     t.string   "path",            :limit => 400
     t.string   "host"
