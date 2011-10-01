@@ -7,10 +7,8 @@ gem 'thin'
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
-#gem "addressable", "2.2.6"
-#gem "faraday", "0.7.4"
-#gem "faraday-stack", "0.1.3"
-gem "koala", "~> 1.2.0beta1"
+# use a version of Koala that cleans up after its test users
+gem "koala", :git => "git://github.com/arsduo/koala.git", :ref => "536e9f3d1f4ad1a4978e5728393e2356ebc47ef1"
 gem "twitter"
 gem "typhoeus"
 
