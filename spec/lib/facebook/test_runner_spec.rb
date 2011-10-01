@@ -101,6 +101,7 @@ describe Facebook::TestRunner do
       before :each do
         @config = stub("RSpec config block")
         @config.stubs(:after)
+        @config.stubs(:before)
       end
 
       it "marks each test as done after :each" do
@@ -123,7 +124,7 @@ describe Facebook::TestRunner do
         
         RSpec.stubs(:configure).yields(@config)
         @config.expects(:after).with(:suite).yields
-        
+
         @runner.setup_test_environment
       end
     end
