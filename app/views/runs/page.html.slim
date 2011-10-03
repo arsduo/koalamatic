@@ -10,5 +10,6 @@ ul#runs
           | Passed
         - else
           #{run.failure_count} errors
+        |, #{run.test_count} tests
           
 = paginate @runs

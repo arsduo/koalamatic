@@ -76,9 +76,9 @@ describe Facebook::TestRunner do
     it "sets the Koala Faraday middleware option to include Koala defaults" do
       @runner.setup_test_environment
       builder = stub("Faraday builder")
-      builder.expects(:request).with(:multipart)
-      builder.expects(:request).with(:url_encoded)
       builder.stubs(:use)
+      builder.expects(:use).with(Koala::MultipartRequest)
+      builder.expects(:request).with(:url_encoded)
       builder.expects(:adapter).with(Faraday.default_adapter)
       Koala.http_service.faraday_middleware.call(builder)
     end
@@ -86,6 +86,7 @@ describe Facebook::TestRunner do
     it "sets the Koala Faraday middleware to use our API recorder" do
       @runner.setup_test_environment
       builder = stub("Faraday builder")
+      builder.stubs(:use)
       builder.expects(:use).with(ApiRecorder)
       builder.stubs(:request)
       builder.stubs(:adapter)

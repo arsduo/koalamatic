@@ -55,7 +55,7 @@ module Facebook
       
       # setup the Faraday adapter
       Koala.http_service.faraday_middleware = Proc.new do |builder|
-        builder.request :multipart
+        builder.use Koala::MultipartRequest
         builder.request :url_encoded
         builder.use ApiRecorder
         builder.adapter Faraday.default_adapter
