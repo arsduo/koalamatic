@@ -1,4 +1,4 @@
-require 'api_recorder'
+require 'base/api_recorder'
 
 module Facebook
   class TestRunner
@@ -57,12 +57,12 @@ module Facebook
       Koala.http_service.faraday_middleware = Proc.new do |builder|
         builder.use Koala::MultipartRequest
         builder.request :url_encoded
-        builder.use ApiRecorder
+        builder.use Koalamatic::Base::ApiRecorder
         builder.adapter Faraday.default_adapter
       end
       
       # tell ApiRecorder which run we're using so we can exclude database time
-      ApiRecorder.run = run
+      Koalamatic::Base::ApiRecorder.run = run
         
       # tests should be loaded after RSpec configuration
       get_tests

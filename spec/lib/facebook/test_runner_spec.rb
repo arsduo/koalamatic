@@ -87,14 +87,14 @@ describe Facebook::TestRunner do
       @runner.setup_test_environment
       builder = stub("Faraday builder")
       builder.stubs(:use)
-      builder.expects(:use).with(ApiRecorder)
+      builder.expects(:use).with(Koalamatic::Base::ApiRecorder)
       builder.stubs(:request)
       builder.stubs(:adapter)
       Koala.http_service.faraday_middleware.call(builder)
     end
     
     it "sets the ApiRecorder's current run" do
-      ApiRecorder.expects(:run=).with(@runner.run)
+      Koalamatic::Base::ApiRecorder.expects(:run=).with(@runner.run)
       @runner.setup_test_environment
     end
 
