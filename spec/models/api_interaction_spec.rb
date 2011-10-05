@@ -30,10 +30,13 @@ describe Koalamatic::Base::ApiInteraction do
       }
     end
     
-    it "raises an error if not provided :env, :duration, and :request_body" do
-      expect { (params = @params.dup)[:request_body] = nil; ApiInteraction.create_from_call(params)}.to raise_exception(ArgumentError)
+    it "raises an error if not provided :env or :duration" do
       expect { (params = @params.dup)[:duration] = nil; ApiInteraction.create_from_call(params)}.to raise_exception(ArgumentError)
       expect { (params = @params.dup)[:env] = nil; ApiInteraction.create_from_call(params)}.to raise_exception(ArgumentError)
+    end
+    
+    it "works with requests with no request body (e.g. gets)" do
+      expect { (params = @params.dup)[:request_body] = nil; ApiInteraction.create_from_call(params)}.not_to raise_exception(ArgumentError)
     end
     
     it "sets path to url.path" do

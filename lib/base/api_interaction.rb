@@ -9,7 +9,7 @@ module Koalamatic
       private 
 
       def self.attributes_from_call(details = {})
-        arg_check = [:env, :duration, :request_body].inject([]) {|errs, p| errs << p unless details[p]; errs}
+        arg_check = [:env, :duration].inject([]) {|errs, p| errs << p unless details[p]; errs}
         raise ArgumentError, "Missing #{arg_check.join(",")} in ApiInteraction.create_from_call" if arg_check.length > 0
 
         env = details[:env]
