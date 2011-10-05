@@ -15,10 +15,12 @@ describe Koalamatic::Base::ApiRecorder do
     ApiRecorder.run = nil
   end
 
-  it "defines INTERACTION_CLASS to be Koalamatic::Base::ApiInteraction" do
-    ApiRecorder::INTERACTION_CLASS.should == Koalamatic::Base::ApiInteraction
+  describe "#interaction_class" do
+    it "returns Koalamatic::Base::ApiInteraction" do
+      ApiRecorder.interaction_class.should == Koalamatic::Base::ApiInteraction
+    end
   end
-
+  
   describe "call" do
     class FakeApp
       # a fake app object

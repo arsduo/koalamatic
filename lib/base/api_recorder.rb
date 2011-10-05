@@ -3,8 +3,6 @@ require 'base/api_interaction'
 module Koalamatic
   module Base
     class ApiRecorder < Faraday::Middleware
-      INTERACTION_CLASS = Koalamatic::Base::ApiInteraction
-
       # there's only one test run happening at any time on any Koalamatic instance
       # (though there may be many test cases going in parallel)
       # so we can set this as a class variable without having to worry about threads
@@ -22,7 +20,7 @@ module Koalamatic
 
         # record the API call (to be analyzed later)
         record_call = Proc.new do
-          INTERACTION_CLASS.create_from_call(
+          self.class.interaction_class.create_from_call(
           :duration => Time.now - start_time,
           :env => env,
           :request_body => request_body
@@ -34,6 +32,10 @@ module Koalamatic
 
         # pass it on to the next middleware
         result
+      end
+      
+      def self.interaction_class
+        Koalamatic::Base::ApiInteraction
       end
     end
   end
