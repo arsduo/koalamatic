@@ -1,6 +1,9 @@
 require "spec_helper"
+require 'base/test_run'
 
-describe TestRun do
+describe Koalamatic::Base::TestRun do
+  include Koalamatic::Base
+  
   include Rails.application.routes.url_helpers
   
   describe "constants" do

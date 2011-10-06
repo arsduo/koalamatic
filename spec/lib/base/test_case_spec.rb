@@ -1,6 +1,9 @@
 require 'spec_helper'
+require 'base/test_case'
 
-describe TestCase do
+describe Koalamatic::Base::TestCase do
+  include Koalamatic::Base
+  
   describe "#create_from_example" do
     before :each do
       @example = make_example

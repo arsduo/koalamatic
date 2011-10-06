@@ -9,6 +9,10 @@ module Facebook
 
     SPEC_PATTERN = "**/*_spec.rb"
 
+    def initialize
+      super
+    end
+
     def setup_test_environment
       # run the tests live
       ENV["LIVE"] = "true"      
@@ -28,6 +32,10 @@ module Facebook
       add_load_path!
       load_koala_spec_helper!
       identify_tests(@path)
+    end
+
+    def self.test_run_class
+      Facebook::TestRun
     end
 
     private

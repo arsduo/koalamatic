@@ -6,7 +6,7 @@ describe RunsController do
     before :each do
       @pageable_result = stub("pageable")
       @pageable_result.stubs(:per).returns(@pageable_result)
-      TestRun.stubs(:page).returns(@pageable_result)
+      Facebook::TestRun.stubs(:page).returns(@pageable_result)
     end
     
     it "is successful" do
@@ -15,7 +15,7 @@ describe RunsController do
     end
     
     it "gets the first page of runs" do
-      TestRun.expects(:page).with(0).returns(@pageable_result)
+      Facebook::TestRun.expects(:page).with(0).returns(@pageable_result)
       get 'index'
     end
     
@@ -34,7 +34,7 @@ describe RunsController do
     before :each do
       @pageable_result = stub("pageable")
       @pageable_result.stubs(:per).returns(@pageable_result)
-      TestRun.stubs(:page).returns(@pageable_result)
+      Facebook::TestRun.stubs(:page).returns(@pageable_result)
     end
     
     it "is successful" do
@@ -43,13 +43,13 @@ describe RunsController do
     end
     
     it "gets the first page of runs if no params[:page] specified" do
-      TestRun.expects(:page).with(0).returns(@pageable_result)
+      Facebook::TestRun.expects(:page).with(0).returns(@pageable_result)
       get 'page'
     end
         
     it "gets the appropriate page of runs if params[:page] specified" do
       page = "4"
-      TestRun.expects(:page).with(page).returns(@pageable_result)
+      Facebook::TestRun.expects(:page).with(page).returns(@pageable_result)
       get 'page', :page => page
     end
     
@@ -62,7 +62,7 @@ describe RunsController do
   describe "GET 'detail'" do
     context "with a valid run" do
       before :each do
-        @run = TestRun.make()
+        @run = Facebook::TestRun.make()
         @run.save        
       end
       

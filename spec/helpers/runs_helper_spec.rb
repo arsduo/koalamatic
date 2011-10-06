@@ -4,7 +4,7 @@ describe RunsHelper do
   
   describe ".formatted_backtrace" do
     before :each do
-      @case = TestCase.make
+      @case = Koalamatic::Base::TestCase.make
     end
     
     it "renders the right partial" do

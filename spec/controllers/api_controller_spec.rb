@@ -10,8 +10,8 @@ describe ApiController do
     
     context "with no recent test runs" do
       before :each do
-        TestRun.delete_all
-        TestRun.make(:created_at => Time.now - TestRun.interval_to_next_run - 1.minute).save
+        Facebook::TestRun.delete_all
+        Facebook::TestRun.make(:created_at => Time.now - Facebook::TestRun.interval_to_next_run - 1.minute).save
       end
       
       it "starts a new run" do
@@ -27,8 +27,8 @@ describe ApiController do
 
     context "with a recent test run" do
       before :each do
-        TestRun.delete_all
-        TestRun.make(:created_at => Time.now - TestRun.interval_to_next_run + 1.minute).save
+        Facebook::TestRun.delete_all
+        Facebook::TestRun.make(:created_at => Time.now - Facebook::TestRun.interval_to_next_run + 1.minute).save
       end
       
       it "does not start a new run" do

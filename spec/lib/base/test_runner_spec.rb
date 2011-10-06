@@ -31,7 +31,7 @@ describe Koalamatic::Base::TestRunner do
 
   describe "#test_run_class" do
     it "returns the base ApiRecorder" do
-      @runner.class.test_run_class.should == TestRun
+      @runner.class.test_run_class.should == Koalamatic::Base::TestRun
     end
   end
   
