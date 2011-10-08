@@ -1,38 +1,63 @@
 module Facebook
-  module ObjectIdentifier
+  class ObjectIdentifier
     KNOWN_FACEBOOK_OPERATIONS = [
       "comments",
       "search",
       "oauth"
     ]
+    
+    # class methods
 
     def self.identify_object(url)
-      identify_from_path(url) || identify_from_facebook(url) || "unknown"
+      self.new(url).identify
+    end 
+    
+    def self.get_id_from_path(path)
+      path.split("/")[1] # 0 is to the left of the leading /
+    end
+    
+    # instance methods    
+    attr_reader :object, :url
+    
+    def initialize(url_or_id)
+      # we can analyze URLs or Facebook object IDs
+      if url_or_id.is_a?(Addressable::URI)
+        @url = url_or_id
+        @object = ObjectIdentifier.get_id_from_path(@url.path)
+      else
+        @object = url_or_id
+      end
+    end
+    
+    def identify
+      identify_from_path || identify_from_facebook || "unknown"
     end
     
     # useful methods for Facebook analysis (hence public)
-    def self.identify_from_path(url)
-      object = get_id_from_path(url.path) 
-      if using_rest_server?(url)
-        # if it's a REST call, we're not directly querying objects
-        # need to support beta server
-        "rest_api"
-      elsif url.path == "/"
-        # we're querying the batch API
-        "batch_api"
-      elsif KNOWN_FACEBOOK_OPERATIONS.include?(object)
-        "facebook_operation"
+    def identify_from_path
+      puts "URl: #{@url.inspect}"
+      if @url
+        puts "is URL!"
+        if using_rest_server?
+          # if it's a REST call, we're not directly querying objects
+          # need to support beta server
+          "rest_api"
+        elsif @url.path == "/"
+          # we're querying the batch API
+          "batch_api"
+        elsif KNOWN_FACEBOOK_OPERATIONS.include?(@object)
+          "facebook_operation"
+        end
       end
-      # if we can't find the type from the path, then try the next technique
+      # if we didn't get a URL or can't find the type from the path
+      # return nil and try the next technique
     end
 
-    def self.identify_from_facebook(url)
-      object = get_id_from_path(url.path) 
+    def identify_from_facebook      
       begin
-        result = fetch_object_info(object)
-
+        result = fetch_object_info(@object)
         if !result.is_a?(Hash)
-          Rails.logger.warn "Unexpected result for #{object.inspect}! #{result.inspect}"
+          Rails.logger.warn "Unexpected result for #{@object.inspect}! #{result.inspect}"
           "unknown"
         elsif result["first_name"]
           "user"
@@ -48,7 +73,7 @@ module Facebook
         elsif type = result["type"]
           type
         else
-          Rails.logger.warn "Unable to extract type for #{object} from result #{result.inspect}"
+          Rails.logger.warn "Unable to extract type for #{@object.inspect} from result #{result.inspect}"
           nil
         end
       rescue Koala::Facebook::APIError => err
@@ -61,26 +86,20 @@ module Facebook
       end
     end
     
-    def self.fetch_object_info(object)
+    def fetch_object_info
       Koala.with_default_middleware do
-        api_for_object(object).get_object(object)
+        appropriate_api.get_object(@object)
       end
-    end
-    
-    def self.get_id_from_path(path)
-      path.split("/")[1] # 0 is to the left of the leading /
     end
 
     private
 
-    def self.api_for_object(object)
+    def appropriate_api
       # we check whether object =~, because comments for a user are prefixed by the user's ID but have more
-      puts "Identifying #{object}"
-      puts (object =~ /#{KoalaTest.live_testing_friend["id"]}/) if KoalaTest.live_testing_friend.inspect 
-      token = if !KoalaTest.live_testing_user || object =~ /#{KoalaTest.app_id.to_s}/
+      token = if !KoalaTest.live_testing_user || @object =~ /#{KoalaTest.app_id.to_s}/
         # no live testing user = just setting things up
         KoalaTest.test_user_api.api.access_token
-      elsif KoalaTest.live_testing_friend && object =~ /#{KoalaTest.live_testing_friend["id"]}/
+      elsif KoalaTest.live_testing_friend && @object =~ /#{KoalaTest.live_testing_friend["id"]}/
         KoalaTest.live_testing_friend["access_token"]
       else
         KoalaTest.live_testing_user["access_token"]
@@ -88,8 +107,8 @@ module Facebook
       Koala::Facebook::API.new(token)
     end
     
-    def self.using_rest_server?(url)
-      url.host.gsub(/beta\./, "") == Koala::Facebook::REST_SERVER
+    def using_rest_server?
+      @url.host.gsub(/beta\./, "") == Koala::Facebook::REST_SERVER
     end
   end
 end
