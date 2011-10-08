@@ -9,7 +9,7 @@ describe Koalamatic::Base::ApiInteraction do
     ApiInteraction.superclass.should == ActiveRecord::Base
   end
   
-  describe "#create_from_call" do
+  describe "#new" do
     before :each do
       @url = stub("url",
         :path => Faker::Lorem.words(2).join("/"),
@@ -31,73 +31,71 @@ describe Koalamatic::Base::ApiInteraction do
     end
     
     it "raises an error if not provided :env or :duration" do
-      expect { (params = @params.dup)[:duration] = nil; ApiInteraction.create_from_call(params)}.to raise_exception(ArgumentError)
-      expect { (params = @params.dup)[:env] = nil; ApiInteraction.create_from_call(params)}.to raise_exception(ArgumentError)
+      expect { (params = @params.dup)[:duration] = nil; ApiInteraction.new(params)}.to raise_exception(ArgumentError)
+      expect { (params = @params.dup)[:env] = nil; ApiInteraction.new(params)}.to raise_exception(ArgumentError)
+    end
+
+    it "makes env available as .env" do
+      ApiInteraction.new(@params).env.should == @params[:env]
+    end
+
+    it "makes request_body available as .request_body" do
+      ApiInteraction.new(@params).request_body.should == @params[:request_body]
+    end
+
+    it "makes the env's url available as .url" do
+      ApiInteraction.new(@params).url.should == @params[:env][:url]
     end
     
     it "works with requests with no request body (e.g. gets)" do
-      expect { (params = @params.dup)[:request_body] = nil; ApiInteraction.create_from_call(params)}.not_to raise_exception(ArgumentError)
+      expect { (params = @params.dup)[:request_body] = nil; ApiInteraction.new(params)}.not_to raise_exception(ArgumentError)
     end
     
     it "sets path to url.path" do
-      ApiInteraction.expects(:create).with(has_entries(:path => @url.path))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).path.should == @url.path
     end
 
     it "sets ssl to true if url.inferred_port == 443" do
       @url.stubs(:inferred_port).returns(443)
-      ApiInteraction.expects(:create).with(has_entries(:ssl => true))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).ssl.should be_true
     end
 
     it "sets ssl to true if url.inferred_port == 443" do
       @url.stubs(:inferred_port).returns(81)
-      ApiInteraction.expects(:create).with(has_entries(:ssl => false))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).ssl.should be_false
     end
 
     it "sets host to url.host" do
-      ApiInteraction.expects(:create).with(has_entries(:host => @url.host))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).host.should == @url.host
     end
-
-    it "sets host to url.host" do
-      ApiInteraction.expects(:create).with(has_entries(:host => @url.host))
-      ApiInteraction.create_from_call(@params)
-    end      
 
     it "sets method to env[:method] if there's no method in the request body" do
       @env[:body] = "no_http_here"
-      ApiInteraction.expects(:create).with(has_entries(:method => @env[:method]))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).method.should == @env[:method]
     end
 
     it "sets method to the request body's method if present as method=value" do
       method = Faker::Lorem.words(1).to_s
       @params[:request_body] = "method=#{method}&abc=3"
-      ApiInteraction.expects(:create).with(has_entries(:method => method))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).method.should == method
     end
 
     it "sets method to the request body's method if present as _method=value" do
       method = Faker::Lorem.words(1).to_s
       @params[:request_body] = "abc=3&_method=#{method}"
-      ApiInteraction.expects(:create).with(has_entries(:method => method))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).method.should == method
     end
 
     it "does not use the response body to determine the method" do
       method = Faker::Lorem.words(1).to_s
       @env[:body] = "_method=myBadMethod"
       @params[:request_body] = "abc=3&_method=#{method}"
-      ApiInteraction.expects(:create).with(has_entries(:method => method))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).method.should == method
     end
 
     it "sets the status to the response status" do
       @env[:status] = "300"
-      ApiInteraction.expects(:create).with(has_entries(:response_status => @env[:status].to_i))
-      ApiInteraction.create_from_call(@params)
+      ApiInteraction.new(@params).response_status.should == @env[:status].to_i
     end
   end
 end
