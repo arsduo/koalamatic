@@ -6,6 +6,8 @@ module Facebook
       "oauth"
     ]
     
+    @@identified_objects = {}
+    
     # class methods
 
     def self.identify_object(url)
@@ -30,14 +32,12 @@ module Facebook
     end
     
     def identify
-      identify_from_path || identify_from_facebook || "unknown"
+      @@identified_objects[@object] ||= identify_from_path || identify_from_facebook || "unknown"
     end
     
     # useful methods for Facebook analysis (hence public)
     def identify_from_path
-      puts "URl: #{@url.inspect}"
       if @url
-        puts "is URL!"
         if using_rest_server?
           # if it's a REST call, we're not directly querying objects
           # need to support beta server

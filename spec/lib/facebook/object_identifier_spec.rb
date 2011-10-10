@@ -83,6 +83,14 @@ describe Facebook::ObjectIdentifier do
         @identifier.stubs(:identify_from_facebook).returns(nil)
         @identifier.identify.should == "unknown"
       end
+      
+      it "caches the objects identified" do
+        result = stub("result")
+        @identifier.stubs(:identify_from_path).returns(result)
+        @identifier.identify
+        @identifier.expects(:identify_from_path).never
+        @identifier.identify.should == result
+      end
     end
 
     describe ".identify_from_facebook" do
