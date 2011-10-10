@@ -42,7 +42,7 @@ describe Koalamatic::Base::ApiRecorder do
       @app = FakeApp.new
       @recorder = ApiRecorder.new(@app)
       ApiRecorder.run = TestRun.make
-      ApiInteraction.stubs(:create_from_call)
+      ApiInteraction.stubs(:create)
       
       @env = {
         :body => Faker::Lorem.words(10).join(" ")
@@ -66,14 +66,14 @@ describe Koalamatic::Base::ApiRecorder do
 
     describe "creating the recorded ApiInteraction" do
       it "creates the interaction with the Faraday env" do
-        ApiInteraction.expects(:create_from_call).with(has_entry(:env => @env))
+        ApiInteraction.expects(:create).with(has_entry(:env => @env))
         @recorder.call(@env)
       end
       
       it "creates the interaction with the original request body" do
         body = @env[:body]
         @app.on_call = lambda {|env| env[:body] = body * 3}
-        ApiInteraction.expects(:create_from_call).with(has_entry(:request_body => body))
+        ApiInteraction.expects(:create).with(has_entry(:request_body => body))
         @recorder.call(@env)        
       end
       
@@ -81,7 +81,7 @@ describe Koalamatic::Base::ApiRecorder do
         difference = 20
         start = Time.now
         Time.stubs(:now).returns(start, start + difference)
-        ApiInteraction.expects(:create_from_call).with(has_entries(:duration => difference))
+        ApiInteraction.expects(:create).with(has_entries(:duration => difference))
         @recorder.call(@env)
       end
       
@@ -91,7 +91,7 @@ describe Koalamatic::Base::ApiRecorder do
         # but since it happens to be idempotent (at least for now) 
         # we can verify that knocking out without_recording_time stops the record from getting saved
         # a very rough measure, but I can't figure out how to make the blocks work appropriately 
-        ApiInteraction.expects(:create_from_call).once
+        ApiInteraction.expects(:create).once
         @recorder.call(@env)
         ApiRecorder.run.stubs(:without_recording_time)
         @recorder.call(@env)
@@ -99,7 +99,7 @@ describe Koalamatic::Base::ApiRecorder do
       
       it "saves the call if there's no run" do
         ApiRecorder.run = nil
-        ApiInteraction.expects(:create_from_call)
+        ApiInteraction.expects(:create)
         @recorder.call(@env)
       end
     end

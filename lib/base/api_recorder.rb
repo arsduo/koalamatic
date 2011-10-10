@@ -1,4 +1,5 @@
 require 'base/api_interaction'
+require 'facebook/object_identifier'
 
 module Koalamatic
   module Base
@@ -14,21 +15,20 @@ module Koalamatic
         # read the request body first, since Faraday replaces it with the response
         request_body = env[:body]
         start_time = Time.now
-
+                         
         # make the request
         result = @app.call env
 
         # record the API call (to be analyzed later)
-        record_call = Proc.new do
-          self.class.interaction_class.create_from_call(
-          :duration => Time.now - start_time,
-          :env => env,
-          :request_body => request_body
+        outside_time do
+          # if we're inside a test run,
+          # don't count time spent writing to the database toward total test execution
+          self.class.interaction_class.create(
+            :duration => Time.now - start_time,
+            :env => env,
+            :request_body => request_body
           )
         end
-        # if we're inside a test run,
-        # don't count time spent writing to the database toward total test execution
-        ApiRecorder.run ? ApiRecorder.run.without_recording_time(&record_call) : record_call.call
 
         # pass it on to the next middleware
         result
@@ -36,6 +36,12 @@ module Koalamatic
       
       def self.interaction_class
         Koalamatic::Base::ApiInteraction
+      end
+            
+      private
+      
+      def outside_time(&block)
+        self.class.run ? self.class.run.without_recording_time(&block) : block.call
       end
     end
   end
