@@ -3,7 +3,6 @@ require 'base/test_run'
 class Facebook::TestRun < Koalamatic::Base::TestRun
   def initialize(*args)
     super
-    puts "Using Facebook::Test Run!"
   end
   
   # PUBLISHING

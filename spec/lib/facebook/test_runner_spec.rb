@@ -33,11 +33,15 @@ describe Facebook::TestRunner do
       Koala.http_service.faraday_middleware.call(builder)
     end
     
-    it "sets the Koala Faraday middleware to use our API recorder" do
+    it "sets the Koala Faraday middleware to use the specified API recorder" do
+      recorder = stub("recorder")
+      recorder.stubs(:run=)
+      Facebook::TestRunner.stubs(:recorder_class).returns(recorder)
+
       @runner.setup_test_environment
       builder = stub("Faraday builder")
       builder.stubs(:use)
-      builder.expects(:use).with(Koalamatic::Base::ApiRecorder)
+      builder.expects(:use).with(recorder)
       builder.stubs(:request)
       builder.stubs(:adapter)
       Koala.http_service.faraday_middleware.call(builder)

@@ -18,10 +18,11 @@ module Facebook
       ENV["LIVE"] = "true"      
 
       # setup the Faraday adapter
+      middleware = self.class.recorder_class
       Koala.http_service.faraday_middleware = Proc.new do |builder|
         builder.use Koala::MultipartRequest
         builder.request :url_encoded
-        builder.use Koalamatic::Base::ApiRecorder
+        builder.use middleware
         builder.adapter Faraday.default_adapter
       end
       
@@ -38,6 +39,10 @@ module Facebook
       Facebook::TestRun
     end
 
+    def self.recorder_class
+      Facebook::ApiRecorder
+    end
+    
     private
 
     # test case management
