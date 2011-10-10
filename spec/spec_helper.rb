@@ -29,3 +29,6 @@ RSpec.configure do |config|
   # config.include Rack::Test::Methods
  
 end
+
+# reroute Rails logger to stdout
+Rails.logger = Logger.new(STDOUT)
