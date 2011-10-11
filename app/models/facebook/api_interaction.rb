@@ -1,3 +1,4 @@
+require 'base/api_interaction'
 require 'facebook/object_identifier'
 
 module Facebook
