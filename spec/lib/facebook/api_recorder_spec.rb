@@ -8,8 +8,20 @@ describe Facebook::ApiRecorder do
       Facebook::ApiRecorder.interaction_class.should == Facebook::ApiInteraction
     end
   end
+    
+  before :each do
+    Facebook::ObjectIdentifier.stubs(:identify_object).returns(Faker::Lorem.words(1).first)
+  end  
   
-  describe ".call" do
+  describe "common behavior" do
+    before :each do
+      @class = Facebook::ApiRecorder
+    end
+  
+    it_should_behave_like "an ApiRecorder class"
+  end
+  
+  describe ".call" do    
     class FakeApp
       # a fake app object
       attr_accessor :on_call
@@ -25,16 +37,13 @@ describe Facebook::ApiRecorder do
         end
       end
     end
-    
+
     before :each do
       @app = FakeApp.new
       @recorder = Facebook::ApiRecorder.new(@app)
       Facebook::ApiRecorder.run = Facebook::TestRun.make
-      Facebook::ApiInteraction.stubs(:create)
-      
-      @env = {
-        :body => Faker::Lorem.words(10).join(" ")
-      }
+
+      @env = make_env
     end
     
     it "gets the primary_object using ObjectIdentifier" do

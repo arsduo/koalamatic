@@ -86,9 +86,8 @@ describe Facebook::ObjectIdentifier do
       
       it "caches the objects identified" do
         result = stub("result")
-        @identifier.stubs(:identify_from_path).returns(result)
+        @identifier.stubs(:identify_from_path).once.returns(result)
         @identifier.identify
-        @identifier.expects(:identify_from_path).never
         @identifier.identify.should == result
       end
     end
@@ -113,7 +112,6 @@ describe Facebook::ObjectIdentifier do
         @result["first_name"] = "Barbara"
         @identifier.identify_from_facebook.should == "user"
       end
-
 
       it "returns user if there's a first_name" do
         @result["first_name"] = "Barbara"

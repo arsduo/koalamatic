@@ -2,7 +2,7 @@ require 'facebook/object_identifier'
 
 module Facebook
   class ApiInteraction < Koalamatic::Base::ApiInteraction
-    def attributes_from_call(details = {})
+    def attributes_from_call
       attrs = super
 
       # now determine which type of object we were querying

@@ -15,7 +15,6 @@ module Koalamatic
         # read the request body first, since Faraday replaces it with the response
         request_body = env[:body]
         start_time = Time.now
-                         
         # make the request
         result = @app.call env
 
@@ -23,11 +22,12 @@ module Koalamatic
         outside_time do
           # if we're inside a test run,
           # don't count time spent writing to the database toward total test execution
-          self.class.interaction_class.create(
-            :duration => Time.now - start_time,
+          second_time = Time.now
+          self.class.interaction_class.create({
+            :duration => second_time - start_time,
             :env => env,
             :request_body => request_body
-          )
+          })
         end
 
         # pass it on to the next middleware

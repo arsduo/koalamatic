@@ -51,3 +51,19 @@ def make_exception
     :message => Faker::Lorem.words(5).join(" ")
   )
 end
+
+def make_url(attrs = {})
+  stub("url", {
+    :path => Faker::Lorem.words(2).join("/"),
+    :host => Faker::Lorem.words(3).join("."),
+    :inferred_port => 443
+  }.merge(attrs || {}))
+end
+
+def make_env(attrs = {})
+  {
+    :body => Faker::Lorem.words(10).join(" "),
+    :url => make_url(attrs.delete(:url)),
+    :method => "get"
+  }.merge(attrs || {})  
+end

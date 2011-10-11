@@ -55,7 +55,7 @@ module Facebook
 
     def identify_from_facebook      
       begin
-        result = fetch_object_info(@object)
+        result = fetch_object_info
         if !result.is_a?(Hash)
           Rails.logger.warn "Unexpected result for #{@object.inspect}! #{result.inspect}"
           "unknown"

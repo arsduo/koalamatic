@@ -11,17 +11,8 @@ describe Koalamatic::Base::ApiInteraction do
   
   describe "#new" do
     before :each do
-      @url = stub("url",
-        :path => Faker::Lorem.words(2).join("/"),
-        :host => Faker::Lorem.words(3).join("."),
-        :inferred_port => 81
-      )
-
-      @env = {
-        :body => Faker::Lorem.words(10).join(" "),
-        :method => "get",
-        :url => @url
-      }
+      @env = make_env(:url => {:inferred_port => 81})
+      @url = @env[:url]
       
       @params = {
         :request_body => Faker::Lorem.words(10).join(" "),
