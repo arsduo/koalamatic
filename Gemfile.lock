@@ -80,6 +80,7 @@ GEM
       faraday (~> 0.7.3)
     ffi (1.0.9)
     fssm (0.2.7)
+    git (1.2.5)
     hashie (1.1.0)
     hike (1.2.1)
     i18n (0.6.0)
@@ -211,6 +212,7 @@ DEPENDENCIES
   compass
   exception_notification
   faker
+  git
   jasmine
   jquery-rails
   kaminari

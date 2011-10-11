@@ -11,6 +11,7 @@ gem 'thin'
 gem "koala", :git => "git://github.com/arsduo/koala.git", :ref => "536e9f3d1f4ad1a4978e5728393e2356ebc47ef1"
 gem "twitter"
 gem "typhoeus"
+gem "git"
 
 gem "kaminari"
 
