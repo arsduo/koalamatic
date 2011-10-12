@@ -41,7 +41,14 @@ module Koalamatic
           end
 
           config.after :each do
-            run.test_done(example)
+            unless example.should_rerun?
+              # it passed, so we can count it immediately 
+              run.test_done(example)              
+            else
+              # rerun the test run to see if we can replicate the error
+              # this will rerun the after filter, saving the record
+              example.rerun
+            end
           end
 
           config.after :suite do

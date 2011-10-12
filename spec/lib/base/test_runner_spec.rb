@@ -92,25 +92,36 @@ describe Koalamatic::Base::TestRunner do
         @config = stub("RSpec config block")
         @config.stubs(:after)
         @config.stubs(:before)
+        @run = @runner.run
       end
 
-      it "marks each test as done after :each" do
-        run = @runner.run
+      context "after :each test" do
+        before :each do
+          @example = stub("example", :exception => nil)
+          @runner.stubs(:example).returns(@example)
         
-        example = stub("example")
-        # make the example available in the context of the runner
-        @runner.stubs(:example).returns(example)
-        run.expects(:test_done).with(example)
+          RSpec.stubs(:configure).yields(@config)
+          @config.expects(:after).with(:each).yields        
+        end
         
-        RSpec.stubs(:configure).yields(@config)
-        @config.expects(:after).with(:each).yields
+        it "it marks tests that don't need rerunning as done" do        
+          # make the example available in the context of the runner
+          @example.stubs(:should_rerun?).returns(false)
+          @run.expects(:test_done).with(@example)
+          @example.expects(:rerun).never
+          @runner.setup_test_environment
+        end
         
-        @runner.setup_test_environment
+        it "it reruns tests that need to be rerun" do        
+          # make the example available in the context of the runner
+          @example.stubs(:should_rerun?).returns(true)
+          @example.expects(:rerun)
+          @runner.setup_test_environment
+        end        
       end
 
       it "marks each test as done after :suite" do
-        run = @runner.run
-        run.expects(:done)
+        @run.expects(:done)
         
         RSpec.stubs(:configure).yields(@config)
         @config.expects(:after).with(:suite).yields
