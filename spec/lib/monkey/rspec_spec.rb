@@ -15,17 +15,9 @@ describe "RSpec patches" do
       @example.set_exception(@exception)
       @example.exception.should == @exception
     end
-
-    it "has a verified_failure attribute" do
-      result = stub("true")
-      @example.verified_failure = result
-      @example.verified_failure.should == result
-    end
     
-    it "has a failure_to_investigate attribute" do
-      result = stub("true")
-      @example.failure_to_investigate = result
-      @example.failure_to_investigate.should == result
+    it "has a original_exception reader" do
+      @example.should respond_to(:original_exception)
     end
     
     describe ".passed?" do
@@ -59,7 +51,7 @@ describe "RSpec patches" do
       
       context "for runs with exceptions" do
         before :each do
-          begin; raise Exception; rescue Exception => @err; end;
+          begin; raise Exception; rescue Exception => @err; end
           @example.set_exception(@err)
         end
 
@@ -75,8 +67,162 @@ describe "RSpec patches" do
       end
     end
     
+    describe ".phantom_exception?" do
+      before :each do
+        @error = stub("error", :message => Faker::Lorem.words(3).join(" "))        
+        @example.set_exception(@error)
+      end
+      
+      it "returns true if there's an original exception but no repeat" do
+        @example.stubs(:run).returns(true)
+        @example.rerun
+        @example.phantom_exception?.should be_true
+      end
+      
+      it "returns false if there are no exceptions" do
+        @example.phantom_exception?.should be_false        
+      end
+      
+      it "returns false if both runs returned exceptions" do
+        @error2 = stub("error", :message => Faker::Lorem.words(3).join(" "))        
+        @example.stubs(:run).returns(false)
+        @example.rerun
+        @example.set_exception(@error2)
+        @example.phantom_exception?.should be_false
+      end
+    end
+    
+    describe "different_exceptions?" do
+      before :each do
+        @error = stub("error", :message => Faker::Lorem.words(3).join(" "))        
+        @error2 = stub("error2", :message => Faker::Lorem.words(3).join(" "))        
+        @example.stubs(:run)
+      end
+      
+      it "returns false if there were no exceptions" do
+        @example.different_exceptions?.should be_false        
+      end
+
+      it "returns false if there was only one exceptions" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.different_exceptions?.should be_false        
+      end
+      
+      it "compares the two errors using the ErrorComparison module" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.set_exception(@error2)
+        Facebook::ErrorComparison.expects(:same_error?).with(@error, @error2)
+        @example.different_exceptions?        
+      end
+      
+      it "returns true if the two exceptions are different" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.set_exception(@error2)
+        Facebook::ErrorComparison.stubs(:same_error?).returns(false)
+        @example.different_exceptions?        
+      end
+      
+      it "returns false if the two exceptions are the same" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.set_exception(@error2)
+        Facebook::ErrorComparison.stubs(:same_error?).returns(true)
+        @example.different_exceptions?        
+      end
+    end
+    
+    describe ".verified_exception?" do
+      before :each do
+        @example.stubs(:run)
+      end
+      
+      it "compares the two errors using the ErrorComparison module" do
+        Facebook::ErrorComparison.expects(:same_error?).with(@error, @error2)
+        @example.verified_exception?        
+      end
+      
+      it "returns true if ErrorComparison returns a truthy value" do
+        result = stub("result")
+        Facebook::ErrorComparison.stubs(:same_error?).returns(result)
+        @example.verified_exception?.should be_true
+      end
+      
+      it "returns true if ErrorComparison returns a falsy value" do
+        Facebook::ErrorComparison.stubs(:same_error?).returns(nil)
+        @example.verified_exception?.should be_false
+      end      
+    end
+    
+    describe "different_exceptions?" do
+      before :each do
+        @error = stub("error", :message => Faker::Lorem.words(3).join(" "))        
+        @error2 = stub("error2", :message => Faker::Lorem.words(3).join(" "))        
+        @example.stubs(:run)
+      end
+      
+      it "returns false if there were no exceptions" do
+        @example.different_exceptions?.should be_false        
+      end
+
+      it "returns false if there was only one exceptions" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.different_exceptions?.should be_false        
+      end
+      
+      it "returns true if the two exceptions are different" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.set_exception(@error2)
+        @example.stubs(:verified_exception?).returns(false)
+        @example.different_exceptions?.should be_true    
+      end
+      
+      it "returns false if the two exceptions are the same" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.set_exception(@error2)
+        @example.stubs(:verified_exception?).returns(true)
+        @example.different_exceptions?.should be_false
+      end
+    end
+    
     describe ".rerun" do
-      it "has tests"
+      before :each do
+        @example.stubs(:run).returns(true)
+        @error = stub("error", :message => Faker::Lorem.words(3).join(" "))
+      end
+      
+      it "only runs once (e.g. no infinite loops)" do
+        @example.expects(:run).once.returns(true)
+        @example.rerun
+        @example.rerun
+      end
+      
+      it "clears the previous exception before the run" do
+        @example.set_exception(@error)
+        @example.rerun
+        @example.exception.should be_nil
+      end
+      
+      it "executes the second run with a different reporter to avoid messing up the counts" do
+        reporter = stub("reporter")
+        RSpec::Core::Reporter.stubs(:new).returns(reporter)
+        @example.expects(:run).with(anything, reporter).returns(true)
+        @example.rerun
+      end
+      
+      it "makes the second exception available as .exception if one occurs" do
+        @example.set_exception(@error)
+        @error2 = stub("error2", :message => Faker::Lorem.words(3).join(" "))          
+        @example.stubs(:run).returns(false)
+        @example.rerun
+        @example.set_exception(@error2)
+        @example.exception.should == @error2
+      end
     end    
   end
   
