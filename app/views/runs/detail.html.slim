@@ -4,16 +4,30 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
 - if @run.passed?
   #{@run.test_count} tests passed!  Everything with Facebook was fine.
 - else
-  #{@run.failure_count} of #{@run.test_count} tests failed.
+  #{@run.verified_failure_count} of #{@run.test_count} tests failed.
   
 - unless @run.passed?
   h4 Failures
+  
+  p All of these failures were reproduced in a subsequent test and appear to be real errors in the API.
+  
   ul#failureList
-    - @run.test_cases.failures.each do |test_case|
+    - @run.test_cases.verified_failures.each do |test_case|
       li id="testCase#{test_case.id}"
         .title #{test_case.title}
         .failureMessage #{test_case.failure_message}
         = formatted_backtrace(test_case)
-          
+
+- if @run.unverified_failure_count > 0 
+  h4 Unverified Issues
+  
+  p. The following errors could not be reproduced, and probably represent transient API glitches or connectivity problems.
+
+  ul#unverifiedFailureList
+    - @run.test_cases.unverified_failures.each do |test_case|
+      li id="testCase#{test_case.id}"
+        .title #{test_case.title}
+        .failureMessage #{test_case.failure_message}
+        = formatted_backtrace(test_case)
 
 = link_to "Back", url_for(:action => :index, :page => params[:page])

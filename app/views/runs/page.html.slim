@@ -9,7 +9,7 @@ ul#runs
         - if run.passed?
           | Passed
         - else
-          span #{run.failure_count} errors
+          span #{run.verified_failure_count} errors
         |, #{run.test_count} tests
           
 = paginate @runs

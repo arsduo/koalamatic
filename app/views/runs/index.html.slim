@@ -7,14 +7,15 @@
     | Koalamatic uses 
     a href="http://github.com/arsduo/koala/" target="_blank" Koala
     |, a comprehensive, well-tested Facebook gem with support for live testing.  Our tests create and run against test users, providing a clean and reproducible test environment each time.
-  .section
-    h3 Why such inconsistent results?
-    | Facebook's API can be a bit like space, filled with virtual errors popping into and out of existence like subatomic particles
-    sup
-      | [
-      a href="http://en.wikipedia.org/wiki/Virtual_particles" target="_blank" 1
-      | ]
-    | . One of our first priorities is to weed out these phantom bugs and report only on real Facebook issues.
+/*  .section
+/*    h3 Why such inconsistent results?
+/*    | Facebook's API can be a bit like space, filled with virtual errors popping into and out of existence like subatomic particles
+/*    sup
+/*      | [
+/*      a href="http://en.wikipedia.org/wiki/Virtual_particles" target="_blank" 1
+/*      | ]
+/*    | . One of our first priorities is to weed out these phantom bugs and report only on real Facebook issues.
+
 
 #recentRuns
   h3 Recent Tests
@@ -28,6 +29,6 @@
           - if run.passed?
             | Passed
           - else
-            #{run.failure_count} errors
+            #{run.verified_failure_count} errors
           
   = link_to "see more", url_for(:action => "page")
