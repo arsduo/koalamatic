@@ -40,16 +40,22 @@ def make_example(failure = false)
   example = stub("example")
   example.stubs(:failed?).returns(failure)
   example.stubs(:full_description).returns(Faker::Lorem.words(5).join(" "))
-  example.stubs(:exception).returns(make_exception) if failure
+  example.stubs(:exception).returns(failure ? make_exception : nil) 
+  
+  # stub our monkey-patches too
+  example.stubs(:phantom_exception?).returns(false)
+  example.stubs(:different_exceptions?).returns(false)
+  example.stubs(:verified_exception?).returns(true)
+  
   example
 end
 
-def make_exception
-  stub("exception", 
-    # add Koala to the backtrace to generate some interesting lines
-    :backtrace => 8.times.collect { Faker::Lorem.words(5).join(" ") + (rand > 0.5 ? " koala" : "") }, 
-    :message => Faker::Lorem.words(5).join(" ")
-  )
+def make_exception  
+  exception = nil
+  begin; raise StandardError, Faker::Lorem.words(5).join(" "); rescue StandardError => exception; end
+  # add Koala to the backtrace to generate some interesting lines
+  exception.stubs(:backtrace).returns(8.times.collect { Faker::Lorem.words(5).join(" ") + (rand > 0.5 ? " koala" : "") })
+  exception
 end
 
 def make_url(attrs = {})

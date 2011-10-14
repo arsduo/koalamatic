@@ -19,14 +19,14 @@ class RSpec::Core::Example
     @original_exception && !@exception
   end
   
-  def verified_exception?
-    !!Facebook::ErrorComparison.same_error?(@original_exception, @exception)
-  end
-  
   def different_exceptions?
     # this is almost the same as !verified_exception?
     # except that we want to require both exceptions be present
     @exception && @original_exception && !verified_exception?
+  end
+  
+  def verified_exception?
+    !!Facebook::ErrorComparison.same_error?(@original_exception, @exception)
   end
   
   def rerun

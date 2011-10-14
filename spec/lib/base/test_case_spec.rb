@@ -20,6 +20,12 @@ describe Koalamatic::Base::TestCase do
     it "sets the title to the example's full_description" do
       TestCase.create_from_example(@example).title.should == @example.full_description
     end
+      
+    it "sets error_status to the result of ErrorStatus.from_status" do
+      status = -1 * rand(1000).to_i
+      TestCase::ErrorStatus.stubs(:from_example).returns(status)
+      TestCase.create_from_example(@example).error_status.should == status
+    end
     
     context "when failing" do
       before :each do
@@ -33,10 +39,6 @@ describe Koalamatic::Base::TestCase do
       it "sets the backtrace to the exception's backtrace, joined on \\n" do
         TestCase.create_from_example(@example).backtrace.should == @example.exception.backtrace.join("\n")
       end
-      
-      it "sets failed to true" do
-        TestCase.create_from_example(@example).failed.should be_true
-      end
     end
     
     context "when passing" do
@@ -47,11 +49,61 @@ describe Koalamatic::Base::TestCase do
       it "sets the backtrace to nil" do
         TestCase.create_from_example(@example).backtrace.should be_nil
       end
-      
-      it "sets failed to false" do
-        TestCase.create_from_example(@example).failed.should be_false
-      end
     end
   end
-  
+
+  describe Koalamatic::Base::TestCase::ErrorStatus do
+    it "defines NONE = 0" do
+      TestCase::ErrorStatus::NONE.should == 0
+    end
+    
+    it "defines UNKNOWN = 1" do
+      TestCase::ErrorStatus::UNKNOWN.should == 1
+    end
+    
+    it "defines PHANTOM = 2" do
+      TestCase::ErrorStatus::PHANTOM.should == 2
+    end
+
+    it "defines INCONSISTENT = 3" do
+      TestCase::ErrorStatus::INCONSISTENT.should == 3
+    end
+
+    it "defines VERIFIED = 4" do
+      TestCase::ErrorStatus::VERIFIED.should == 4
+    end
+    
+    describe "#from_example" do
+      before :each do
+        @example = make_example(true)
+      end
+      
+      it "returns NONE if there's no exception" do
+        @example.stubs(:exception)
+        TestCase::ErrorStatus.from_example(@example).should == TestCase::ErrorStatus::NONE
+      end
+      
+      it "returns PHANTOM if it's a phantom" do
+        @example.stubs(:phantom_exception?).returns(true)
+        TestCase::ErrorStatus.from_example(@example).should == TestCase::ErrorStatus::PHANTOM
+      end
+
+      it "returns INCONSISTENT if the exceptions were different" do
+        @example.stubs(:different_exceptions?).returns(true)
+        TestCase::ErrorStatus.from_example(@example).should == TestCase::ErrorStatus::INCONSISTENT
+      end
+      
+      it "returns VERIFIED if the exceptions were different" do
+        @example.stubs(:verified_exception?).returns(true)
+        TestCase::ErrorStatus.from_example(@example).should == TestCase::ErrorStatus::VERIFIED
+      end
+     
+      it "returns UNKNOWN if somehow none of the others apply" do
+        @example.stubs(:phantom_exception?).returns(false)
+        @example.stubs(:different_exceptions?).returns(false)
+        @example.stubs(:verified_exception?).returns(false)
+        TestCase::ErrorStatus.from_example(@example).should == TestCase::ErrorStatus::UNKNOWN
+      end 
+    end
+  end
 end

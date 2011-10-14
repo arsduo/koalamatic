@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111006083625) do
+ActiveRecord::Schema.define(:version => 20111013124536) do
 
   create_table "api_interactions", :force => true do |t|
     t.string   "method"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(:version => 20111006083625) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "backtrace"
-    t.boolean  "failed"
+    t.integer  "error_status"
   end
 
   add_index "test_cases", ["test_run_id"], :name => "index_test_cases_on_test_run_id"
