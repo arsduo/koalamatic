@@ -109,6 +109,10 @@ module Koalamatic
         @previous ||= TestRun.where(["id < ?", self.id]).order("id desc").limit(1).first
       end
 
+      def unverified_failure_count
+        self.failure_count - self.verified_failure_count
+      end
+
       def publishable_by_interval?
         (last_run = TestRun.last_scheduled_publication) ? last_run.created_at < Time.now - PUBLISHING_INTERVAL : true
       end

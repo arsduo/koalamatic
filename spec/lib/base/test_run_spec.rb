@@ -345,7 +345,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
   
-  describe "previous run" do
+  describe ".previous_run" do
     before :each do
       TestRun.make.save
       TestRun.make.save
@@ -365,6 +365,12 @@ describe Koalamatic::Base::TestRun do
       TestRun.expects(:find).never
       @run2.previous_run
     end   
+  end
+  
+  describe ".unverified_failure_count" do
+    it "returns the difference between the verified failures and all the failures" do
+      test_run_completed(:verified_failure_count => 3, :failure_count => 5).unverified_failure_count.should == 2
+    end
   end
   
   describe ".publishable_by_interval?" do

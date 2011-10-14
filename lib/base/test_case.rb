@@ -24,7 +24,10 @@ module Koalamatic
         end
       end
 
-      scope :verified, :conditions => {:error_status => ErrorStatus::VERIFIED}
+      scope :verified_failures, where(:error_status => ErrorStatus::VERIFIED)
+      scope :unverified_failures, where("error_status is not null").
+                                  where(["error_status != ?", ErrorStatus::NONE]).
+                                  where(["error_status != ?", ErrorStatus::VERIFIED])
 
       def self.create_from_example(example)
         create({
