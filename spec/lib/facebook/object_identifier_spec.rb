@@ -40,7 +40,7 @@ describe Facebook::ObjectIdentifier do
     end
     
     it "calls identify on the new ObjectIdentifier" do
-      result = stub("result")
+      result = stub("result 0")
       @identifier.stubs(:identify).returns(result)
       ObjectIdentifier.identify_object(@url).should == result
     end
@@ -65,14 +65,14 @@ describe Facebook::ObjectIdentifier do
   shared_examples_for "an ObjectIdentifier instance" do
     describe ".identify" do
       it "returns the result of identify_from_path if available" do
-        result = stub("result")
+        result = stub("result 1")
         @identifier.stubs(:identify_from_path).returns(result)
         @identifier.stubs(:identify_from_facebook).returns(stub("wrong result"))
         @identifier.identify.should == result
       end
 
       it "returns the result of identify_from_facebook if available and if identify_from_path doesn't work" do
-        result = stub("result")
+        result = stub("result 2")
         @identifier.stubs(:identify_from_path).returns(nil)
         @identifier.stubs(:identify_from_facebook).returns(result)
         @identifier.identify.should == result
@@ -85,10 +85,10 @@ describe Facebook::ObjectIdentifier do
       end
       
       it "caches the objects identified" do
-        result = stub("result")
-        @identifier.stubs(:identify_from_path).once.returns(result)
+        result3 = stub("result 3")
+        @identifier.stubs(:identify_from_path).once.returns(result3)
         @identifier.identify
-        @identifier.identify.should == result
+        @identifier.identify.should == result3
       end
     end
 
