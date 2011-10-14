@@ -4,8 +4,8 @@ module Koalamatic
       # we expose these less because they're useful to access from outside
       # and more to commit to their availability since subclasses use them heavily
       attr_reader :env, :request_body, :url
-      
-      def initialize(call_details = {}, options = {})        
+
+      def initialize(call_details = {}, options = {})
         arg_check = [:env, :duration].inject([]) {|errs, p| errs << p unless call_details[p]; errs}
         raise ArgumentError, "Missing #{arg_check.join(",")} in ApiInteraction.create_from_call" if arg_check.length > 0
 
@@ -13,12 +13,12 @@ module Koalamatic
         @duration = call_details[:duration]
         @request_body = call_details[:request_body]
         @url = @env[:url]
-        
+
         # initialize the AR with the appropriate attributes
         super(attributes_from_call, options)
       end
-      
-      private 
+
+      private
 
       def attributes_from_call
         {
@@ -39,7 +39,7 @@ module Koalamatic
           fake_method.split("=").last
         else
           @env[:method]
-        end    
+        end
       end
     end
   end

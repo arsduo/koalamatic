@@ -15,7 +15,7 @@ module Facebook
 
     def setup_test_environment
       # run the tests live
-      ENV["LIVE"] = "true"      
+      ENV["LIVE"] = "true"
 
       # setup the Faraday adapter
       middleware = self.class.recorder_class
@@ -25,7 +25,7 @@ module Facebook
         builder.use middleware
         builder.adapter Faraday.default_adapter
       end
-      
+
       super
     end
 
@@ -42,12 +42,12 @@ module Facebook
     def self.recorder_class
       Facebook::ApiRecorder
     end
-    
+
     private
 
     # test case management
     def add_load_path!
-      g = Bundler.load.specs.find {|s| s.name == "koala"}  
+      g = Bundler.load.specs.find {|s| s.name == "koala"}
       @path = File.join(g.full_gem_path, "spec")
       $:.push(@path) unless $:.find {|p| p.match(/koala.*\/spec/) && !p.match(/koalamatic\/spec/)}
       @path

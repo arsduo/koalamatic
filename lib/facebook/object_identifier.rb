@@ -5,22 +5,22 @@ module Facebook
       "search",
       "oauth"
     ]
-    
+
     @@identified_objects = {}
-    
+
     # class methods
 
     def self.identify_object(url)
       self.new(url).identify
-    end 
-    
+    end
+
     def self.get_id_from_path(path)
       path.split("/")[1] # 0 is to the left of the leading /
     end
-    
-    # instance methods    
+
+    # instance methods
     attr_reader :object, :url
-    
+
     def initialize(url_or_id)
       # we can analyze URLs or Facebook object IDs
       if url_or_id.is_a?(Addressable::URI)
@@ -30,11 +30,11 @@ module Facebook
         @object = url_or_id
       end
     end
-    
+
     def identify
       @@identified_objects[@object] ||= identify_from_path || identify_from_facebook || "unknown"
     end
-    
+
     # useful methods for Facebook analysis (hence public)
     def identify_from_path
       if @url
@@ -53,7 +53,7 @@ module Facebook
       # return nil and try the next technique
     end
 
-    def identify_from_facebook      
+    def identify_from_facebook
       begin
         result = fetch_object_info
         if !result.is_a?(Hash)
@@ -85,7 +85,7 @@ module Facebook
         end
       end
     end
-    
+
     def fetch_object_info
       Koala.with_default_middleware do
         appropriate_api.get_object(@object)
@@ -106,7 +106,7 @@ module Facebook
       end
       Koala::Facebook::API.new(token)
     end
-    
+
     def using_rest_server?
       @url.host.gsub(/beta\./, "") == Koala::Facebook::REST_SERVER
     end

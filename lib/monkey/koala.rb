@@ -9,7 +9,7 @@ module Koala
     ensure
       http_service.faraday_middleware = original_middleware
     end
-    
+
     result
   end
 end

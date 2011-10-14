@@ -4,7 +4,7 @@
     | We're building automated Facebook API tests, a heatbeat for Facebook's services designed to pick up errors fast and provide an independent reference if something looks wrong.
   .section
     h3 How's it work?
-    | Koalamatic uses 
+    | Koalamatic uses
     a href="http://github.com/arsduo/koala/" target="_blank" Koala
     |, a comprehensive, well-tested Facebook gem with support for live testing.  Our tests create and run against test users, providing a clean and reproducible test environment each time.
 /*  .section
@@ -23,12 +23,12 @@
   ul#runs
     - @runs.each_with_index do |run, idx|
       li class="#{(idx % 2 == 0) ? 'even' : 'odd'} #{run.passed? ? 'passed' : 'failed'}"
-        = link_to run.human_time, url_for(:action => :detail, :id => run.id, :page => @page), :class => "title"     
+        = link_to run.human_time, url_for(:action => :detail, :id => run.id, :page => @page), :class => "title"
         span , #{run.duration} seconds
         .details
           - if run.passed?
             | Passed
           - else
             #{run.verified_failure_count} errors
-          
+
   = link_to "see more", url_for(:action => "page")

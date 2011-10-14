@@ -33,13 +33,13 @@ module Koalamatic
         # pass it on to the next middleware
         result
       end
-      
+
       def self.interaction_class
         Koalamatic::Base::ApiInteraction
       end
-            
+
       private
-      
+
       def outside_time(&block)
         self.class.run ? self.class.run.without_recording_time(&block) : block.call
       end

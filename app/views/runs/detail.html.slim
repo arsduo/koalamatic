@@ -5,17 +5,17 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
   #{@run.test_count} tests passed!  Everything with Facebook was fine.
 - else
   #{@run.verified_failure_count} of #{@run.test_count} tests failed.
-  
+
 - if (verifieds = @run.verified_failure_count) > 0
   h4 #{verifieds} Failure#{verifieds > 1 ? "s" : ""}
-  
+
   p
     - if verifieds > 1
       | All of these failures were reproduced in subsequent identical tests and appear to be real errors in the API.
     - else
       | This failure was reproduced in a subsequent identical test and appears to be a real error in the API.
-    
-  
+
+
   ul#failureList
     - @run.test_cases.verified_failures.each do |test_case|
       li id="testCase#{test_case.id}"
@@ -23,15 +23,15 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
         .failureMessage #{test_case.failure_message}
         = formatted_backtrace(test_case)
 
-- if (unverifieds = @run.unverified_failure_count) > 0 
+- if (unverifieds = @run.unverified_failure_count) > 0
   h4 #{@run.unverified_failure_count} Unverified Issue#{@run.unverified_failure_count > 1 ? "s" : ""}
-  
-  p 
+
+  p
   - if unverifieds > 1
     | The following errors could not be reproduced, and probably represent transient API glitches or connectivity problems.
   - else
     | The following error could not be reproduced, and probably represents a transient API glitch or connectivity problem.
-  
+
 
   ul#unverifiedFailureList
     - @run.test_cases.unverified_failures.each do |test_case|

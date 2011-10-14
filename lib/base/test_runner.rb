@@ -8,7 +8,7 @@ module Koalamatic
       attr_reader :logger, :run
 
       SPEC_PATTERN = "**/*_spec.rb"
-            
+
       def initialize
         @run ||= self.class.test_run_class.new
       end
@@ -37,13 +37,13 @@ module Koalamatic
         run = @run
         RSpec.configure do |config|
           config.before :suite do
-            Rails.logger.info "Starting run for #{RSpec::world.example_count} examples."          
+            Rails.logger.info "Starting run for #{RSpec::world.example_count} examples."
           end
 
           config.after :each do
             unless example.should_rerun?
-              # it passed, so we can count it immediately 
-              run.test_done(example)              
+              # it passed, so we can count it immediately
+              run.test_done(example)
             else
               # rerun the test run to see if we can replicate the error
               # this will rerun the after filter, saving the record
@@ -56,7 +56,7 @@ module Koalamatic
             Rails.logger.warn "MISMATCH!" if RSpec::world.example_count != @run.test_count + RSpec::world.reporter.pending_count
             run.done
           end
-        end      
+        end
 
         # tell ApiRecorder which run we're using so we can exclude database time
         self.class.recorder_class.run = run
@@ -70,11 +70,11 @@ module Koalamatic
       end
 
       # we define these as methods because as constants they get evaluated on file load
-      # before Rails has loaded the models 
+      # before Rails has loaded the models
       def self.recorder_class
         Koalamatic::Base::ApiRecorder
       end
-      
+
       def self.test_run_class
         TestRun #Koalamatic::Base::TestRun
       end
@@ -96,7 +96,7 @@ module Koalamatic
       end
 
       def require_file(file)
-        require file      
+        require file
       end
     end
   end

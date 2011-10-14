@@ -20,7 +20,7 @@ module Koalamatic
           else
             # this should never happen
             UNKNOWN
-          end            
+          end
         end
       end
 

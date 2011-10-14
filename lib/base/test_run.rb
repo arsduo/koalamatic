@@ -70,7 +70,7 @@ module Koalamatic
       def without_recording_time(&block)
         pause_start = Time.now
         yield
-        @processing_time += Time.now - pause_start    
+        @processing_time += Time.now - pause_start
       end
 
       def human_time

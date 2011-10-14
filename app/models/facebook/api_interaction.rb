@@ -7,7 +7,7 @@ module Facebook
       attrs = super
 
       # now determine which type of object we were querying
-      attrs.merge(:primary_object => @env[:primary_object])      
+      attrs.merge(:primary_object => @env[:primary_object])
     end
   end
 end
