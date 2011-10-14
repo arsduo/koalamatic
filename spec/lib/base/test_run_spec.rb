@@ -107,23 +107,30 @@ describe Koalamatic::Base::TestRun do
   end
   
   describe ".passed?" do
-    it "returns true if the failure_count is 0" do
+    it "returns true if the verified_failure_count is 0" do
       run = TestRun.new 
-      run.failure_count = 0      
+      run.verified_failure_count = 0      
       run.passed?.should be_true
     end
 
-    it "returns false the failure_count is > 0" do
+    it "returns false the verified_failure_count is > 0" do
       run = TestRun.new 
-      run.failure_count = 2
+      run.verified_failure_count = 2
       run.passed?.should be_false
     end    
     
-    it "returns false if the failure_count is nil" do
+    it "returns false if the verified_failure_count is nil" do
       run = TestRun.new 
-      run.failure_count = nil     
+      run.verified_failure_count = nil     
       run.passed?.should be_false      
-    end    
+    end  
+    
+    it "ignores unverified failures" do
+      run = TestRun.new 
+      run.failure_count = 300
+      run.verified_failure_count = 0     
+      run.passed?.should be_true   
+    end  
   end
 
   describe ".test_done" do

@@ -79,7 +79,7 @@ module Koalamatic
       end
 
       def passed?
-        failure_count && failure_count == 0
+        verified_failure_count && verified_failure_count == 0
       end
 
       # PUBLISHING
