@@ -57,6 +57,10 @@ describe Koalamatic::Base::TestRun do
     it "sets failure_count to 0" do
       TestRun.new.failure_count.should == 0
     end
+    
+    it "sets verified failure_count to 0" do
+      TestRun.new.verified_failure_count.should == 0
+    end    
   end
   
   describe ".without_recording_time" do    
@@ -103,16 +107,22 @@ describe Koalamatic::Base::TestRun do
   end
   
   describe ".passed?" do
-    it "passes if the failure_count is 0" do
-      TestRun.new(:failure_count => 0).passed?.should be_true
+    it "returns true if the failure_count is 0" do
+      run = TestRun.new 
+      run.failure_count = 0      
+      run.passed?.should be_true
     end
 
-    it "fails if the failure_count is > 0" do
-      TestRun.new(:failure_count => 2).passed?.should be_false
+    it "returns false the failure_count is > 0" do
+      run = TestRun.new 
+      run.failure_count = 2
+      run.passed?.should be_false
     end    
     
-    it "fails if the failure_count is nil" do
-      TestRun.new(:failure_count => nil).passed?.should be_false      
+    it "returns false if the failure_count is nil" do
+      run = TestRun.new 
+      run.failure_count = nil     
+      run.passed?.should be_false      
     end    
   end
 
@@ -134,6 +144,12 @@ describe Koalamatic::Base::TestRun do
         @run.test_done(@example)
         @run.failure_count.should == failure_count
       end
+      
+      it "does not add to the verified failure count" do
+        verified_failure_count = @run.verified_failure_count
+        @run.test_done(@example)
+        @run.failure_count.should == verified_failure_count
+      end
     end
 
     context "for a failure" do
@@ -146,6 +162,20 @@ describe Koalamatic::Base::TestRun do
         @run.test_done(@example)
         @run.failure_count.should == failure_count + 1
       end
+      
+      it "adds to the verified_failure_count if it's been verified" do
+        verified_failure_count = @run.verified_failure_count
+        @example.stubs(:verified_exception?).returns(true)
+        @run.test_done(@example)
+        @run.verified_failure_count.should == verified_failure_count + 1
+      end
+      
+      it "does not add to the verified_failure_count if it wasn't verified" do
+        verified_failure_count = @run.verified_failure_count
+        @example.stubs(:verified_exception?).returns(false)
+        @run.test_done(@example)
+        @run.verified_failure_count.should == verified_failure_count
+      end      
     end
   end
 
@@ -212,18 +242,18 @@ describe Koalamatic::Base::TestRun do
   
     it "does not include the success text if there are failures" do
       failures = 3
-      TestRun.make(:failure_count => failures).summary.should_not =~ /#{TestRun::SUCCESS_TEXT}/
+      TestRun.make(:verified_failure_count => failures).summary.should_not =~ /#{TestRun::SUCCESS_TEXT}/
     end
     
     it "includes the number of failures if > 0" do
       failures = 3
-      TestRun.make(:failure_count => failures).summary.should =~ /3/
+      TestRun.make(:verified_failure_count => failures).summary.should =~ /3/
     end
     
     it "properly pluralizes error" do
-      TestRun.make(:failure_count => 1).summary.should =~ /1 error/
-      TestRun.make(:failure_count => 1).summary.should_not =~ /1 errors/
-      TestRun.make(:failure_count => 2).summary.should =~ /2 errors/
+      TestRun.make(:verified_failure_count => 1).summary.should =~ /1 error/
+      TestRun.make(:verified_failure_count => 1).summary.should_not =~ /1 errors/
+      TestRun.make(:verified_failure_count => 2).summary.should =~ /2 errors/
     end
     
     it "includes the date if it's publishable_by_interval?" do
@@ -242,44 +272,44 @@ describe Koalamatic::Base::TestRun do
     
     describe "the difference from previous run" do
       it "isn't included if there's no previous run" do
-        t = TestRun.make(:failure_count => 3)
+        t = TestRun.make(:verified_failure_count => 3)
         t.stubs(:previous_run).returns(nil)
         t.summary.should_not =~ /last run/
       end
 
       it "isn't included if the current run passed" do
-        t = TestRun.make(:failure_count => 0)
-        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 4))
+        t = TestRun.make(:verified_failure_count => 0)
+        t.stubs(:previous_run).returns(TestRun.make(:verified_failure_count => 4))
         t.summary.should_not =~ /last run/
       end
       
       it "isn't included if the previous run passed" do
-        t = TestRun.make(:failure_count => 3)
-        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 0))
+        t = TestRun.make(:verified_failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:verified_failure_count => 0))
         t.summary.should_not =~ /last run/
       end
       
       it "isn't included if the previous run had the same number of failures" do
-        t = TestRun.make(:failure_count => 3)
-        t.stubs(:previous_run).returns(TestRun.make(:failure_count => t.failure_count))
+        t = TestRun.make(:verified_failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:verified_failure_count => t.failure_count))
         t.summary.should_not =~ /last run/
       end
       
       it "is included if the previous run had a different non-zero number of failures" do
-        t = TestRun.make(:failure_count => 3)
-        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 1))
+        t = TestRun.make(:verified_failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:verified_failure_count => 1))
         t.summary.should =~ /last run/
       end
       
       it "says more than if there are now more failures than before" do
-        t = TestRun.make(:failure_count => 3)
-        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 2))
+        t = TestRun.make(:verified_failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:verified_failure_count => 2))
         t.summary.should =~ /more than last run/
       end
       
       it "says fewer than if there are now fewer failures than before" do
-        t = TestRun.make(:failure_count => 3)
-        t.stubs(:previous_run).returns(TestRun.make(:failure_count => 5))
+        t = TestRun.make(:verified_failure_count => 3)
+        t.stubs(:previous_run).returns(TestRun.make(:verified_failure_count => 5))
         t.summary.should =~ /fewer than last run/
       end
     end
@@ -359,9 +389,9 @@ describe Koalamatic::Base::TestRun do
   end
   
   describe ".publishable_by_results?" do
-    it "returns true if the failure count != previous failure count" do
-      run1 = test_run_completed(:failure_count => 3)
-      run2 = test_run_completed(:failure_count => 2)
+    it "returns true if the verified failure count != previous verified failure count" do
+      run1 = test_run_completed(:verified_failure_count => 3)
+      run2 = test_run_completed(:verified_failure_count => 2)
       run1.save
       run2.save
       run2.publishable_by_results?.should be_true
@@ -374,8 +404,16 @@ describe Koalamatic::Base::TestRun do
     end
     
     it "returns false if the failure count == previous failure count" do
-      run1 = test_run_completed(:failure_count => 3)
-      run2 = test_run_completed(:failure_count => 3)
+      run1 = test_run_completed(:verified_failure_count => 3)
+      run2 = test_run_completed(:verified_failure_count => 3)
+      run1.save
+      run2.save
+      run2.publishable_by_results?.should be_false
+    end
+    
+    it "ignores the unverified failure count" do
+      run1 = test_run_completed(:verified_failure_count => 3, :failure_count => 2)
+      run2 = test_run_completed(:verified_failure_count => 3, :failure_count => 1)
       run1.save
       run2.save
       run2.publishable_by_results?.should be_false

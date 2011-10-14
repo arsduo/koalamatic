@@ -37,13 +37,15 @@ module Koalamatic
         @processing_time = 0
         @failures = []
         @start_time = Time.now
+        self.failure_count = self.verified_failure_count = 0
       end
 
       def test_done(example)
         self.test_count += 1
         if example.failed?
           @failures << example
-          self.failure_count = @failures.length
+          self.failure_count += 1
+          self.verified_failure_count += 1 if example.verified_exception?
         end
       end
 
@@ -87,11 +89,11 @@ module Koalamatic
         if publishable?
           text = self.publication_reason == SCHEDULED_REASON ? "Run for #{Time.now.strftime("%b %d")}: " : "Run completed: "
 
-          if self.failure_count == 0
+          if (failures = self.verified_failure_count) == 0
             text += SUCCESS_TEXT
           else
-            text += "#{failure_count} error#{failure_count > 1 ? "s" : ""}"
-            difference = previous_run.try(:failure_count).to_i > 0 ? previous_run.failure_count.to_i - self.failure_count.to_i : 0
+            text += "#{failures} error#{failures > 1 ? "s" : ""}"
+            difference = previous_run.try(:verified_failure_count).to_i > 0 ? previous_run.verified_failure_count.to_i - failures : 0
             text += " -- #{difference.abs} #{difference > 0 ? "fewer" : "more"} than last run." if difference != 0
           end
 
@@ -113,7 +115,7 @@ module Koalamatic
 
       def publishable_by_results?
         # this needs to be refined to examine the actual contents of the errors
-        !previous_run || failure_count != previous_run.failure_count
+        !previous_run || verified_failure_count != previous_run.verified_failure_count
       end
 
       def publishable?

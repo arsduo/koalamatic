@@ -20,6 +20,7 @@ def test_run_completed(attrs = {})
   failure_count = 3
   run.update_attributes({
     :failure_count => failure_count,
+    :verified_failure_count => failure_count,
     :test_count => test_count,
     :duration => 2.minutes,
     :tweet_id => rand(2**32).to_i,
