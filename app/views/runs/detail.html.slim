@@ -11,9 +11,9 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
 
   p
     - if verifieds > 1
-      | All of these failures were reproduced in subsequent identical tests and appear to be real errors in the API.
+      | All of these failures were reproduced in subsequent identical tests and could be real errors in the API.
     - else
-      | This failure was reproduced in a subsequent identical test and appears to be a real error in the API.
+      | This failure was reproduced in a subsequent identical test and could be a real error in the API.
 
 
   ul#failureList
