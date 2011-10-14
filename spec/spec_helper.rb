@@ -32,3 +32,7 @@ end
 
 # reroute Rails logger to stdout
 Rails.logger = Logger.new(STDOUT)
+
+# Speed up integrated tests
+Sass::Plugin.options[:always_check] = false
+Sass::Plugin.options[:always_update] = false
