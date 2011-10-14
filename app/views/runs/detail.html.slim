@@ -21,7 +21,7 @@ div#summary class="#{@run.passed? ? 'passed' : 'failed'}"
 - if @run.unverified_failure_count > 0 
   h4 Unverified Issues
   
-  p. The following errors could not be reproduced, and probably represent transient API glitches or connectivity problems.
+  p The following errors could not be reproduced, and probably represent transient API glitches or connectivity problems.
 
   ul#unverifiedFailureList
     - @run.test_cases.unverified_failures.each do |test_case|
