@@ -14,9 +14,13 @@ class TrackErrorStatus < ActiveRecord::Migration
     add_column :test_cases, :error_status, :integer
     TestCase.update_all("error_status = #{TestCase::ErrorStatus::UNKNOWN}", "failed = true")
     remove_column :test_cases, :failed
+
+    add_column :test_runs, :verified_failure_count, :integer, :default => 0
   end
   
   def down
+    remove_column :test_runs, :verified_failure_count
+    
     add_column :test_cases, :failed, :boolean
     TestCase.update_all("failed = 1", "error_status > 0")
     remove_column :test_cases, :error_status

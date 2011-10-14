@@ -40,12 +40,13 @@ ActiveRecord::Schema.define(:version => 20111013124536) do
 
   create_table "test_runs", :force => true do |t|
     t.integer  "duration"
-    t.integer  "test_count",                      :default => 0
-    t.integer  "failure_count",                   :default => 0
+    t.integer  "test_count",                          :default => 0
+    t.integer  "failure_count",                       :default => 0
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "tweet_id",           :limit => 8
+    t.integer  "tweet_id",               :limit => 8
     t.string   "publication_reason"
+    t.integer  "verified_failure_count",              :default => 0
   end
 
 end
