@@ -21,27 +21,51 @@ describe "RSpec patches" do
     end
     
     describe ".passed?" do
+      before :each do
+        @example.stubs(:run)
+      end
+      
       it "is true if there's no exception" do
         @example.set_exception(nil)
         @example.passed?.should be_true
       end
       
-      it "is false if there's an exception" do
+      it "is false if there's a phantom exception" do
         @example.set_exception(@exception)
+        @example.rerun
         @example.passed?.should be_false
-      end      
+      end
+      
+      it "is false if there's a verified exception" do
+        @example.set_exception(@exception)
+        @example.rerun
+        @example.set_exception(@exception.dup)
+        @example.passed?.should be_false
+      end     
     end
     
     describe ".failed?" do
+      before :each do
+        @example.stubs(:run)
+      end
+      
       it "is false if there's no exception" do
         @example.set_exception(nil)
         @example.failed?.should be_false
       end
       
-      it "is true if there's an exception" do
+      it "is true if there's a phantom exception" do
         @example.set_exception(@exception)
+        @example.rerun
         @example.failed?.should be_true
-      end      
+      end
+      
+      it "is true if there's a verified exception" do
+        @example.set_exception(@exception)
+        @example.rerun
+        @example.set_exception(@exception.dup)
+        @example.failed?.should be_true
+      end
     end
     
     describe ".should_rerun?" do

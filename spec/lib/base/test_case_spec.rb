@@ -30,14 +30,45 @@ describe Koalamatic::Base::TestCase do
     context "when failing" do
       before :each do
         @example = make_example(true)
+        @example.stubs(:run)
       end
 
-      it "sets the failure_message to the exception's message" do
-        TestCase.create_from_example(@example).failure_message.should == @example.exception.message
+      shared_examples_for "a test_case recording an error" do
+        it "sets the failure_message to the original exception's message" do
+          TestCase.create_from_example(@example).failure_message.should == @example.original_exception.message
+        end
+
+        it "sets the backtrace to the exception's backtrace, joined on \\n" do
+          TestCase.create_from_example(@example).backtrace.should == @example.original_exception.backtrace.join("\n")
+        end
+      end
+      
+      context "for a phantom exception" do
+        before :each do
+          @example.stubs(:original_exception).returns(make_exception)
+          @example.stubs(:exception)
+        end
+        
+        it_should_behave_like "a test_case recording an error"
       end
 
-      it "sets the backtrace to the exception's backtrace, joined on \\n" do
-        TestCase.create_from_example(@example).backtrace.should == @example.exception.backtrace.join("\n")
+      context "for an inconsistent exception" do
+        before :each do
+          @example.stubs(:original_exception).returns(make_exception)
+          @example.stubs(:exception).returns(make_exception)
+        end
+        
+        it_should_behave_like "a test_case recording an error"
+      end
+
+      context "for a phantom exception" do
+        before :each do
+          exception = make_exception
+          @example.stubs(:original_exception).returns(exception)
+          @example.stubs(:exception).returns(exception.dup)
+        end
+        
+        it_should_behave_like "a test_case recording an error"
       end
     end
 

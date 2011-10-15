@@ -42,6 +42,7 @@ def make_example(failure = false)
   example.stubs(:failed?).returns(failure)
   example.stubs(:full_description).returns(Faker::Lorem.words(5).join(" "))
   example.stubs(:exception).returns(failure ? make_exception : nil) 
+  example.stubs(:original_exception).returns(failure ? make_exception : nil) 
   
   # stub our monkey-patches too
   example.stubs(:phantom_exception?).returns(false)

@@ -4,11 +4,13 @@ class RSpec::Core::Example
   attr_reader :exception, :original_exception
 
   def passed?
-    @exception.nil?
+    !failed?
   end
 
   def failed?
-    !passed?
+    # if it fails, there'll always be an @original_exception
+    # only possibly a retested exception
+    !!@original_exception
   end
 
   def should_rerun?

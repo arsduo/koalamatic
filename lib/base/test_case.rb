@@ -32,9 +32,9 @@ module Koalamatic
       def self.create_from_example(example)
         create({
           :title => example.full_description,
-          :failure_message => example.failed? ? example.exception.message : nil,
+          :failure_message => example.failed? ? example.original_exception.message : nil,
           :error_status => ErrorStatus.from_example(example),
-          :backtrace => example.failed? ? example.exception.backtrace.join("\n") : nil
+          :backtrace => example.failed? ? example.original_exception.backtrace.join("\n") : nil
         })
       end
     end
