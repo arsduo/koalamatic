@@ -9,7 +9,7 @@ module Koalamatic
         VERIFIED = 4 # rerun produced the same error
 
         def self.from_example(example)
-          if !example.exception
+          if !example.original_exception
             NONE
           elsif example.phantom_exception?
             PHANTOM

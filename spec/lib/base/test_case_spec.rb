@@ -131,8 +131,8 @@ describe Koalamatic::Base::TestCase do
         @example = make_example(true)
       end
 
-      it "returns NONE if there's no exception" do
-        @example.stubs(:exception)
+      it "returns NONE if there's no (original) exception" do
+        @example.stubs(:original_exception)
         TestCase::ErrorStatus.from_example(@example).should == TestCase::ErrorStatus::NONE
       end
 
