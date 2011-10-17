@@ -9,7 +9,7 @@ describe Koalamatic::Base::ApiInteraction do
     ApiInteraction.superclass.should == ActiveRecord::Base
   end
   
-  describe "#new" do
+  describe ".new" do
     before :each do
       @env = make_env(:url => {:inferred_port => 81})
       @url = @env[:url]

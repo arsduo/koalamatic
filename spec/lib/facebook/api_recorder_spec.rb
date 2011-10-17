@@ -3,7 +3,7 @@ require 'facebook/api_recorder'
 
 describe Facebook::ApiRecorder do
   
-  describe "#interaction_class" do
+  describe ".interaction_class" do
     it "returns Facebook::ApiInteraction" do
       Facebook::ApiRecorder.interaction_class.should == Facebook::ApiInteraction
     end
@@ -21,7 +21,7 @@ describe Facebook::ApiRecorder do
     it_should_behave_like "an ApiRecorder class"
   end
   
-  describe ".call" do    
+  describe "#call" do    
     class FakeApp
       # a fake app object
       attr_accessor :on_call

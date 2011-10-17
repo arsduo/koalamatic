@@ -23,7 +23,7 @@ describe Facebook::ObjectIdentifier do
   end
   
   # class methods
-  describe "#identify_object" do
+  describe ".identify_object" do
     before :each do
       @identifier.stubs(:identify)
       ObjectIdentifier.stubs(:new).returns(@identifier)
@@ -46,7 +46,7 @@ describe Facebook::ObjectIdentifier do
     end
   end
     
-  describe "#get_id_from_path" do
+  describe ".get_id_from_path" do
     it "returns the first object after the leading /" do
       ObjectIdentifier.get_id_from_path("/foo/bar").should == "foo"
     end
@@ -63,7 +63,7 @@ describe Facebook::ObjectIdentifier do
   # instance methods
   
   shared_examples_for "an ObjectIdentifier instance" do
-    describe ".identify" do
+    describe "#identify" do
       it "returns the result of identify_from_path if available" do
         result = stub("result 1")
         @identifier.stubs(:identify_from_path).returns(result)
@@ -92,7 +92,7 @@ describe Facebook::ObjectIdentifier do
       end
     end
 
-    describe ".identify_from_facebook" do
+    describe "#identify_from_facebook" do
       before :each do
         @result = {}
         @identifier.stubs(:fetch_object_info).returns(@result)
@@ -160,7 +160,7 @@ describe Facebook::ObjectIdentifier do
       end
     end
 
-    describe ".fetch_object_info" do
+    describe "#fetch_object_info" do
       before :each do
         @api = stub("api")
         Koala::Facebook::API.stubs(:new).returns(@api)
@@ -225,7 +225,7 @@ describe Facebook::ObjectIdentifier do
   end
 
   describe "when initialized with an Adressable::URI" do  
-    describe ".new" do
+    describe "#new" do
       it "identifies the object from the path" do
         ObjectIdentifier.expects(:get_id_from_path).with(@url.path)
         ObjectIdentifier.new(@url)
@@ -242,7 +242,7 @@ describe Facebook::ObjectIdentifier do
       end      
     end
     
-    describe ".identify_from_path" do      
+    describe "#identify_from_path" do      
       it "returns rest_api if the host is the rest server" do
         @url.stubs(:host).returns(Koala::Facebook::REST_SERVER)
         @identifier.identify_from_path.should == "rest_api"
@@ -278,7 +278,7 @@ describe Facebook::ObjectIdentifier do
       @identifier = ObjectIdentifier.new(@object)
     end
     
-    describe ".new" do
+    describe "#new" do
       it "makes the object available as .object" do
         @identifier.object.should == @object
       end
@@ -288,7 +288,7 @@ describe Facebook::ObjectIdentifier do
       end      
     end
 
-    describe ".identify_from_path" do      
+    describe "#identify_from_path" do      
       it "returns nil because there's no path" do
         @identifier.identify_from_path.should be_nil        
       end

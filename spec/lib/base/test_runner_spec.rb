@@ -23,19 +23,19 @@ describe Koalamatic::Base::TestRunner do
     Koalamatic::Base::TestRunner::SPEC_PATTERN.should == "**/*_spec.rb"
   end
 
-  describe "#recorder_class" do
+  describe ".recorder_class" do
     it "returns the base ApiRecorder" do
       @runner.class.recorder_class.should == Koalamatic::Base::ApiRecorder
     end
   end
 
-  describe "#test_run_class" do
+  describe ".test_run_class" do
     it "returns the base ApiRecorder" do
       @runner.class.test_run_class.should == Koalamatic::Base::TestRun
     end
   end
   
-  describe ".new" do
+  describe "#new" do
     it "creates a new version of the test_run_class" do
       klass = stub("run class")
       Koalamatic::Base::TestRunner.stubs(:test_run_class).returns(klass)
@@ -45,7 +45,7 @@ describe Koalamatic::Base::TestRunner do
     end
   end
 
-  describe ".execute" do
+  describe "#execute" do
     it "sets up the test environment" do
       @runner.expects(:setup_test_environment)
       @runner.execute
@@ -74,7 +74,7 @@ describe Koalamatic::Base::TestRunner do
     end
   end
 
-  describe ".setup_test_environment" do
+  describe "#setup_test_environment" do
     it "sets up the logger" do
       @runner.expects(:setup_logger)
       @runner.setup_test_environment
@@ -98,6 +98,7 @@ describe Koalamatic::Base::TestRunner do
       context "after :each test" do
         before :each do
           @example = stub("example", :exception => nil)
+          @example.stubs(:rerun)
           @runner.stubs(:example).returns(@example)
         
           RSpec.stubs(:configure).yields(@config)
@@ -112,12 +113,32 @@ describe Koalamatic::Base::TestRunner do
           @runner.setup_test_environment
         end
         
-        it "it reruns tests that need to be rerun" do        
-          # make the example available in the context of the runner
-          @example.stubs(:should_rerun?).returns(true)
-          @example.expects(:rerun)
-          @runner.setup_test_environment
-        end        
+        context "for reruns" do
+          it "it reruns tests that need to be rerun" do        
+            # make the example available in the context of the runner
+            @example.stubs(:should_rerun?).returns(true)
+            @example.expects(:rerun)
+            @runner.setup_test_environment
+          end 
+          
+          it "pauses 5 seconds before rerunning the test" do        
+            # make the example available in the context of the runner
+            @example.stubs(:should_rerun?).returns(true)
+            Kernel.expects(:sleep).with(5)
+            @runner.setup_test_environment
+          end
+          
+          it "does this without recording time" do
+            @example.stubs(:should_rerun?).returns(true)
+            # we test that it's inside the block by 
+            # 1) verifying the method has been called
+            # 2) verifying that deactivating the method stops the call
+            @run.expects(:without_recording_time)
+            @example.expects(:rerun).never
+            Kernel.expects(:sleep).never
+            @runner.setup_test_environment
+          end
+        end
       end
 
       it "marks each test as done after :suite" do
@@ -136,14 +157,14 @@ describe Koalamatic::Base::TestRunner do
     end
   end
 
-  describe ".get_tests" do
+  describe "#get_tests" do
     it "can't be called unless subclassed" do
       @runner.unstub(:get_tests)
       expect { @runner.get_tests }.to raise_exception(StandardError)
     end
   end
 
-  describe ".publish_results" do
+  describe "#publish_results" do
     before :each do
       test_run_completed(:run => @runner.run)
       @runner.run.stubs(:publish_if_appropriate!)

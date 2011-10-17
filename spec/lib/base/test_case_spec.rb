@@ -4,7 +4,7 @@ require 'base/test_case'
 describe Koalamatic::Base::TestCase do
   include Koalamatic::Base
 
-  describe "#create_from_example" do
+  describe ".create_from_example" do
     before :each do
       @example = make_example
     end
@@ -84,13 +84,13 @@ describe Koalamatic::Base::TestCase do
   end
 
   describe "scopes" do
-    describe ".verified_failures" do
+    describe "#verified_failures" do
       it "only gets cases that have been verified" do
         TestCase.verified_failures.where_values_hash.should == {:error_status => TestCase::ErrorStatus::VERIFIED}
       end
     end
 
-    describe ".unverified_failures" do
+    describe "#unverified_failures" do
       it "doesn't get test cases with null status" do
         TestCase.unverified_failures.where_values.should include("error_status is not null")
       end
@@ -126,7 +126,7 @@ describe Koalamatic::Base::TestCase do
       TestCase::ErrorStatus::VERIFIED.should == 4
     end
 
-    describe "#from_example" do
+    describe ".from_example" do
       before :each do
         @example = make_example(true)
       end

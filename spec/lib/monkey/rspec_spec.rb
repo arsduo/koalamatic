@@ -20,7 +20,7 @@ describe "RSpec patches" do
       @example.should respond_to(:original_exception)
     end
     
-    describe ".passed?" do
+    describe "#passed?" do
       before :each do
         @example.stubs(:run)
       end
@@ -44,7 +44,7 @@ describe "RSpec patches" do
       end     
     end
     
-    describe ".failed?" do
+    describe "#failed?" do
       before :each do
         @example.stubs(:run)
       end
@@ -68,7 +68,7 @@ describe "RSpec patches" do
       end
     end
     
-    describe ".should_rerun?" do
+    describe "#should_rerun?" do
       it "returns false if there's no exception" do
         @example.should_rerun?.should be_false    
       end
@@ -91,7 +91,7 @@ describe "RSpec patches" do
       end
     end
     
-    describe ".phantom_exception?" do
+    describe "#phantom_exception?" do
       before :each do
         @error = stub("error", :message => Faker::Lorem.words(3).join(" "))        
         @example.set_exception(@error)
@@ -158,7 +158,7 @@ describe "RSpec patches" do
       end
     end
     
-    describe ".verified_exception?" do
+    describe "#verified_exception?" do
       before :each do
         @example.stubs(:run)
       end
@@ -214,7 +214,7 @@ describe "RSpec patches" do
       end
     end
     
-    describe ".rerun" do
+    describe "#rerun" do
       before :each do
         @example.stubs(:run).returns(true)
         @error = stub("error", :message => Faker::Lorem.words(3).join(" "))

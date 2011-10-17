@@ -47,7 +47,11 @@ module Koalamatic
             else
               # rerun the test run to see if we can replicate the error
               # this will rerun the after filter, saving the record
-              example.rerun
+              run.without_recording_time do
+                # wait a few seconds before retrying
+                Kernel.sleep(5)
+                example.rerun
+              end
             end
           end
 
