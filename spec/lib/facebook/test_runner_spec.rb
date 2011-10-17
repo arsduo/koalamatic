@@ -14,7 +14,7 @@ describe Facebook::TestRunner do
     Facebook::TestRunner.superclass.should == Koalamatic::Base::TestRunner
   end
 
-  describe ".setup_test_environment" do
+  describe "#setup_test_environment" do
     it "sets ENV[\"LIVE\"] to true" do
       prev_env = ENV["LIVE"]
       ENV["LIVE"] = "false"
@@ -48,7 +48,7 @@ describe Facebook::TestRunner do
     end
   end
 
-  describe ".get_tests" do
+  describe "#get_tests" do
     it "adds Koala's spec directory to the load path" do
       # this is a little less exact than I'd like, but it beats writing expectations against some very specific Bundler code
       @runner.get_tests

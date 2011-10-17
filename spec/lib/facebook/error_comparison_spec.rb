@@ -4,7 +4,7 @@ require 'facebook/error_comparison'
 describe Facebook::ErrorComparison do
   include Facebook
   
-  describe "#same_error?" do
+  describe ".same_error?" do
     before :each do
       begin; raise Exception; rescue Exception => @err1; end
       begin; raise Exception; rescue Exception => @err2; end

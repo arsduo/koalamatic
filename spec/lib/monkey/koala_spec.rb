@@ -3,7 +3,7 @@ require 'koala'
 require 'monkey/koala'
 
 describe "Koala patches" do
-  describe "#with_default_middleware" do
+  describe ".with_default_middleware" do
     it "restores the middleware" do
       middleware = stub("middleware")
       Koala.http_service.faraday_middleware = middleware

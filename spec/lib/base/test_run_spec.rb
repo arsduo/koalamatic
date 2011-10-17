@@ -20,7 +20,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe "#interval_to_next_run" do
+  describe ".interval_to_next_run" do
     it "returns TEST_INTERVAL - TEST_PADDING" do
       TestRun.interval_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
     end
@@ -33,7 +33,7 @@ describe Koalamatic::Base::TestRun do
     found.should be_true
   end
 
-  describe "#time_for_next_run?" do
+  describe ".time_for_next_run?" do
     before :each do
       TestRun.destroy_all
     end
@@ -49,7 +49,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe "#new" do
+  describe ".new" do
     it "sets test_count to 0" do
       TestRun.new.test_count.should == 0
     end
@@ -63,7 +63,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".without_recording_time" do
+  describe "#without_recording_time" do
     it "processes the block given" do
       done = false
       TestRun.make.without_recording_time do
@@ -99,14 +99,14 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".human_time" do
+  describe "#human_time" do
     it "shows the date/time as MM/DD hh:mm" do
       run = TestRun.new(:created_at => Time.zone.parse("2001/12/31 3:45 PM"))
       run.human_time.should == "12/31  3:45 PM"
     end
   end
 
-  describe ".passed?" do
+  describe "#passed?" do
     it "returns true if the verified_failure_count is 0" do
       run = TestRun.new
       run.verified_failure_count = 0
@@ -133,7 +133,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".test_done" do
+  describe "#test_done" do
     before :each do
       @run = TestRun.make
       @example = make_example(false)
@@ -186,7 +186,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".done" do
+  describe "#done" do
     before :each do
       @start_time = Time.at(3)
       Time.stubs(:now).returns(@start_time)
@@ -242,7 +242,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".summary" do
+  describe "#summary" do
     it "includes the success text if all's well" do
       TestRun.make.summary.should =~ /#{TestRun::SUCCESS_TEXT}/
     end
@@ -329,7 +329,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".url" do
+  describe "#url" do
     before :each do
       @run = TestRun.make
       @run.save
@@ -352,7 +352,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".previous_run" do
+  describe "#previous_run" do
     before :each do
       TestRun.make.save
       TestRun.make.save
@@ -374,13 +374,13 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".unverified_failure_count" do
+  describe "#unverified_failure_count" do
     it "returns the difference between the verified failures and all the failures" do
       test_run_completed(:verified_failure_count => 3, :failure_count => 5).unverified_failure_count.should == 2
     end
   end
 
-  describe ".publishable_by_interval?" do
+  describe "#publishable_by_interval?" do
     it "returns true if the last scheduled publication is < publishing interval" do
       old_run = TestRun.make(:created_at => Time.now - TestRun::PUBLISHING_INTERVAL - 1.minute)
       old_run.save
@@ -401,7 +401,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".publishable_by_results?" do
+  describe "#publishable_by_results?" do
     it "returns true if the verified failure count != previous verified failure count" do
       run1 = test_run_completed(:verified_failure_count => 3)
       run2 = test_run_completed(:verified_failure_count => 2)
@@ -433,7 +433,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe ".publishable?" do
+  describe "#publishable?" do
     before :each do
       @run = TestRun.make
     end
@@ -479,7 +479,7 @@ describe Koalamatic::Base::TestRun do
 
   end
 
-  describe ".publish_if_appropriate!" do
+  describe "#publish_if_appropriate!" do
     before :each do
       @run = TestRun.make
       @tweet = stub("Tweet", :id => rand(2**25))
@@ -514,7 +514,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe "#most_recently_published" do
+  describe ".most_recently_published" do
     it "gets the most recent published post" do
       run = test_run_completed
       run.save
@@ -529,7 +529,7 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  describe "#last_scheduled_publication" do
+  describe ".last_scheduled_publication" do
     it "gets the most recently scheduled post" do
       run = test_run_completed(:publication_reason => TestRun::SCHEDULED_REASON)
       run.save

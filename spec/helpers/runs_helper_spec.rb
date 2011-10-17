@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe RunsHelper do
   
-  describe ".formatted_backtrace" do
+  describe "#formatted_backtrace" do
     before :each do
       @case = Koalamatic::Base::TestCase.make
     end
@@ -18,7 +18,7 @@ describe RunsHelper do
     end
   end
   
-  describe ".show_backtrace_divider?" do
+  describe "#show_backtrace_divider?" do
     context "on the first line" do
       before :each do
         helper.stubs(:interesting_backtrace?).returns(false)
@@ -71,7 +71,7 @@ describe RunsHelper do
     end
   end
   
-  describe ".interesting_backtrace?" do
+  describe "#interesting_backtrace?" do
     it "returns true if the line =~ koalamatic" do
       helper.interesting_backtrace?("this is about koalamatic").should be_true
     end
