@@ -380,6 +380,15 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
+  describe ".as_json" do
+    it "includes human_time in the output" do
+      run = test_run_completed
+      data = stub("human time")
+      run.stubs(:human_time).returns(data)
+      run.as_json.should include(:human_time => data)
+    end
+  end
+
   describe ".publishable_by_interval?" do
     it "returns true if the last scheduled publication is < publishing interval" do
       old_run = TestRun.make(:created_at => Time.now - TestRun::PUBLISHING_INTERVAL - 1.minute)

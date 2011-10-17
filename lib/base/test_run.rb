@@ -81,6 +81,11 @@ module Koalamatic
       def passed?
         verified_failure_count && verified_failure_count == 0
       end
+      
+      def as_json(options = nil)
+        # include human_time, since that's hard to do on the client side
+        super(options).merge(:human_time => human_time)
+      end
 
       # PUBLISHING
       # this should perhaps be split out into a has_publishing module
