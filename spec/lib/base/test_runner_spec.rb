@@ -98,6 +98,7 @@ describe Koalamatic::Base::TestRunner do
       context "after :each test" do
         before :each do
           @example = stub("example", :exception => nil)
+          @example.stubs(:rerun)
           @runner.stubs(:example).returns(@example)
         
           RSpec.stubs(:configure).yields(@config)
@@ -112,12 +113,32 @@ describe Koalamatic::Base::TestRunner do
           @runner.setup_test_environment
         end
         
-        it "it reruns tests that need to be rerun" do        
-          # make the example available in the context of the runner
-          @example.stubs(:should_rerun?).returns(true)
-          @example.expects(:rerun)
-          @runner.setup_test_environment
-        end        
+        context "for reruns" do
+          it "it reruns tests that need to be rerun" do        
+            # make the example available in the context of the runner
+            @example.stubs(:should_rerun?).returns(true)
+            @example.expects(:rerun)
+            @runner.setup_test_environment
+          end 
+          
+          it "pauses 5 seconds before rerunning the test" do        
+            # make the example available in the context of the runner
+            @example.stubs(:should_rerun?).returns(true)
+            Kernel.expects(:sleep).with(5)
+            @runner.setup_test_environment
+          end
+          
+          it "does this without recording time" do
+            @example.stubs(:should_rerun?).returns(true)
+            # we test that it's inside the block by 
+            # 1) verifying the method has been called
+            # 2) verifying that deactivating the method stops the call
+            @run.expects(:without_recording_time)
+            @example.expects(:rerun).never
+            Kernel.expects(:sleep).never
+            @runner.setup_test_environment
+          end
+        end
       end
 
       it "marks each test as done after :suite" do

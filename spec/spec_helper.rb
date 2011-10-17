@@ -36,3 +36,10 @@ Rails.logger = Logger.new(STDOUT)
 # Speed up integrated tests
 Sass::Plugin.options[:always_check] = false
 Sass::Plugin.options[:always_update] = false
+
+# never sleep (called in TestRunner)
+RSpec.configure do |config|
+  config.before :suite do
+    Kernel.stubs(:sleep)
+  end
+end
