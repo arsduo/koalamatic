@@ -1,0 +1,10 @@
+<li class="<%= (index % 2 == 0) ? 'even' : 'odd' %> <%= run.passed() ? 'passed' : 'failed' %>">
+  <a href="#/<%= run.id %>/details" class="title"><%= run.get("human_time") %></a>,
+  <span><%= run.get("duration") %> seconds</span>
+  <div class="details">
+    <% if (run.passed()) { %>
+      Passed
+    <% } else { %>
+      <%= run.get("verified_failure_count") %> errors
+    <% } %>
+</li>

@@ -14,6 +14,7 @@ gem "typhoeus"
 gem "git"
 
 gem "kaminari"
+gem "rails-backbone"
 
 # platform core
 gem "rspec"

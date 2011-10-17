@@ -21,14 +21,10 @@
   h3 Recent Tests
 
   ul#runs
-    - @runs.each_with_index do |run, idx|
-      li class="#{(idx % 2 == 0) ? 'even' : 'odd'} #{run.passed? ? 'passed' : 'failed'}"
-        = link_to run.human_time, url_for(:action => :detail, :id => run.id, :page => @page), :class => "title"
-        span , #{run.duration} seconds
-        .details
-          - if run.passed?
-            | Passed
-          - else
-            #{run.verified_failure_count} errors
 
-  = link_to "see more", url_for(:action => "page")
+//  = link_to "see more", url_for(:action => "page")
+  
+  
+javascript: 
+  Koalamatic.testRuns = new Koalamatic.Collections.TestRunCollection(#{@runs.to_json.html_safe})
+  new Koalamatic.Views.TestListView({collection: Koalamatic.testRuns, el: "#runs"})
