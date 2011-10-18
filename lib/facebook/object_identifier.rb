@@ -3,7 +3,8 @@ module Facebook
     KNOWN_FACEBOOK_OPERATIONS = [
       "comments",
       "search",
-      "oauth"
+      "oauth",
+      "fql"
     ]
 
     @@identified_objects = {}
