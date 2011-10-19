@@ -46,13 +46,19 @@ module Koalamatic
       def self.app_version
         # we use date, branch, and git-version together
         # (since git-sha will probably differ between Heroku and Github, our canonical reference)
-        repo = Git.open(Rails.root)
-        {
-          :datestamp => File.open(Rails.root).ctime,
-          # we could get branch from the sha, but it'd be useful to have it denormalized
-          :git_branch => repo.branch.to_s,
-          :git_sha => repo.object(repo.branch).sha
-        }
+        # though Heroku doesn't set up a .git directory, so we can't get git info, unfortunately
+        # (hopefully with a future provider we'll be able to do that)
+        git_data = if repo = (Git.open(Rails.root) rescue nil)
+          {
+            :git_branch => repo.branch.to_s,
+            # we could get branch from the sha, but it'd be useful to have it denormalized
+            :git_sha => repo.object(repo.branch).sha
+          }
+        else
+          {}
+        end
+        
+        git_data.merge({:datestamp => File.open(Rails.root).ctime.to_i})
       end
 
       def self.test_gem_versions

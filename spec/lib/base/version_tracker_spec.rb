@@ -117,26 +117,35 @@ describe Koalamatic::Base::VersionTracker do
       Git.stubs(:open).returns(@git)
     end
 
-    it "gets git data for the Rails project" do
-      # ensure we're using the git stubs we set up
-      Git.expects(:open).with(Rails.root).returns(@git)
-      VersionTracker.app_version
+    context "if there's git data" do
+      it "gets git data for the Rails project" do
+        # ensure we're using the git stubs we set up
+        Git.expects(:open).with(Rails.root).returns(@git)
+        VersionTracker.app_version
+      end
+
+      it "returns a hash with git_branch => the git branch.to_s" do
+        VersionTracker.app_version[:git_branch].should == @git.branch.to_s
+      end
+
+      it "returns a hash with git_sha => the git branch's sha" do
+        VersionTracker.app_version[:git_sha].should == @git.object(@git.branch).sha
+      end    
     end
 
-    it "returns a hash with datestamp => ctime of the Rails project directory" do
-      time = stub("time")
+    context "if there's no git data" do
+      it "doesn't return git data" do
+        Git.stubs(:open).raises(StandardError)
+        version = VersionTracker.app_version
+        version.should_not include(:git_sha, :git_branch)
+      end
+    end
+
+    it "returns a hash with datestamp => ctime.to_i of the Rails project directory" do
+      time = stub("time", :to_i => rand(100000))
       File.expects(:open).with(Rails.root).returns(stub("time object", :ctime => time))
-      VersionTracker.app_version[:datestamp].should == time
+      VersionTracker.app_version[:datestamp].should == time.to_i
     end
-
-
-    it "returns a hash with git_branch => the git branch.to_s" do
-      VersionTracker.app_version[:git_branch].should == @git.branch.to_s
-    end
-
-    it "returns a hash with git_sha => the git branch's sha" do
-      VersionTracker.app_version[:git_sha].should == @git.object(@git.branch).sha
-    end    
   end
 
   describe ".test_gem_versions" do
