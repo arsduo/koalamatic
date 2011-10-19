@@ -50,6 +50,10 @@ GEM
     autotest-rails (4.1.1)
       ZenTest (= 4.5)
     bcrypt-ruby (3.0.1)
+    benhutton-remarkable_activerecord (4.0.0.alpha6)
+      remarkable (~> 4.0.0.alpha4)
+      remarkable_activemodel (~> 4.0.0.alpha4)
+      rspec (>= 2.0.0)
     builder (3.0.0)
     childprocess (0.2.2)
       ffi (~> 1.0.6)
@@ -139,6 +143,9 @@ GEM
     rdoc (3.9.4)
     remarkable (4.0.0.alpha4)
       rspec (>= 2.0.0.alpha11)
+    remarkable_activemodel (4.0.0.alpha4)
+      remarkable (~> 4.0.0.alpha4)
+      rspec (>= 2.0.0.alpha11)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
       rspec-expectations (~> 2.6.0)
@@ -208,6 +215,7 @@ DEPENDENCIES
   autotest-fsevent
   autotest-growl
   autotest-rails
+  benhutton-remarkable_activerecord
   coffee-script
   compass
   exception_notification

@@ -47,13 +47,11 @@ group :test do
   gem "ZenTest"
   gem "faker"
   gem "remarkable", '>= 4.0.0alpha4'
-
+  gem "benhutton-remarkable_activerecord"
+  
   # javascript
   gem "jasmine"
 end
-
-
-
 
 # Use unicorn as the web server
 # gem 'unicorn'
