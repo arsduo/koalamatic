@@ -1,10 +1,14 @@
 require 'base/test_case'
+require 'base/version_tracker'
 
 module Koalamatic
   module Base
     class TestRun < ActiveRecord::Base
       # note: for now, we only track failures
       has_many :test_cases
+
+      # subclasses can redeclare version with different class names if needed
+      belongs_to :version
 
       include Rails.application.routes.url_helpers
 
@@ -38,6 +42,12 @@ module Koalamatic
         @failures = []
         @start_time = Time.now
         self.failure_count = self.verified_failure_count = 0
+
+        # track the version for this test run so we know which code base it was run against
+        # is it bad form to run track_version! (which can create a record) in the initializer?
+        # of course, there's no real harm in tracking versions
+        # even if something prevents them from ever getting a test run
+        self.version = VersionTracker.track_version!
       end
 
       def test_done(example)

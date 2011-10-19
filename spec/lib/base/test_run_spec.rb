@@ -19,7 +19,15 @@ describe Koalamatic::Base::TestRun do
       TestRun::PUBLISHING_INTERVAL.should == 1.day
     end
   end
+  
+  it "has_many :test_cases" do
+    TestRun.should have_many(:test_cases)
+  end
 
+  it "belongs_to :version" do
+    TestRun.should belong_to(:version)
+  end
+  
   describe ".interval_to_next_run" do
     it "returns TEST_INTERVAL - TEST_PADDING" do
       TestRun.interval_to_next_run.should == TestRun::TEST_INTERVAL - TestRun::TEST_PADDING
@@ -61,6 +69,18 @@ describe Koalamatic::Base::TestRun do
     it "sets verified failure_count to 0" do
       TestRun.new.verified_failure_count.should == 0
     end
+    
+    it "checks the app version" do
+      VersionTracker.expects(:track_version!)
+      TestRun.new
+    end
+    
+    it "associates the TestRun with the current Version record" do
+      version = Version.make
+      VersionTracker.stubs(:track_version!).returns(version)
+      TestRun.new.version.should == version
+    end
+    
   end
 
   describe "#without_recording_time" do

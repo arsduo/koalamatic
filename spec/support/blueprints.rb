@@ -1,5 +1,6 @@
 require 'base/test_run'
 require 'base/test_case'
+require 'base/version'
 
 TEST_RUN_BLUEPRINT = Proc.new do
 end
@@ -13,6 +14,11 @@ TEST_CASE_BLUEPRINT = Proc.new do
 end
 
 Koalamatic::Base::TestCase.blueprint &TEST_CASE_BLUEPRINT
+
+Koalamatic::Base::Version.blueprint do
+  app_tag { Digest::MD5.hexdigest(Time.now.to_s) }
+  test_gems_tag { Digest::MD5.hexdigest(Time.now.to_s + rand(1000).to_s) }
+end
 
 def test_run_completed(attrs = {})
   run = attrs.delete(:run) || Koalamatic::Base::TestRun.make

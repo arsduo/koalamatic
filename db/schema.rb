@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111019122857) do
+ActiveRecord::Schema.define(:version => 20111019131048) do
 
   create_table "api_interactions", :force => true do |t|
     t.string   "method"
@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(:version => 20111019122857) do
     t.integer  "tweet_id",               :limit => 8
     t.string   "publication_reason"
     t.integer  "verified_failure_count",              :default => 0
+    t.integer  "version_id"
   end
 
   create_table "versions", :force => true do |t|
