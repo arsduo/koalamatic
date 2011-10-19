@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111013124536) do
+ActiveRecord::Schema.define(:version => 20111019122857) do
 
   create_table "api_interactions", :force => true do |t|
     t.string   "method"
@@ -48,5 +48,16 @@ ActiveRecord::Schema.define(:version => 20111013124536) do
     t.string   "publication_reason"
     t.integer  "verified_failure_count",              :default => 0
   end
+
+  create_table "versions", :force => true do |t|
+    t.string   "app_tag"
+    t.string   "test_gems_tag"
+    t.string   "app_version"
+    t.string   "test_gem_versions"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "versions", ["app_tag", "test_gems_tag"], :name => "index_versions_on_app_tag_and_test_gems_tag"
 
 end

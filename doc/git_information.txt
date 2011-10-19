@@ -1,0 +1,9 @@
+These turn out to be unnecessary in version_tracker, as Gem::Specification objects turn out to have a git_version attribute that's nil if it's not from git.  Perfect!
+
+def gem_from_git?(rubygem)
+  File.exist?(File.join(rubygem.full_gem_path, ".git"))
+end
+
+def gem_sha(rubygem)
+  Git.open(rubygem.full_gem_path).object("HEAD").sha # if 
+end
