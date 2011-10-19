@@ -100,6 +100,7 @@ describe Koalamatic::Base::TestRunner do
           @example = stub("example", :exception => nil)
           @example.stubs(:rerun)
           @runner.stubs(:example).returns(@example)
+          Kernel.stubs(:sleep)
         
           RSpec.stubs(:configure).yields(@config)
           @config.expects(:after).with(:each).yields        
