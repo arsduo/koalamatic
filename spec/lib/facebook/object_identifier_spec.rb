@@ -108,38 +108,6 @@ describe Facebook::ObjectIdentifier do
         @identifier.identify_from_facebook.should == "unknown"
       end
 
-      it "returns user if there's a first_name" do
-        @result["first_name"] = "Barbara"
-        @identifier.identify_from_facebook.should == "user"
-      end
-
-      it "returns user if there's a first_name" do
-        @result["first_name"] = "Barbara"
-        @identifier.identify_from_facebook.should == "user"
-      end
-
-      it "returns page if there's a first_name" do
-        @result["username"] = "Context"
-        @result["category"] = "Page"
-        @identifier.identify_from_facebook.should == "page"
-      end
-
-      it "returns image if there's an images attribute" do
-        @result["images"] = []
-        @identifier.identify_from_facebook.should == "image"
-      end
-
-      it "returns comment if there's can_remove and message" do
-        @result["can_remove"] = false
-        @result["message"] = "my message"
-        @identifier.identify_from_facebook.should == "comment"
-      end
-
-      it "returns app if there's a namespace" do
-        @result["namespace"] = "myapp"
-        @identifier.identify_from_facebook.should == "app"
-      end
-
       it "returns the object's type if one's available" do
         @result["type"] = Faker::Lorem.words(1).to_s
         @identifier.identify_from_facebook.should == @result["type"]
@@ -165,7 +133,7 @@ describe Facebook::ObjectIdentifier do
         @api = stub("api")
         Koala::Facebook::API.stubs(:new).returns(@api)
         @api.stubs(:get_object)
-
+        
         @token = stub(:token)
         @app_id = rand(2000).to_i
         KoalaTest.stubs(:app_id).returns(@app_id)
@@ -212,14 +180,41 @@ describe Facebook::ObjectIdentifier do
         Koala::Facebook::API.expects(:new).with(@token).returns(@api)
         @identifier.fetch_object_info
       end
+      
+      context "executing the call" do
+        before :each do
+          Koala::Facebook::API.stubs(:new).returns(@api)
+        end
+        
+        it "executes the call using Koala's default middleware" do
+          # we can't test this directly, since it's inside a block
+          # but we can test that the block gets called, and that without the block, nothing happens
+          Koala.expects(:with_default_middleware)
+          # this should never happen, because we're intercepting the with_default_middleware call
+          @api.expects(:get_object).never
+          @identifier.fetch_object_info
+        end
+        
+        it "gets the object" do
+          @api.expects(:get_object).with(@identifier.object, anything)
+          @identifier.fetch_object_info
+        end
+      
+        it "gets metadata (so we get type)" do
+          @api.expects(:get_object).with(anything, has_entry(:metadata => "true"))
+          @identifier.fetch_object_info
+        end
 
-      it "executes the call using Koala's default middleware" do
-        # we can't test this directly, since it's inside a block
-        # but we can test that the block gets called, and that without the block, nothing happens
-        Koala.expects(:with_default_middleware)
-        # this should never happen, because we're intercepting the with_default_middleware call
-        @identifier.expects(:api_for_object).never
-        @identifier.fetch_object_info
+        it "requests only the ID field (for speed)" do
+          @api.expects(:get_object).with(anything, has_entry(:fields => "id"))
+          @identifier.fetch_object_info
+        end
+      
+        it "returns the results" do
+          result = stub("result")
+          @api.stubs(:get_object).returns(result)
+          @identifier.fetch_object_info.should == result
+        end
       end
     end
   end
