@@ -62,6 +62,17 @@ module Facebook
           "unknown"
         elsif type = result["type"]
           type
+        elsif result["first_name"]
+          "user"
+        elsif result["username"] && result["category"]
+          "page"
+        elsif result["images"]
+          "image"
+        elsif !result["can_remove"].nil? && result["message"]
+          # can_remove can be false, but we just want to see if it exists
+          "comment"
+        elsif result["namespace"]
+          "app"
         else
           Rails.logger.warn "Unable to extract type for #{@object.inspect} from result #{result.inspect}"
           nil
@@ -78,7 +89,7 @@ module Facebook
 
     def fetch_object_info
       Koala.with_default_middleware do
-        appropriate_api.get_object(@object, :metadata => "true", :fields => "id")
+        appropriate_api.get_object(@object, :metadata => "true")
       end
     end
 

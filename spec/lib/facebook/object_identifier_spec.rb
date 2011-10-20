@@ -21,31 +21,31 @@ describe Facebook::ObjectIdentifier do
       ObjectIdentifier::KNOWN_FACEBOOK_OPERATIONS.should include("comments", "search", "oauth")
     end
   end
-  
+
   # class methods
   describe ".identify_object" do
     before :each do
       @identifier.stubs(:identify)
       ObjectIdentifier.stubs(:new).returns(@identifier)
     end
-    
+
     it "creates a new ObjectIdentifier with the URL" do
       ObjectIdentifier.expects(:new).with(@url).returns(@identifier)
       ObjectIdentifier.identify_object(@url)
     end
-    
+
     it "calls identify on the new ObjectIdentifier" do
       @identifier.expects(:identify)
       ObjectIdentifier.identify_object(@url)
     end
-    
+
     it "calls identify on the new ObjectIdentifier" do
       result = stub("result 0")
       @identifier.stubs(:identify).returns(result)
       ObjectIdentifier.identify_object(@url).should == result
     end
   end
-    
+
   describe ".get_id_from_path" do
     it "returns the first object after the leading /" do
       ObjectIdentifier.get_id_from_path("/foo/bar").should == "foo"
@@ -59,9 +59,9 @@ describe Facebook::ObjectIdentifier do
       expect { ObjectIdentifier.get_id_from_path(nil) }.to raise_exception
     end
   end
-  
+
   # instance methods
-  
+
   shared_examples_for "an ObjectIdentifier instance" do
     describe "#identify" do
       it "returns the result of identify_from_path if available" do
@@ -83,7 +83,7 @@ describe Facebook::ObjectIdentifier do
         @identifier.stubs(:identify_from_facebook).returns(nil)
         @identifier.identify.should == "unknown"
       end
-      
+
       it "caches the objects identified" do
         result3 = stub("result 3")
         @identifier.stubs(:identify_from_path).once.returns(result3)
@@ -113,17 +113,51 @@ describe Facebook::ObjectIdentifier do
         @identifier.identify_from_facebook.should == @result["type"]
       end
 
-      it "returns nil if nothing else matches" do      
+      context "if type isn't returned" do
+        it "returns user if there's a first_name" do
+          @result["first_name"] = "Barbara"
+          @identifier.identify_from_facebook.should == "user"
+        end
+
+        it "returns user if there's a first_name" do
+          @result["first_name"] = "Barbara"
+          @identifier.identify_from_facebook.should == "user"
+        end
+
+        it "returns page if there's a first_name" do
+          @result["username"] = "Context"
+          @result["category"] = "Page"
+          @identifier.identify_from_facebook.should == "page"
+        end
+
+        it "returns image if there's an images attribute" do
+          @result["images"] = []
+          @identifier.identify_from_facebook.should == "image"
+        end
+
+        it "returns comment if there's can_remove and message" do
+          @result["can_remove"] = false
+          @result["message"] = "my message"
+          @identifier.identify_from_facebook.should == "comment"
+        end
+
+        it "returns app if there's a namespace" do
+          @result["namespace"] = "myapp"
+          @identifier.identify_from_facebook.should == "app"
+        end
+      end
+
+      it "returns nil if nothing else matches" do
         @identifier.identify_from_facebook.should be_nil
       end
 
       it "returns probable_facebook_operation if we get the no node specified error" do
-        @identifier.stubs(:fetch_object_info).raises(Koala::Facebook::APIError.new("message" => "No node specified"))      
+        @identifier.stubs(:fetch_object_info).raises(Koala::Facebook::APIError.new("message" => "No node specified"))
         @identifier.identify_from_facebook.should == "probable_facebook_operation"
       end
 
       it "returns error if it's another error" do
-        @identifier.stubs(:fetch_object_info).raises(Koala::Facebook::APIError.new("message" => "CRAZY FACEB0OK FAILURE"))      
+        @identifier.stubs(:fetch_object_info).raises(Koala::Facebook::APIError.new("message" => "CRAZY FACEB0OK FAILURE"))
         @identifier.identify_from_facebook.should == "error"
       end
     end
@@ -133,7 +167,7 @@ describe Facebook::ObjectIdentifier do
         @api = stub("api")
         Koala::Facebook::API.stubs(:new).returns(@api)
         @api.stubs(:get_object)
-        
+
         @token = stub(:token)
         @app_id = rand(2000).to_i
         KoalaTest.stubs(:app_id).returns(@app_id)
@@ -176,16 +210,16 @@ describe Facebook::ObjectIdentifier do
       it "uses the main live user if it exists and nothing else matches" do
         # for instance, when first setting them up
         # first, mock up the test user api, which we use to get the app's access token
-        KoalaTest.live_testing_user["access_token"] = @token      
+        KoalaTest.live_testing_user["access_token"] = @token
         Koala::Facebook::API.expects(:new).with(@token).returns(@api)
         @identifier.fetch_object_info
       end
-      
+
       context "executing the call" do
         before :each do
           Koala::Facebook::API.stubs(:new).returns(@api)
         end
-        
+
         it "executes the call using Koala's default middleware" do
           # we can't test this directly, since it's inside a block
           # but we can test that the block gets called, and that without the block, nothing happens
@@ -194,22 +228,17 @@ describe Facebook::ObjectIdentifier do
           @api.expects(:get_object).never
           @identifier.fetch_object_info
         end
-        
+
         it "gets the object" do
           @api.expects(:get_object).with(@identifier.object, anything)
           @identifier.fetch_object_info
         end
-      
+
         it "gets metadata (so we get type)" do
           @api.expects(:get_object).with(anything, has_entry(:metadata => "true"))
           @identifier.fetch_object_info
         end
 
-        it "requests only the ID field (for speed)" do
-          @api.expects(:get_object).with(anything, has_entry(:fields => "id"))
-          @identifier.fetch_object_info
-        end
-      
         it "returns the results" do
           result = stub("result")
           @api.stubs(:get_object).returns(result)
@@ -219,13 +248,13 @@ describe Facebook::ObjectIdentifier do
     end
   end
 
-  describe "when initialized with an Adressable::URI" do  
+  describe "when initialized with an Adressable::URI" do
     describe "#new" do
       it "identifies the object from the path" do
         ObjectIdentifier.expects(:get_id_from_path).with(@url.path)
         ObjectIdentifier.new(@url)
       end
-      
+
       it "makes the identified object available as .object" do
         object = stub("identified object")
         ObjectIdentifier.stubs(:get_id_from_path).returns(object)
@@ -233,11 +262,11 @@ describe Facebook::ObjectIdentifier do
       end
 
       it "stores the url as url" do
-        ObjectIdentifier.new(@url).url.should == @url        
-      end      
+        ObjectIdentifier.new(@url).url.should == @url
+      end
     end
-    
-    describe "#identify_from_path" do      
+
+    describe "#identify_from_path" do
       it "returns rest_api if the host is the rest server" do
         @url.stubs(:host).returns(Koala::Facebook::REST_SERVER)
         @identifier.identify_from_path.should == "rest_api"
@@ -264,31 +293,31 @@ describe Facebook::ObjectIdentifier do
         @identifier.identify_from_path.should be_nil
       end
     end
-    
+
     it_should_behave_like "an ObjectIdentifier instance"
   end
-  
+
   describe "when initialized with an object" do
     before :each do
       @identifier = ObjectIdentifier.new(@object)
     end
-    
+
     describe "#new" do
       it "makes the object available as .object" do
         @identifier.object.should == @object
       end
-      
+
       it "leaves .url blank" do
         @identifier.url.should be_nil
-      end      
+      end
     end
 
-    describe "#identify_from_path" do      
+    describe "#identify_from_path" do
       it "returns nil because there's no path" do
-        @identifier.identify_from_path.should be_nil        
+        @identifier.identify_from_path.should be_nil
       end
-    end      
-    
-    it_should_behave_like "an ObjectIdentifier instance"    
+    end
+
+    it_should_behave_like "an ObjectIdentifier instance"
   end
 end
