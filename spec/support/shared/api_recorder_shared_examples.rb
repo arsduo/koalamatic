@@ -51,6 +51,11 @@ shared_examples_for "an ApiRecorder class" do
         @class.interaction_class.expects(:create).with(has_entry(:env => @env))
         @recorder.call(@env)
       end
+      
+      it "creates the interaction with the Faraday env" do
+        @class.interaction_class.expects(:create).with(has_entry(:run => @class.run))
+        @recorder.call(@env)
+      end
 
       it "creates the interaction with the original request body" do
         body = @env[:body]

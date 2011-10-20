@@ -9,6 +9,10 @@ describe Koalamatic::Base::ApiInteraction do
     ApiInteraction.superclass.should == ActiveRecord::Base
   end
   
+  it "belongs_to :test_run" do
+    ApiInteraction.should belong_to(:test_run)
+  end
+  
   describe ".new" do
     before :each do
       @env = make_env(:url => {:inferred_port => 81})
@@ -17,7 +21,8 @@ describe Koalamatic::Base::ApiInteraction do
       @params = {
         :request_body => Faker::Lorem.words(10).join(" "),
         :duration => rand(200),
-        :env => @env
+        :env => @env,
+        :run => TestRun.make
       }
     end
     
@@ -87,6 +92,10 @@ describe Koalamatic::Base::ApiInteraction do
     it "sets the status to the response status" do
       @env[:status] = "300"
       ApiInteraction.new(@params).response_status.should == @env[:status].to_i
+    end
+    
+    it "sets the run to the supplied run" do
+      ApiInteraction.new(@params).test_run.should == @params[:run]
     end
   end
 end

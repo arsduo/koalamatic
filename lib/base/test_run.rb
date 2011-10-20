@@ -4,9 +4,10 @@ require 'base/version_tracker'
 module Koalamatic
   module Base
     class TestRun < ActiveRecord::Base
-      # note: for now, we only track failures
+      # note: for now, test_cases only tracks failures
       has_many :test_cases
-
+      has_many :api_interactions
+      
       # subclasses can redeclare version with different class names if needed
       belongs_to :version
 

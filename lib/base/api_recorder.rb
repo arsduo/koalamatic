@@ -26,6 +26,7 @@ module Koalamatic
           self.class.interaction_class.create({
             :duration => second_time - start_time,
             :env => env,
+            :run => self.class.run,
             :request_body => request_body
           })
         end

@@ -1,8 +1,11 @@
 module Koalamatic
   module Base
     class ApiInteraction < ActiveRecord::Base
+      belongs_to :test_run
+
       # we expose these less because they're useful to access from outside
       # and more to commit to their availability since subclasses use them heavily
+      # to do: could these become protected attributes?
       attr_reader :env, :request_body, :url
 
       def initialize(call_details = {}, options = {})
@@ -15,8 +18,9 @@ module Koalamatic
         @url = @env[:url]
 
         # initialize the AR with the appropriate attributes
-        super(attributes_from_call, options)
+        super(attributes_from_call.merge(:test_run => call_details[:run]), options)
       end
+
 
       private
 

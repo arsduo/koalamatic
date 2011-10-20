@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111019131048) do
+ActiveRecord::Schema.define(:version => 20111020143831) do
 
   create_table "api_interactions", :force => true do |t|
     t.string   "method"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(:version => 20111019131048) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "primary_object"
+    t.integer  "test_run_id"
   end
 
   create_table "test_cases", :force => true do |t|

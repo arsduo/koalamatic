@@ -24,6 +24,10 @@ describe Koalamatic::Base::TestRun do
     TestRun.should have_many(:test_cases)
   end
 
+  it "has_many :api_interactions" do
+    TestRun.should have_many(:api_interactions)
+  end
+  
   it "belongs_to :version" do
     TestRun.should belong_to(:version)
   end
