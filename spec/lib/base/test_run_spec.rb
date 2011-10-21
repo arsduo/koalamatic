@@ -39,13 +39,6 @@ describe Koalamatic::Base::TestRun do
     end
   end
 
-  it "by default orders id desc" do
-    # default scopes are hard to test! but to_sql is a reliable enough way
-    found = false
-    TestRun.default_scopes.each {|s| found = true if s.to_sql =~ /order by id desc/i}
-    found.should be_true
-  end
-
   describe ".time_for_next_run?" do
     before :each do
       TestRun.destroy_all

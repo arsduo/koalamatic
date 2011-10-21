@@ -10,6 +10,8 @@ describe Koalamatic::Base::TestRunner do
     @runner.stubs(:get_tests)
     @runner.stubs(:require_file)
   end
+  
+  it "has shared tests that all TestRunners can run to ensure compliance (e.g. our Faraday content first, etc.)"
 
   it "has a logger" do
     @runner.should respond_to :logger
