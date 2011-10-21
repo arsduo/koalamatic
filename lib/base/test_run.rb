@@ -13,8 +13,6 @@ module Koalamatic
 
       include Rails.application.routes.url_helpers
 
-      default_scope order('id desc')
-
       # how often we ideally want to run tests
       TEST_INTERVAL = 60.minutes
       # roughly how long the tests take to run
