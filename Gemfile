@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
  
-gem 'rails', '3.1.0'
+gem 'rails', '3.1.1'
 gem "slim"
 gem 'thin'
 
@@ -16,7 +16,7 @@ gem "git"
 gem "kaminari"
 
 # platform core
-gem "rspec"
+gem "rspec", "~> 2.7"
 gem "rake"
 gem 'mysql2'
 gem 'pg'
@@ -33,7 +33,7 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 group :test, :development do
-  gem "rspec-rails", "~> 2.6"
+  gem "rspec-rails", "~> 2.7"
 end
 
 group :test do
