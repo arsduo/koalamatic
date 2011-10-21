@@ -20,9 +20,10 @@ module Facebook
       # setup the Faraday adapter
       middleware = self.class.recorder_class
       Koala.http_service.faraday_middleware = Proc.new do |builder|
+        # use our API recorder first so we can easily see if files have been encoded
+        builder.use middleware
         builder.use Koala::MultipartRequest
         builder.request :url_encoded
-        builder.use middleware
         builder.adapter Faraday.default_adapter
       end
 

@@ -35,8 +35,8 @@ describe Koalamatic::Base::ApiInteraction do
       ApiInteraction.new(@params).env.should == @params[:env]
     end
 
-    it "makes request_body available as .request_body" do
-      ApiInteraction.new(@params).request_body.should == @params[:request_body]
+    it "makes original (request) body available as .original_body" do
+      ApiInteraction.new(@params).original_body.should == @params[:request_body]
     end
 
     it "makes the env's url available as .url" do
@@ -65,33 +65,76 @@ describe Koalamatic::Base::ApiInteraction do
       ApiInteraction.new(@params).host.should == @url.host
     end
 
-    it "sets method to env[:method] if there's no method in the request body" do
-      @env[:body] = "no_http_here"
-      ApiInteraction.new(@params).method.should == @env[:method]
-    end
+    context "determining method" do
+      it "sets method to env[:method] if there's no method in the request body" do
+        @env[:body] = "no_http_here"
+        ApiInteraction.new(@params).method.should == @env[:method]
+      end
 
-    it "sets method to the request body's method if present as method=value" do
-      method = Faker::Lorem.words(1).to_s
-      @params[:request_body] = "method=#{method}&abc=3"
-      ApiInteraction.new(@params).method.should == method
-    end
+      it "sets method to the request body's method if present as method=value" do
+        method = Faker::Lorem.words(1).join
+        @params[:request_body] = "method=#{method}&abc=3"
+        ApiInteraction.new(@params).method.should == method
+      end
 
-    it "sets method to the request body's method if present as _method=value" do
-      method = Faker::Lorem.words(1).to_s
-      @params[:request_body] = "abc=3&_method=#{method}"
-      ApiInteraction.new(@params).method.should == method
-    end
+      it "sets method to the request body's method if present as _method=value" do
+        method = Faker::Lorem.words(1).join
+        @params[:request_body] = "abc=3&_method=#{method}"
+        ApiInteraction.new(@params).method.should == method
+      end
+      
+      it "sets method to the request body's method if the body is a hash with :method => value" do
+        method = Faker::Lorem.words(1).join
+        @params[:request_body] = {:method => method}
+        ApiInteraction.new(@params).method.should == method
+      end
 
-    it "does not use the response body to determine the method" do
-      method = Faker::Lorem.words(1).to_s
-      @env[:body] = "_method=myBadMethod"
-      @params[:request_body] = "abc=3&_method=#{method}"
-      ApiInteraction.new(@params).method.should == method
+      it "sets method to the request body's method if the body is a hash with :_method => value" do
+        method = Faker::Lorem.words(1).join
+        @params[:request_body] = {:_method => method}
+        ApiInteraction.new(@params).method.should == method
+      end
+
+      it "sets method to the request body's method if the body is a hash with 'method' => value" do
+        method = Faker::Lorem.words(1).join
+        @params[:request_body] = {"method" => method}
+        ApiInteraction.new(@params).method.should == method
+      end
+
+      it "sets method to the request body's method if the body is a hash with '_method' => value" do
+        method = Faker::Lorem.words(1).join
+        @params[:request_body] = {"_method" => method}
+        ApiInteraction.new(@params).method.should == method
+      end
+
+      it "does not use the response body to determine the method" do
+        method = Faker::Lorem.words(1).join
+        @env[:body] = "_method=myBadMethod"
+        @params[:request_body] = "abc=3&_method=#{method}"
+        ApiInteraction.new(@params).method.should == method
+      end
     end
 
     it "sets the status to the response status" do
       @env[:status] = "300"
       ApiInteraction.new(@params).response_status.should == @env[:status].to_i
+    end
+    
+    it "sets the query_string to the request query" do
+      query = Faker::Lorem.words(5).join("&")
+      @url.stubs(:query).returns(query)
+      ApiInteraction.new(@params).query_string.should == query
+    end
+    
+    it "sets the request_body to the YAML-ified request body" do
+      ApiInteraction.new(@params).request_body.should == @params[:request_body].to_yaml
+    end
+
+    it "sets the request_body for requests with objects" do
+      @params[:request_body] = {
+        :file => File.open(File.join(Rails.root, "Gemfile"))
+      }
+      ApiInteraction.new(@params).request_body.should == @params[:request_body].to_yaml
     end
     
     it "sets the run to the supplied run" do

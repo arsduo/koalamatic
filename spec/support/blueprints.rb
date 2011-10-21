@@ -70,13 +70,14 @@ def make_url(attrs = {})
   stub("url", {
     :path => Faker::Lorem.words(2).join("/"),
     :host => Faker::Lorem.words(3).join("."),
+    :query => Faker::Lorem.words(3).join("&"),
     :inferred_port => 443
   }.merge(attrs || {}))
 end
 
 def make_env(attrs = {})
   {
-    :body => Faker::Lorem.words(10).join(" "),
+    :body => 5.times.inject({}) {|hash, i| hash[Faker::Lorem.words(1).join] = Faker::Lorem.words(1).join; hash},
     :url => make_url(attrs.delete(:url)),
     :method => "get"
   }.merge(attrs || {})  

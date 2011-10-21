@@ -1,5 +1,6 @@
 require "spec_helper"
 require 'base/test_run'
+require 'base/api_interaction'
 
 describe Koalamatic::Base::TestRun do
   include Koalamatic::Base

@@ -59,7 +59,7 @@ shared_examples_for "an ApiRecorder class" do
 
       it "creates the interaction with the original request body" do
         body = @env[:body]
-        @app.on_call = lambda {|env| env[:body] = body * 3}
+        @app.on_call = lambda {|env| env[:body] = body.to_s * 3}
         @class.interaction_class.expects(:create).with(has_entry(:request_body => body))
         @recorder.call(@env)        
       end
