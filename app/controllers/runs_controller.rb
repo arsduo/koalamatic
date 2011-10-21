@@ -1,11 +1,11 @@
 class RunsController < ApplicationController
   def index
-    @runs = Facebook::TestRun.page(0).per(5)
+    @runs = Facebook::TestRun.order("id desc").page(0).per(5)
   end
 
   def page
     @page = params[:page] || 0
-    @runs = Facebook::TestRun.page(@page)
+    @runs = Facebook::TestRun.order("id desc").page(@page)
   end
 
   def detail
