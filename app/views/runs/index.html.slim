@@ -26,5 +26,4 @@
   
   
 javascript: 
-  Koalamatic.testRuns = new Koalamatic.Collections.TestRunCollection(#{@runs.to_json.html_safe})
-  new Koalamatic.Views.TestRunList({collection: Koalamatic.testRuns, el: "#runs"})
+  new Koalamatic.Routers.TestRunsRouter({testRuns: #{@runs.to_json.html_safe}}).list()
