@@ -27,4 +27,4 @@
   
 javascript: 
   Koalamatic.testRuns = new Koalamatic.Collections.TestRunCollection(#{@runs.to_json.html_safe})
-  new Koalamatic.Views.TestListView({collection: Koalamatic.testRuns, el: "#runs"})
+  new Koalamatic.Views.TestRunList({collection: Koalamatic.testRuns, el: "#runs"})
