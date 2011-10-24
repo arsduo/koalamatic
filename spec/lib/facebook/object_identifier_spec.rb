@@ -10,6 +10,11 @@ describe Facebook::ObjectIdentifier do
     @url = stub("url", :host => Faker::Lorem.words(3).join("."), :path => path_components.join("/"))
     @url.stubs(:is_a?).with(Addressable::URI).returns(true)
     @identifier = ObjectIdentifier.new(@url)
+
+    mock_koalatest    
+    @api = stub("api")
+    Koala::Facebook::API.stubs(:new).returns(@api)
+    @api.stubs(:get_object)    
   end
 
   describe "KNOWN_FACEBOOK_OPERATIONS" do
@@ -64,29 +69,29 @@ describe Facebook::ObjectIdentifier do
 
   shared_examples_for "an ObjectIdentifier instance" do
     describe "#identify" do
-      it "returns the result of identify_from_path if available" do
+      it "returns the result of identify_from_known_components if available" do
         result = stub("result 1")
-        @identifier.stubs(:identify_from_path).returns(result)
+        @identifier.stubs(:identify_from_known_components).returns(result)
         @identifier.stubs(:identify_from_facebook).returns(stub("wrong result"))
         @identifier.identify.should == result
       end
 
-      it "returns the result of identify_from_facebook if available and if identify_from_path doesn't work" do
+      it "returns the result of identify_from_facebook if available and if identify_from_known_components doesn't work" do
         result = stub("result 2")
-        @identifier.stubs(:identify_from_path).returns(nil)
+        @identifier.stubs(:identify_from_known_components).returns(nil)
         @identifier.stubs(:identify_from_facebook).returns(result)
         @identifier.identify.should == result
       end
 
       it "returns unknown if the other methods don't work" do
-        @identifier.stubs(:identify_from_path).returns(nil)
+        @identifier.stubs(:identify_from_known_components).returns(nil)
         @identifier.stubs(:identify_from_facebook).returns(nil)
         @identifier.identify.should == "unknown"
       end
 
       it "caches the objects identified" do
         result3 = stub("result 3")
-        @identifier.stubs(:identify_from_path).once.returns(result3)
+        @identifier.stubs(:identify_from_known_components).once.returns(result3)
         @identifier.identify
         @identifier.identify.should == result3
       end
@@ -164,10 +169,6 @@ describe Facebook::ObjectIdentifier do
 
     describe "#fetch_object_info" do
       before :each do
-        @api = stub("api")
-        Koala::Facebook::API.stubs(:new).returns(@api)
-        @api.stubs(:get_object)
-
         @token = stub(:token)
         @app_id = rand(2000).to_i
         KoalaTest.stubs(:app_id).returns(@app_id)
@@ -266,31 +267,48 @@ describe Facebook::ObjectIdentifier do
       end
     end
 
-    describe "#identify_from_path" do
+    describe "#identify_from_known_components" do
       it "returns rest_api if the host is the rest server" do
         @url.stubs(:host).returns(Koala::Facebook::REST_SERVER)
-        @identifier.identify_from_path.should == "rest_api"
+        @identifier.identify_from_known_components.should == "rest_api"
       end
 
       it "returns rest_api if the host is the beta rest server" do
         @url.stubs(:host).returns(Koala::Facebook::REST_SERVER.gsub(/\.facebook/, ".beta.facebook"))
-        @identifier.identify_from_path.should == "rest_api"
+        @identifier.identify_from_known_components.should == "rest_api"
       end
 
       it "returns batch if the path is just root" do
         @url.stubs(:path).returns("/")
-        @identifier.identify_from_path.should == "batch_api"
+        @identifier.identify_from_known_components.should == "batch_api"
       end
 
       it "returns facebook_operation for a path starting with of the KNOWN_FACEBOOK_OPERATIONS" do
         ObjectIdentifier::KNOWN_FACEBOOK_OPERATIONS.each do |op|
           @url.stubs(:path).returns("/#{op}/abc/123")
-          ObjectIdentifier.new(@url).identify_from_path.should == "facebook_operation"
+          ObjectIdentifier.new(@url).identify_from_known_components.should == "facebook_operation"
         end
+      end
+      
+      it "returns user for the main KoalaTest user" do
+        @url.stubs(:path).returns("/#{KoalaTest.user1}/foo/bar")
+        ident = ObjectIdentifier.new(@url)
+        ident.identify_from_known_components.should == "user"
+      end
+
+      it "returns user for the secondary KoalaTest user" do
+        @url.stubs(:path).returns("/#{KoalaTest.user2}/foo/bar")
+        ident = ObjectIdentifier.new(@url)
+        ident.identify_from_known_components.should == "user"
+      end
+
+      it "returns app the application" do
+        @url.stubs(:path).returns("/#{KoalaTest.app_id}/foo/bar")
+        ObjectIdentifier.identify_object(@url).should == "app"
       end
 
       it "returns nil otherwise" do
-        @identifier.identify_from_path.should be_nil
+        @identifier.identify_from_known_components.should be_nil
       end
     end
 
@@ -307,17 +325,45 @@ describe Facebook::ObjectIdentifier do
         @identifier.object.should == @object
       end
 
+      it "turns non-strings into strings" do
+        id = rand(1000).to_i
+        ObjectIdentifier.new(id).object.should == id.to_s
+      end
+
       it "leaves .url blank" do
         @identifier.url.should be_nil
       end
     end
 
-    describe "#identify_from_path" do
-      it "returns nil because there's no path" do
-        @identifier.identify_from_path.should be_nil
+    describe "#identify_from_known_components" do
+      it "returns facebook_operation for a path starting with of the KNOWN_FACEBOOK_OPERATIONS" do
+        ObjectIdentifier::KNOWN_FACEBOOK_OPERATIONS.each do |op|
+          @url.stubs(:path).returns("/#{op}/abc/123")
+          ObjectIdentifier.new(@url).identify_from_known_components.should == "facebook_operation"
+        end
       end
-    end
 
+      it "returns user for the main KoalaTest user" do
+        ident = ObjectIdentifier.new(KoalaTest.user1)
+        ident.identify_from_known_components.should == "user"
+      end
+
+      it "returns user for the secondary KoalaTest user" do
+        ident = ObjectIdentifier.new(KoalaTest.user2)
+        ident.identify_from_known_components.should == "user"
+      end
+
+      it "returns app the application" do
+        ident = ObjectIdentifier.new(KoalaTest.app_id)
+        ident.identify_from_known_components.should == "app"
+      end
+      
+      it "returns nil if it's not one of the known components" do
+        # if there's no path, it should still work okay
+        @identifier.identify_from_known_components.should be_nil
+      end      
+    end
+    
     it_should_behave_like "an ObjectIdentifier instance"
   end
 end

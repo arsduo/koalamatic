@@ -28,27 +28,30 @@ module Facebook
         @url = url_or_id
         @object = ObjectIdentifier.get_id_from_path(@url.path)
       else
-        @object = url_or_id
+        @object = url_or_id.to_s
       end
     end
 
     def identify
-      @@identified_objects[@object] ||= identify_from_path || identify_from_facebook || "unknown"
+      @@identified_objects[@object] ||= identify_from_known_components || identify_from_facebook || "unknown"
     end
 
     # useful methods for Facebook analysis (hence public)
-    def identify_from_path
-      if @url
-        if using_rest_server?
-          # if it's a REST call, we're not directly querying objects
-          # need to support beta server
-          "rest_api"
-        elsif @url.path == "/"
-          # we're querying the batch API
-          "batch_api"
-        elsif KNOWN_FACEBOOK_OPERATIONS.include?(@object)
-          "facebook_operation"
-        end
+    def identify_from_known_components
+      if using_rest_server?
+        # if it's a REST call, we're not directly querying objects
+        # need to support beta server
+        "rest_api"
+      elsif @url && @url.path == "/"
+        # we're querying the batch API
+        "batch_api"
+      elsif @object == "me" || @object == KoalaTest.user1.to_s || @object == KoalaTest.user2.to_s
+        # we know these users
+        "user"
+      elsif @object == KoalaTest.app_id.to_s
+        "app"
+      elsif KNOWN_FACEBOOK_OPERATIONS.include?(@object)
+        "facebook_operation"      
       end
       # if we didn't get a URL or can't find the type from the path
       # return nil and try the next technique
@@ -109,7 +112,7 @@ module Facebook
     end
 
     def using_rest_server?
-      @url.host.gsub(/beta\./, "") == Koala::Facebook::REST_SERVER
+      @url && @url.host.gsub(/beta\./, "") == Koala::Facebook::REST_SERVER
     end
   end
 end

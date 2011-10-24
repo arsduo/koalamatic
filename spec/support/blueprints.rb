@@ -82,3 +82,9 @@ def make_env(attrs = {})
     :method => "get"
   }.merge(attrs || {})  
 end
+
+def mock_koalatest
+  KoalaTest.stubs(:app_id).returns(rand(2^64).to_i.to_s)
+  KoalaTest.stubs(:user1).returns(rand(2^64).to_i)
+  KoalaTest.stubs(:user2).returns(rand(2^64).to_i)
+end
