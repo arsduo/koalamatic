@@ -45,8 +45,10 @@ module Facebook
       elsif @url && @url.path == "/"
         # we're querying the batch API
         "batch_api"
-      elsif @object == "me" || @object == KoalaTest.user1.to_s || @object == KoalaTest.user2.to_s
+      elsif @object == "me" || (@object == KoalaTest.user1.to_s || @object == KoalaTest.user2.to_s rescue nil)
         # we know these users
+        # the rescue is for the calls to actually set up the test users, before which they obviously don't exist
+        # to be removed when that's fixed in Koala
         "user"
       elsif @object == KoalaTest.app_id.to_s
         "app"
