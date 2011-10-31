@@ -1,4 +1,4 @@
-class CreateApiCalls < ActiveRecord::Migration
+class CreateApiCallsOld < ActiveRecord::Migration
   def change
     create_table :api_calls do |t|
       # request info
