@@ -40,10 +40,8 @@ group :test do
   # test content
   gem 'machinist', '>= 2.0.0beta2'
   gem "mocha"
-  gem "autotest"
-  gem "autotest-rails"
-  gem "autotest-fsevent"
-  gem "autotest-growl"
+  gem "guard"
+  gem 'guard-rspec'
   gem "ZenTest"
   gem "faker"
   gem "remarkable", '>= 4.0.0alpha4'
@@ -51,6 +49,9 @@ group :test do
   
   # javascript
   gem "jasmine"
+  gem 'jasmine-headless-webkit'
+  gem "guard-jasmine-headless-webkit"
+
 end
 
 # Use unicorn as the web server
