@@ -3,7 +3,7 @@ require 'base/analysis/matchers/matcher'
 
 describe Koalamatic::Base::Analysis::Matcher do
   include Koalamatic::Base
-  include Analysis
+  include Koalamatic::Base::Analysis
 
   after :each do
     Matcher.conditions = {}
@@ -214,9 +214,7 @@ describe Koalamatic::Base::Analysis::Matcher do
         Matcher.test(@interaction).should be_an(ApiCall)
       end
       
-      it "creates a new ApiCall object if there is none" do
-        
-      end
+      it "creates a new ApiCall object if there is none"
     end
     
     context "if not a match" do

@@ -1,10 +1,9 @@
 require 'spec_helper'
-require 'base/api_analyzer'
-
+require 'base/analysis/api_analyzer'
 
 describe Koalamatic::Base::Analysis::ApiAnalyzer do
   include Koalamatic::Base
-  include Analysis
+  include Koalamatic::Base::Analysis
 
   it "has a matchers array" do
     ApiAnalyzer.matchers.should be_an(Array)

@@ -8,8 +8,6 @@ describe Facebook::ErrorComparison do
     before :each do
       begin; raise Exception; rescue Exception => @err1; end
       begin; raise Exception; rescue Exception => @err2; end
-      puts "E1: #{@err1.message}"
-      puts "E2: #{@err2.message}"
     end
     
     context "validating the exceptions" do

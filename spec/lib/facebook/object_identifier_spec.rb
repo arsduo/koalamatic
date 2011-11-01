@@ -15,6 +15,9 @@ describe Facebook::ObjectIdentifier do
     @api = stub("api")
     Koala::Facebook::API.stubs(:new).returns(@api)
     @api.stubs(:get_object)    
+    
+    # no warnings during test runs
+    Rails.logger.stubs(:spec)
   end
 
   describe "KNOWN_FACEBOOK_OPERATIONS" do
