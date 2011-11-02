@@ -11,7 +11,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111021081441) do
+ActiveRecord::Schema.define(:version => 20111031161445) do
+
+  create_table "api_calls", :force => true do |t|
+    t.string   "verb"
+    t.string   "category"
+    t.string   "path_format"
+    t.string   "object"
+    t.string   "subject"
+    t.string   "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "api_interactions", :force => true do |t|
     t.string   "method"
