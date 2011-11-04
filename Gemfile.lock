@@ -176,6 +176,7 @@ GEM
     slim (1.0.3)
       temple (~> 0.3.4)
       tilt (~> 1.3.2)
+    spork (0.9.0.rc9)
     sprockets (2.0.3)
       hike (~> 1.2)
       rack (~> 1.0)
@@ -235,6 +236,7 @@ DEPENDENCIES
   rspec-rails (~> 2.7)
   sass-rails
   slim
+  spork (~> 0.9.0.rc)
   thin
   twitter
   typhoeus

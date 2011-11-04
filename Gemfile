@@ -37,7 +37,8 @@ group :test, :development do
 end
 
 group :test do
-  # test content
+  # Koalamatic testing
+  # (as opposed to the tests we run against Facebook)
   gem 'machinist', '>= 2.0.0beta2'
   gem "mocha"
   gem "autotest"
@@ -48,6 +49,7 @@ group :test do
   gem "faker"
   gem "remarkable", '>= 4.0.0alpha4'
   gem "benhutton-remarkable_activerecord"
+  gem 'spork', '~> 0.9.0.rc'
   
   # javascript
   gem "jasmine"
