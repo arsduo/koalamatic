@@ -12,18 +12,21 @@ describe Koalamatic::Base::Analysis::ApiAnalyzer do
   describe ".analyze" do
     before :each do
       @call = ApiInteraction.new
-      @matcher1 = stub("matcher", :match => nil)
-      @matcher2 = stub("matcher2", :match => nil)
-      ApiAnalyzer.stubs(:matchers).returns([@matcher1, @matcher2])
+      @matcher1 = stub("matcher1")
+      @matcher1.stubs(:test)
+      @matcher2 = stub("matcher2")
+      @matcher2.stubs(:test)
+      ApiAnalyzer.matchers << @matcher1
+      ApiAnalyzer.matchers << @matcher2
     end
     
     it "errors if not provided an ApiInteraction" do
-      expect { ApiAnalyzer.analyze(Object.new) }.to_raise ArgumentError
+      expect { ApiAnalyzer.analyze(Object.new) }.to raise_exception(ArgumentError) 
     end
 
     it "check the provided against all the matchers" do
-      stub1.expects(:test).with(call)
-      stub2.expects(:test).with(call)      
+      @matcher1.expects(:test).with(@call)
+      @matcher2.expects(:test).with(@call)      
       ApiAnalyzer.analyze(@call)
     end
 

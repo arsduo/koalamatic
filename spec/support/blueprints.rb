@@ -1,6 +1,8 @@
 require 'base/test_run'
 require 'base/test_case'
 require 'base/version'
+require 'base/api_interaction'
+require 'base/api_call'
 
 TEST_RUN_BLUEPRINT = Proc.new do
 end
@@ -18,6 +20,23 @@ Koalamatic::Base::TestCase.blueprint &TEST_CASE_BLUEPRINT
 Koalamatic::Base::Version.blueprint do
   app_tag { Digest::MD5.hexdigest(Time.now.to_s) }
   test_gems_tag { Digest::MD5.hexdigest(Time.now.to_s + rand(1000).to_s) }
+end
+
+Koalamatic::Base::ApiInteraction.blueprint do
+  verb { "get" }
+  path { Faker::Lorem.words(3).join("/") }
+  host { Faker::Internet.domain_name }
+  boolean { true }
+  duration { 3.0 }  
+end
+
+Koalamatic::Base::ApiCall.blueprint do  
+  verb { "get" }
+  category { "graph" }
+  path_format { "ID/picture" }
+  object { "user" }
+  subject { "photo" }
+  description { "Getting a user's picture" }
 end
 
 def test_run_completed(attrs = {})

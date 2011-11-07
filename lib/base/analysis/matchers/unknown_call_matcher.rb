@@ -1,8 +1,10 @@
+require 'base/analysis/matchers/matcher'
+
 module Koalamatic
   module Base
     module Analysis
       class UnknownCallMatcher < Matcher
-        def self.match?(interaction)
+        def self.test(interaction)
         end
       end
     end

@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'base/analysis/matchers/matcher'
+require 'base/api_call'
 
 describe Koalamatic::Base::Analysis::Matcher do
   include Koalamatic::Base
