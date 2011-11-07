@@ -65,53 +65,53 @@ describe Koalamatic::Base::ApiInteraction do
         ApiInteraction.new(@params).host.should == @url.host
       end
 
-      context "determining method" do
+      context "determining verb" do
         it "sets method to env[:method] if there's no method in the request body" do
           @env[:body] = "no_http_here"
-          ApiInteraction.new(@params).method.should == @env[:method]
+          ApiInteraction.new(@params).verb.should == @env[:method]
         end
 
         it "sets method to the request body's method if present as method=value" do
-          method = Faker::Lorem.words(1).join
-          @params[:request_body] = "method=#{method}&abc=3"
-          ApiInteraction.new(@params).method.should == method
+          verb = Faker::Lorem.words(1).join
+          @params[:request_body] = "method=#{verb}&abc=3"
+          ApiInteraction.new(@params).verb.should == verb
         end
 
         it "sets method to the request body's method if present as _method=value" do
-          method = Faker::Lorem.words(1).join
-          @params[:request_body] = "abc=3&_method=#{method}"
-          ApiInteraction.new(@params).method.should == method
+          verb = Faker::Lorem.words(1).join
+          @params[:request_body] = "abc=3&_method=#{verb}"
+          ApiInteraction.new(@params).verb.should == verb
         end
       
         it "sets method to the request body's method if the body is a hash with :method => value" do
-          method = Faker::Lorem.words(1).join
-          @params[:request_body] = {:method => method}
-          ApiInteraction.new(@params).method.should == method
+          verb = Faker::Lorem.words(1).join
+          @params[:request_body] = {:method => verb}
+          ApiInteraction.new(@params).verb.should == verb
         end
 
         it "sets method to the request body's method if the body is a hash with :_method => value" do
-          method = Faker::Lorem.words(1).join
-          @params[:request_body] = {:_method => method}
-          ApiInteraction.new(@params).method.should == method
+          verb = Faker::Lorem.words(1).join
+          @params[:request_body] = {:_method => verb}
+          ApiInteraction.new(@params).verb.should == verb
         end
 
         it "sets method to the request body's method if the body is a hash with 'method' => value" do
-          method = Faker::Lorem.words(1).join
-          @params[:request_body] = {"method" => method}
-          ApiInteraction.new(@params).method.should == method
+          verb = Faker::Lorem.words(1).join
+          @params[:request_body] = {"method" => verb}
+          ApiInteraction.new(@params).verb.should == verb
         end
 
         it "sets method to the request body's method if the body is a hash with '_method' => value" do
-          method = Faker::Lorem.words(1).join
-          @params[:request_body] = {"_method" => method}
-          ApiInteraction.new(@params).method.should == method
+          verb = Faker::Lorem.words(1).join
+          @params[:request_body] = {"_method" => verb}
+          ApiInteraction.new(@params).verb.should == verb
         end
 
         it "does not use the response body to determine the method" do
-          method = Faker::Lorem.words(1).join
+          verb = Faker::Lorem.words(1).join
           @env[:body] = "_method=myBadMethod"
-          @params[:request_body] = "abc=3&_method=#{method}"
-          ApiInteraction.new(@params).method.should == method
+          @params[:request_body] = "abc=3&_method=#{verb}"
+          ApiInteraction.new(@params).verb.should == verb
         end
       end
 
@@ -145,7 +145,7 @@ describe Koalamatic::Base::ApiInteraction do
     context "if provided with direct values" do
       it "uses those values in creating the record" do
         params = {
-          "method" => "foo",
+          "verb" => "foo",
           "path" => "bar"
         }
         ApiInteraction.new(params).attributes.should include(params)

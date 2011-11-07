@@ -33,7 +33,7 @@ module Koalamatic
 
       def attributes_from_call
         a = {
-          :method => determine_method,
+          :verb => determine_verb,
           :request_body => @original_body.to_yaml,
           :path => @url.path,
           :host => @url.host,
@@ -44,12 +44,12 @@ module Koalamatic
         }
       end
 
-      def determine_method
+      def determine_verb
         # verbs other than GET and POST are sometimes conveyed in the body
-        get_method_from_body(@original_body) || @env[:method]
+        get_verb_from_body(@original_body) || @env[:method]
       end
       
-      def get_method_from_body(body)
+      def get_verb_from_body(body)
         if body.is_a?(String) && string_method = body.split("&").find {|param| param =~ /method=/}
           string_method.split("=").last
         elsif body.is_a?(Hash)

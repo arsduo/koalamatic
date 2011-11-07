@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111107101907) do
+ActiveRecord::Schema.define(:version => 20111107115447) do
 
   create_table "api_calls", :force => true do |t|
     t.string   "verb"
@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(:version => 20111107101907) do
   end
 
   create_table "api_interactions", :force => true do |t|
-    t.string   "method"
+    t.string   "verb"
     t.string   "path",            :limit => 400
     t.string   "host"
     t.boolean  "ssl"
