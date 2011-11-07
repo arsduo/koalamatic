@@ -28,7 +28,6 @@ module Koalamatic
         super(attrs, options)
       end
 
-
       private
 
       def attributes_from_call

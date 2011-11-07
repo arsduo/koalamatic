@@ -26,7 +26,7 @@ Koalamatic::Base::ApiInteraction.blueprint do
   verb { "get" }
   path { Faker::Lorem.words(3).join("/") }
   host { Faker::Internet.domain_name }
-  boolean { true }
+  ssl { true }
   duration { 3.0 }  
 end
 

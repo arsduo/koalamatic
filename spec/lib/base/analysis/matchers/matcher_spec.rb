@@ -3,7 +3,7 @@ require 'base/analysis/matchers/matcher'
 require 'base/api_call'
 
 describe Koalamatic::Base::Analysis::Matcher do
-  include Koalamatic::Base
+  include Koalamatic::Base 
   include Koalamatic::Base::Analysis
 
   after :each do
@@ -15,25 +15,17 @@ describe Koalamatic::Base::Analysis::Matcher do
   end
 
   describe ".add_condition" do
-    it "complains if not passed arguments" do
-      expect { Matcher.add_conditions("foo") }.to raise_exception(ArgumentError)
-    end
-
-    it "complains if not passed a hash" do
-      expect { Matcher.add_conditions("foo", []) }.to raise_exception(ArgumentError)
-    end
-
     it "tracks the condition and its params" do
       condition_name = Faker::Lorem.words(1).first
-      conditions = {:url => "/foo/bar"}
+      conditions = "/foo/bar"
       Matcher.add_condition(condition_name, condition)
       Matcher.conditions[condition_name].should == conditions
     end
 
-    it "tracks the condition and its params" do
+    it "overwrites a condition if called again for the same name twice" do
       condition_name = Faker::Lorem.words(1).first
-      conditions = {:url => "/foo/bar"}
-      new_conditions = {:foo => :baz}
+      conditions = "/foo/bar"
+      new_conditions = /baz|bam/
       Matcher.add_condition(condition_name, condition)
       Matcher.add_condition(condition_name, new_condition)
       Matcher.conditions[condition_name].should == new_conditions
@@ -200,12 +192,12 @@ describe Koalamatic::Base::Analysis::Matcher do
     before :each do
       @interaction = ApiInteraction.make
     end
-    
+     
     it "tests the interaction" do
       Matcher.expects(:match?).with(@interaction)
       Matcher.test(@interaction)
     end
-    
+     
     context "if it's a match" do
       before :each do
         @record = ApiCall.make

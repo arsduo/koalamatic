@@ -2,11 +2,19 @@ module Koalamatic
   module Base
     module Analysis
       class Matcher
+        class << self
+          attr_accessor :conditions
+        end
+        @conditions = {}
+        
+        def self.add_condition(name, value)
+          @conditions[name] = value
+        end
+        
 =begin
       def self.match?(interaction)
       end
 
-      @matchers = {}
 
       def self.match?(interaction)
         @matchers.each_pair do |attribute, match_data|
