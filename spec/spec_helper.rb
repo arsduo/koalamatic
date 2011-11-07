@@ -1,46 +1,47 @@
-# This file is copied to spec/ when you run 'rails generate rspec:install'
-ENV["RAILS_ENV"] ||= 'test'
+require 'rubygems'
+require 'spork'
 
-require File.expand_path("../../config/environment", __FILE__)
-require 'rspec/rails'
-require 'remarkable/core'
-require 'remarkable/active_record'
-require 'machinist/active_record'
-require 'faker'
+Spork.prefork do
+  # Loading more in this block will cause your tests to run faster. However,
+  # if you change any configuration or code from libraries loaded here, you'll
+  # need to restart spork for it take effect.
 
-# Requires supporting ruby files with custom matchers and macros, etc,
-# in spec/support/ and its subdirectories.
-Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
+  # This file is copied to spec/ when you run 'rails generate rspec:install'
+  ENV["RAILS_ENV"] ||= 'test'
 
-RSpec.configure do |config|
-  # == Mock Framework
-  #
-  # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
-  #
-  config.mock_with :mocha
+  require File.expand_path("../../config/environment", __FILE__)
+  require 'rspec/rails'
+  require 'remarkable/core'
+  require 'remarkable/active_record'
+  require 'machinist/active_record'
+  require 'faker'
+  
+  RSpec.configure do |config|
+    config.mock_with :mocha
+  end
 
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  # config.fixture_path = "#{::Rails.root}/spec/fixtures"
-
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
-  # config.use_transactional_fixtures = true
-
-  # config.include Rack::Test::Methods
-
+  # make sure Routes don't get reloaded inappropriately
+  Spork.trap_method(Rails::Application::RoutesReloader, :reload!)
+  
 end
 
-# reroute Rails logger to stdout
-Rails.logger = Logger.new(STDOUT)
+Spork.each_run do
+  # This code will be run each time you run your specs.
 
-# Speed up integrated tests
-Sass::Plugin.options[:always_check] = false
-Sass::Plugin.options[:always_update] = false
+  # load with each_run in case blueprints or other supporting code change
+  Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
-# never sleep (called in TestRunner)
-RSpec.configure do |config|
-  config.before :suite do
-    Kernel.stubs(:sleep)
+  # reroute Rails logger to stdout
+  Rails.logger = Logger.new(STDOUT)
+
+  # Speed up integrated tests (will be useful when we hit view/integration testing)
+  Sass::Plugin.options[:always_check] = false
+  Sass::Plugin.options[:always_update] = false
+
+  # never sleep (called in TestRunner)
+  RSpec.configure do |config|
+    config.before :suite do
+      Kernel.stubs(:sleep)
+    end
   end
 end

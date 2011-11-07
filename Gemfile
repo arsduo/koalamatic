@@ -16,7 +16,8 @@ gem "git"
 gem "kaminari"
 
 # platform core
-gem "rspec", "~> 2.7"
+RSPEC_VERSION = "~> 2.8.0.rc1" # used by rspec and rspec-rails
+gem "rspec", RSPEC_VERSION
 gem "rake"
 gem 'mysql2'
 gem 'pg'
@@ -33,11 +34,12 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 group :test, :development do
-  gem "rspec-rails", "~> 2.7"
+  gem "rspec-rails", RSPEC_VERSION
 end
 
 group :test do
-  # test content
+  # Koalamatic testing
+  # (as opposed to the tests we run against Facebook)
   gem 'machinist', '>= 2.0.0beta2'
   gem "mocha"
   gem "guard"
@@ -46,6 +48,7 @@ group :test do
   gem "faker"
   gem "remarkable", '>= 4.0.0alpha4'
   gem "benhutton-remarkable_activerecord"
+  gem 'spork', '~> 0.9.0.rc'
   
   # javascript
   gem "jasmine"
