@@ -207,14 +207,29 @@ describe Koalamatic::Base::Analysis::Matcher do
     
     context "if it's a match" do
       before :each do
+        @record = ApiCall.make
+        Matcher.expects(:find_or_create_api_call).returns(@record)
         Matcher.expects(:match?).returns(true)
       end
       
-      it "returns an ApiCall object" do
-        Matcher.test(@interaction).should be_an(ApiCall)
+      it "finds or creates an ApiCall record" do
+        Matcher.expects(:find_or_create_api_call).with(@interaction)
+        Matcher.test(@interaction)
       end
       
-      it "creates a new ApiCall object if there is none"
+      it "returns the found or created ApiCall" do
+        Matcher.test(@interaction).should == @record
+      end
+      
+      it "associates this ApiInteraction with the ApiCall" do
+        Matcher.test(@interaction)
+        @interaction.api_call.should == @record
+      end
+      
+      it "saves the ApiInteraction record" do
+        Matcher.test(@interaction)
+        @interaction.api_call.should == @record
+      end      
     end
     
     context "if not a match" do
@@ -225,6 +240,34 @@ describe Koalamatic::Base::Analysis::Matcher do
       it "returns nil" do
         Matcher.test(@interaction).should be_nil
       end
+    end
+  end
+
+  describe ".find_or_create_api_call" do
+    before :each do
+      @interaction = ApiInteraction.make
+    end
+
+    it "looks for a matching record" do
+      hash = {}
+      # protected method, used by subclasses
+      Matcher.stubs(:where_clause).returns(hash)
+      ApiCall.expects(:where).with(hash)
+      Matcher.find_or_create_api_call(@interaction)
+    end
+    
+    it "returns it if found" do
+      record = stub("record")
+      ApiCall.expects(:where).with(hash).returns(record)
+      Matcher.find_or_create_api_call(@interaction).should == record      
+    end
+    
+    it "creates a saved new record if not" do
+      # that the record created has the appropriate details will be tested in subclasses
+      ApiCall.expects(:where).with(hash)
+      result = Matcher.find_or_create_api_call(@interaction)
+      result.should be_an(ApiCall)
+      result.should_not be_a_new_record
     end
   end
 end
