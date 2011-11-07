@@ -42,20 +42,41 @@ group :test do
   # (as opposed to the tests we run against Facebook)
   gem 'machinist', '>= 2.0.0beta2'
   gem "mocha"
-  gem "guard"
-  gem 'guard-rspec'
   gem "ZenTest"
   gem "faker"
   gem "remarkable", '>= 4.0.0alpha4'
   gem "benhutton-remarkable_activerecord"
   gem 'spork', '~> 0.9.0.rc'
-  
+
   # javascript
   gem "jasmine"
   gem 'jasmine-headless-webkit'
+
+  # guard and spork
+  gem 'guard', :git => 'git://github.com/guard/guard.git', :branch => 'dev'
+  gem 'guard-rspec'
+  gem 'guard-spork'
   gem "guard-jasmine-headless-webkit"
 
+  # OS X integration
+  gem "ruby_gntp"
+  gem "rb-fsevent", "~> 0.4.3.1"
 end
+
+=begin
+# spork comes first
+guard 'spork', :cucumber_env => { 'RAILS_ENV' => 'test' }, :rspec_env => { 'RAILS_ENV' => 'test' } do
+  watch('config/application.rb')
+  watch('config/environment.rb')
+  watch(%r{^config/environments/.+\.rb$})
+  watch(%r{^config/initializers/.+\.rb$})
+  watch('Gemfile')
+  watch('Gemfile.lock')
+  watch('spec/spec_helper.rb')
+  watch('test/test_helper.rb')
+end
+
+=end
 
 # Use unicorn as the web server
 # gem 'unicorn'
