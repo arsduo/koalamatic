@@ -10,16 +10,22 @@ module Koalamatic
       attr_reader :env, :original_body, :url
 
       def initialize(call_details = {}, options = {})
-        arg_check = [:env, :duration].inject([]) {|errs, p| errs << p unless call_details[p]; errs}
-        raise ArgumentError, "Missing #{arg_check.join(",")} in ApiInteraction.create_from_call" if arg_check.length > 0
-
-        @env = call_details[:env]
-        @duration = call_details[:duration]
-        @original_body = call_details[:request_body]
-        @url = @env[:url]
+        # this may be more magic than it's worth
+        # it's nice to be able to use instance variables for env, body, etc.
+        # but that could be accomplished, albeit less elegantly, by passing those values around
+        # and wouldn't complicate the initialize method 
+        if (@env = call_details[:env]) && (@duration = call_details[:duration])
+          # we can be initialized either with details from a Faraday call, or directly
+          # if we detect a call details (an environment and a duration), process them          
+          @original_body = call_details[:request_body]
+          @url = @env[:url]
+          attrs = attributes_from_call.merge(:test_run => call_details[:run])
+        else
+          attrs = call_details
+        end
 
         # initialize the AR with the appropriate attributes
-        super(attributes_from_call.merge(:test_run => call_details[:run]), options)
+        super(attrs, options)
       end
 
 
