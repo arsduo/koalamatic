@@ -2,7 +2,8 @@ module Koalamatic
   module Base
     class ApiInteraction < ActiveRecord::Base
       belongs_to :test_run
-
+      belongs_to :api_call
+      
       # we expose these less because they're useful to access from outside
       # and more to commit to their availability since subclasses use them heavily
       # to do: could these become protected attributes?

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111031161445) do
+ActiveRecord::Schema.define(:version => 20111107101907) do
 
   create_table "api_calls", :force => true do |t|
     t.string   "verb"
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(:version => 20111031161445) do
     t.integer  "test_run_id"
     t.string   "request_body"
     t.string   "query_string"
+    t.integer  "api_call_id"
   end
 
   create_table "test_cases", :force => true do |t|

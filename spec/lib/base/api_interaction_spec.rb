@@ -13,6 +13,10 @@ describe Koalamatic::Base::ApiInteraction do
     ApiInteraction.should belong_to(:test_run)
   end
   
+  it "belongs_to api_call" do
+    ApiInteraction.should belong_to(:api_call)
+  end
+  
   describe ".new" do
     before :each do
       @env = make_env(:url => {:inferred_port => 81})
