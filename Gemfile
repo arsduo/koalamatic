@@ -16,7 +16,8 @@ gem "git"
 gem "kaminari"
 
 # platform core
-gem "rspec", "~> 2.7"
+RSPEC_VERSION = "~> 2.8.0.rc1" # used by rspec and rspec-rails
+gem "rspec", RSPEC_VERSION
 gem "rake"
 gem 'mysql2'
 gem 'pg'
@@ -33,7 +34,7 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 group :test, :development do
-  gem "rspec-rails", "~> 2.7"
+  gem "rspec-rails", RSPEC_VERSION
 end
 
 group :test do
