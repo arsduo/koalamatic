@@ -4,14 +4,45 @@ module Koalamatic
       class Matcher
         class << self
           attr_accessor :conditions
-        end
-        @conditions = {}
-        
-        def self.add_condition(name, value)
-          @conditions[name] = value
-        end
-        
+          def conditions
+            # ensure conditions are available for subclasses immediately
+            # (since they don't inherit instance variables)
+            @conditions ||= {}
+          end
+
+          def add_condition(name, *args, &block)
+            matcher = args.length > 0 ? (args.length == 1 ? args.first : args) : block
+            raise ArgumentError, "You must specify argument or a block for add_condition / dynamic condition statements" if matcher.blank?
+            # store a single matcher as itself, multiples in an array, and if none provided, the block
+            conditions[name] = matcher
+          end
 =begin
+class << Koalamatic::Base::Analysis::Matcher
+  define_method(method_name) do |*args, &block|
+    add_condition(method_name, args)
+  end
+end
+=end
+          def method_missing(method_name, *args, &block)
+            if ApiInteraction.column_names.include?(method_name.to_s)
+              # we define this on the base matcher class, so that it's available to all matchers
+              # it took some experimentation to figure out the right object to eval against
+              Koalamatic::Base::Analysis::Matcher.class.class_eval <<-DEFINING
+                define_method(:#{method_name}) do |*args, &block|
+                  add_condition(:#{method_name}, *args)
+                end
+              DEFINING
+              
+              self.send(method_name, *args)
+            else
+              # raise
+              super
+            end
+          end
+        end # class << self
+=begin
+
+
       def self.match?(interaction)
       end
 

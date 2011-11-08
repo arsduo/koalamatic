@@ -14,38 +14,69 @@ describe Koalamatic::Base::Analysis::Matcher do
     Matcher.conditions.should be_a(Hash)
   end
 
-  describe ".add_condition" do
-    it "tracks the condition and its params" do
-      condition_name = Faker::Lorem.words(1).first
-      conditions = "/foo/bar"
-      Matcher.add_condition(condition_name, condition)
-      Matcher.conditions[condition_name].should == conditions
+  describe ".add_condition" do   
+    before :each do
+      @condition_name = Faker::Lorem.words(1).first   
+    end
+    
+    it "tracks the condition" do
+      condition = "/foo/bar"
+      Matcher.add_condition(@condition_name, condition)
+      Matcher.conditions[@condition_name].should_not be_nil
+    end
+    
+    it "unwraps single conditions from the *args array" do
+      Matcher.add_condition(@condition_name, "foo")
+      Matcher.conditions[@condition_name].should be_a(String)
     end
 
-    it "overwrites a condition if called again for the same name twice" do
-      condition_name = Faker::Lorem.words(1).first
-      conditions = "/foo/bar"
-      new_conditions = /baz|bam/
-      Matcher.add_condition(condition_name, condition)
-      Matcher.add_condition(condition_name, new_condition)
-      Matcher.conditions[condition_name].should == new_conditions
+    it "stores multiple arguments in an array" do
+      args = ["3", "2", :def]
+      Matcher.add_condition(@condition_name, *args)
+      Matcher.conditions[@condition_name].should == args      
     end
+    
+    it "overwrites a condition if called again for the same name twice" do
+      condition = "/foo/bar"
+      new_condition = /baz|bam/
+      Matcher.add_condition(@condition_name, condition)
+      Matcher.add_condition(@condition_name, new_condition)
+      Matcher.conditions[@condition_name].should == new_condition
+    end
+    
+    it "stores a block if no arguments are provided" do
+      Matcher.add_condition(@condition_name) { }
+      Matcher.conditions[@condition_name].should be_a(Proc)
+    end
+    
+    it "ignores the block if arguments are provided" do
+      Matcher.add_condition(@condition_name, "foo") { }
+      Matcher.conditions[@condition_name].should be_a(String)
+    end
+    
+    it "raises ArgumentError if no argument is provided" do
+      expect { Matcher.add_condition(@condition_name) }.to raise_exception(ArgumentError)
+    end 
   end
 
   describe ".method_missing" do
     before :each do
-      @method = Faker::Lorem.words(1).first
+      @method = Faker::Lorem.words(1).first.to_sym
     end
 
     context "if the method matches an ApiInteraction column" do
       before :each do
-        ApiInteraction.column_names.stubs(:include?).with(@method).returns(true)
+        ApiInteraction.column_names << @method.to_s # column_names are strings
         @args = {:foo => stub("argument"), :bar => stub("arg2")}
+      end
+      
+      after :each do
+        ApiInteraction.column_names.delete_if {|m| m == @method}        
       end
 
       it "defines a new class method for the desired column" do
         Matcher.should_not respond_to(@method)
-        Matcher.send(@method)
+        Matcher.send(@method, @args)
         Matcher.should respond_to(@method)
       end
 
@@ -57,21 +88,21 @@ describe Koalamatic::Base::Analysis::Matcher do
         end
 
         it "calls add_condition with the remaining arguments" do
-          Matcher.send(@method)
-          Matcher.expects(:add_condition).with(@args)
+          Matcher.send(@method, @args)
+          Matcher.expects(:add_condition).with(@method, @args)
           Matcher.send(@method, @args)
         end
       end
 
-      it "calls the new method with the given arguments" do
-        Matcher.expects(:add_condition).with(@args)
+      it "calls the new method after defining it" do
+        Matcher.expects(:add_condition).with(@method, @args)
         Matcher.send(@method, @args)
       end
     end
 
     context "if the method doesn't match a column name" do
       it "follows the regular path" do
-        expect { Matcher.send(@method) }.to raise_exception(NoMethodError)
+        expect { Matcher.send(@method, @args) }.to raise_exception(NoMethodError)
       end
     end
   end
@@ -79,13 +110,13 @@ describe Koalamatic::Base::Analysis::Matcher do
   describe ".url" do
     it "adds the results as the url condition" do
       args = ["a", "b", "c"]
-      Matcher.expects(:add_condition).with(hash_including(:url => anything))
+      Matcher.expects(:add_condition).with(has_entries(:url => anything))
       Matcher.url(*args)
     end
 
     it "joins the arguments with \/, prepending ^/, as a regular expression" do
       args = ["a", "b", "c"]
-      Matcher.expects(:add_condition).with(hash_including("^/" + Regexp.new(args.join("\/"))))
+      Matcher.expects(:add_condition).with(has_entries("^/" + Regexp.new(args.join("\/"))))
       Matcher.url(*args)
     end
 
@@ -94,7 +125,7 @@ describe Koalamatic::Base::Analysis::Matcher do
       regexp2 = /def/
       args = [regexp1, "b", regexp2]
       expected = args.collect {|s| s.to_s}
-      Matcher.expects(:add_condition).with(hash_including(Regexp.new(expected.join("\/"))))
+      Matcher.expects(:add_condition).with(has_entries(Regexp.new(expected.join("\/"))))
       Matcher.url(*args)
     end
 
