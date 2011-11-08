@@ -107,17 +107,17 @@ describe Koalamatic::Base::Analysis::Matcher do
     end
   end
 
-  describe ".url" do
-    it "adds the results as the url condition" do
+  describe ".path" do
+    it "adds the results as the path condition" do
       args = ["a", "b", "c"]
-      Matcher.expects(:add_condition).with(has_entries(:url => anything))
-      Matcher.url(*args)
+      Matcher.expects(:add_condition).with(:path, any_parameters)
+      Matcher.path(*args)
     end
-
+    
     it "joins the arguments with \/, prepending ^/, as a regular expression" do
       args = ["a", "b", "c"]
-      Matcher.expects(:add_condition).with(has_entries("^/" + Regexp.new(args.join("\/"))))
-      Matcher.url(*args)
+      Matcher.expects(:add_condition).with(:path, includes("^/" + Regexp.new(args.join("\/"))))
+      Matcher.path(*args)
     end
 
     it "turns regular expressions into their string form" do
@@ -125,11 +125,11 @@ describe Koalamatic::Base::Analysis::Matcher do
       regexp2 = /def/
       args = [regexp1, "b", regexp2]
       expected = args.collect {|s| s.to_s}
-      Matcher.expects(:add_condition).with(has_entries(Regexp.new(expected.join("\/"))))
-      Matcher.url(*args)
+      Matcher.expects(:add_condition).with(:path, includes(Regexp.new(expected.join("\/"))))
+      Matcher.path(*args)
     end
 
-    context "url helper methods" do
+    context "path helper methods" do
       describe ".any_segments" do
         it "returns a regexp for one or more segments" do
           Matcher.any_segment.should == /.+/
