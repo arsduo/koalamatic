@@ -22,18 +22,7 @@ describe Koalamatic::Base::Analysis::Matcher do
     it "tracks the condition" do
       condition = "/foo/bar"
       Matcher.add_condition(@condition_name, condition)
-      Matcher.conditions[@condition_name].should_not be_nil
-    end
-    
-    it "unwraps single conditions from the *args array" do
-      Matcher.add_condition(@condition_name, "foo")
-      Matcher.conditions[@condition_name].should be_a(String)
-    end
-
-    it "stores multiple arguments in an array" do
-      args = ["3", "2", :def]
-      Matcher.add_condition(@condition_name, *args)
-      Matcher.conditions[@condition_name].should == args      
+      Matcher.conditions[@condition_name].should == condition
     end
     
     it "overwrites a condition if called again for the same name twice" do
@@ -87,6 +76,26 @@ describe Koalamatic::Base::Analysis::Matcher do
           Matcher.should respond_to(@method)
         end
 
+        it "calls add_condition with the remaining arguments" do
+          Matcher.send(@method, @args)
+          Matcher.expects(:add_condition).with(@method, @args)
+          Matcher.send(@method, @args)
+        end
+        
+        it "passes a block provided" do
+          yielded = false
+          # we have to split this into two parts due to how blocks get passed around
+          # (e.g. Mocha's matchers can't directly detect that a block was passed in)
+          # instead, we detect first that the right regular arguments are included
+          # then we execute the block that we expect to be passed
+          Matcher.expects(:add_condition).with(@method, nil).yields
+          Matcher.send(@method) do
+            yielded = true
+          end
+          # and check if the block was indeed passed
+          yielded.should be_true
+        end
+        
         it "calls add_condition with the remaining arguments" do
           Matcher.send(@method, @args)
           Matcher.expects(:add_condition).with(@method, @args)

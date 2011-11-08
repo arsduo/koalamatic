@@ -10,26 +10,19 @@ module Koalamatic
             @conditions ||= {}
           end
 
-          def add_condition(name, *args, &block)
-            matcher = args.length > 0 ? (args.length == 1 ? args.first : args) : block
-            raise ArgumentError, "You must specify argument or a block for add_condition / dynamic condition statements" if matcher.blank?
+          def add_condition(name, condition = nil, &block)
+            raise ArgumentError, "You must specify argument or a block for add_condition / dynamic condition statements" if condition.blank? && !block
             # store a single matcher as itself, multiples in an array, and if none provided, the block
-            conditions[name] = matcher
+            conditions[name] = condition || block
           end
-=begin
-class << Koalamatic::Base::Analysis::Matcher
-  define_method(method_name) do |*args, &block|
-    add_condition(method_name, args)
-  end
-end
-=end
+
           def method_missing(method_name, *args, &block)
             if ApiInteraction.column_names.include?(method_name.to_s)
               # we define this on the base matcher class, so that it's available to all matchers
               # it took some experimentation to figure out the right object to eval against
               Koalamatic::Base::Analysis::Matcher.class.class_eval <<-DEFINING
                 define_method(:#{method_name}) do |*args, &block|
-                  add_condition(:#{method_name}, *args)
+                  add_condition(:#{method_name}, args[0], &block)
                 end
               DEFINING
               
