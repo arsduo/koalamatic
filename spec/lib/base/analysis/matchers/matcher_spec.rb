@@ -88,10 +88,10 @@ describe Koalamatic::Base::Analysis::Matcher do
           # (e.g. Mocha's matchers can't directly detect that a block was passed in)
           # instead, we detect first that the right regular arguments are included
           # then we execute the block that we expect to be passed
-          Matcher.expects(:add_condition).with(@method, nil).yields
-          Matcher.send(@method) do
-            yielded = true
-          end
+          # (we could also check if conditions[@matcher] == block...)
+          #  but this way is independent of how add_condition works / whether other args are passed)
+          Matcher.expects(:add_condition).yields
+          Matcher.send(@method) { yielded = true }
           # and check if the block was indeed passed
           yielded.should be_true
         end
@@ -117,7 +117,7 @@ describe Koalamatic::Base::Analysis::Matcher do
   end
 
   describe ".path" do
-    it "adds the results as the path condition" do
+    it "adds a path condition" do
       args = ["a", "b", "c"]
       Matcher.expects(:add_condition).with(:path, any_parameters)
       Matcher.path(*args)
@@ -125,16 +125,18 @@ describe Koalamatic::Base::Analysis::Matcher do
     
     it "joins the arguments with \/, prepending ^/, as a regular expression" do
       args = ["a", "b", "c"]
-      Matcher.expects(:add_condition).with(:path, includes("^/" + Regexp.new(args.join("\/"))))
+      Matcher.expects(:add_condition).with(anything, Regexp.new("^/" + args.join("\\/")))
+      # do |component, condition|
+        # this is necessary because there seems to be a weird character set bug with the 
       Matcher.path(*args)
     end
 
-    it "turns regular expressions into their string form" do
+    it "turns regular expressions into their string form, joining them" do
       regexp1 = /0-9\_/
       regexp2 = /def/
       args = [regexp1, "b", regexp2]
       expected = args.collect {|s| s.to_s}
-      Matcher.expects(:add_condition).with(:path, includes(Regexp.new(expected.join("\/"))))
+      Matcher.expects(:add_condition).with(anything, Regexp.new("^/" + expected.join("\\/")))
       Matcher.path(*args)
     end
 

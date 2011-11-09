@@ -26,15 +26,32 @@ module Koalamatic
                 end
               DEFINING
               
-              self.send(method_name, *args)
+              self.send(method_name, *args, &block)
             else
               # raise
               super
             end
           end
-        end # class << self
-=begin
+          
+          def path(*args, &block)
+            if args.length > 0
+              add_condition(:path, Regexp.new("^/#{args.collect {|a| process_path_component(a) }.join("\\/")}"))
+            else
+              add_condition(:path, &block)
+            end
+          end
 
+          private
+
+          def process_path_component(component)
+            raise ArgumentError, "Received path component #{component.inspect}, not a String or Regexp" unless component.is_a?(String) || component.is_a?(Regexp)
+            # turn it into a string and prepend it with a /            
+            "#{component.to_s}"
+          end
+        end # class << self
+
+        
+=begin
 
       def self.match?(interaction)
       end
