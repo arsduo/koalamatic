@@ -27,3 +27,9 @@ Koalamatic::Application.configure do
   # Do not compress assets
   config.assets.compress = false
 end
+
+if ENV["DEBUG"]
+  puts "Enabling debugger."
+  require 'ruby-debug'
+  Debugger.start
+end

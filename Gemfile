@@ -34,6 +34,7 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 group :test, :development do
+  gem "ruby-debug19"
   gem "rspec-rails", RSPEC_VERSION
 end
 
