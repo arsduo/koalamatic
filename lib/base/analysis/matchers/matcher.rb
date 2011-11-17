@@ -1,3 +1,5 @@
+require 'base/api_interaction'
+
 module Koalamatic
   module Base
     module Analysis
@@ -41,7 +43,60 @@ module Koalamatic
             end
           end
 
-          private
+          def any_segment
+            /.+/
+          end
+          
+          def facebook_id
+            /[A-Za-z0-9\_]+/
+          end
+          
+          def facebook_keyword
+            /([a-z]+|videos\/uploaded)/
+          end
+                    
+          def match?(interaction)
+            raise ArgumentError, "#{self.class}.match? expected ApiInteraction, got #{interaction.class}" unless interaction.is_a?(ApiInteraction)
+
+            @conditions.each_pair do |attribute, test|
+              unless condition_matches?(interaction, attribute, test)
+                return false
+              end
+            end
+            
+            true
+          end
+          
+          def test(interaction)
+            raise ArgumentError, "#{self.class}.test expected ApiInteraction, got #{interaction.class}" unless interaction.is_a?(ApiInteraction)
+
+            if match?(interaction)
+              # get or create the ApiCall, then associate it with the interaction 
+              record = find_or_create_api_call(interaction)
+              record.api_interactions << interaction
+              record
+            end
+          end
+
+          def find_or_create_api_call(interaction)
+            get_api_call(interaction) || create_api_call(interaction)
+          end
+
+          # TODO refactor this to be private, still tested
+          def condition_matches?(interaction, attribute, test)
+            raise ArgumentError, "ApiInteraction does not respond to tested attribute #{attribute}" unless interaction.respond_to?(attribute)
+            test.send(test.is_a?(Regexp) ? :=~ : :==, interaction.send(attribute))
+          end
+          
+          protected
+
+          def get_api_call(interaction)
+            raise NotImplementedError, "Matcher.get_api_call must be implemented by subclasses"
+          end
+          
+          def create_api_call(interaction)
+            raise NotImplementedError, "Matcher.create_api_call must be implemented by subclasses"
+          end
 
           def process_path_component(component)
             raise ArgumentError, "Received path component #{component.inspect}, not a String or Regexp" unless component.is_a?(String) || component.is_a?(Regexp)

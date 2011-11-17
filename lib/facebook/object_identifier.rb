@@ -6,6 +6,27 @@ module Facebook
       "oauth",
       "fql"
     ]
+    
+    KNOWN_FACEBOOK_CONNECTIONS = [
+      # a partial list
+      "friends",
+      "home",
+      "feed",
+      "likes",
+      "movies",
+      "music",
+      "books",
+      "notes",
+      "permissions",
+      "photos",
+      "albums",
+      "videos",
+      # WTF
+      "videos/uploaded",
+      "events",
+      "groups",
+      "checkins"
+    ]
 
     @@identified_objects = {}
 
