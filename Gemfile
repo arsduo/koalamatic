@@ -8,7 +8,7 @@ gem 'thin'
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
 # use a version of Koala that cleans up after its test users
-gem "koala", :git => "git://github.com/arsduo/koala.git", :ref => "013e58e2a98906e082e888f46e0f12ccdbc6d496"
+gem "koala", :git => "git://github.com/arsduo/koala.git", :branch => "rdoc" #:ref => "013e58e2a98906e082e888f46e0f12ccdbc6d496"
 gem "twitter"
 gem "typhoeus"
 gem "git"
